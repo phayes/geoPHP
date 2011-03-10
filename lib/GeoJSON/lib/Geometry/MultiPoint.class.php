@@ -29,5 +29,8 @@ class MultiPoint extends Collection
     parent::__construct($points);
   }
   
+  public function intersects($distance) {
+    //TODO
+  }
 }
 

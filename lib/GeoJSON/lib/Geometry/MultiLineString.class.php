@@ -28,5 +28,9 @@ class MultiLineString extends Collection
   {
     parent::__construct($linestrings);
   }
+  
+  public function intersects($distance) {
+    //TODO
+  }
 }
 

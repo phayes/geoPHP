@@ -41,5 +41,47 @@ class Polygon extends Collection
       throw new Exception("Polygon without an exterior ring");
     }
   }
+  
+  public function intersects($distance) {
+    //TODO
+  }
+  
+  public function getArea($exterior_only = FALSE) {
+    //TODO: Calculate and subtract interior rings
+    
+    $exterior_ring = $this->components[0];
+    $pts = $exterior_ring->getComponents();
+    
+    $c = count($pts);
+  	if((int)$c == '0') return NULL;
+  	$a = '0';
+  	foreach($pts as $k => $p){
+  	  $j = ($k + 1) % $c;
+  		$a = $a + ($p->getX() * $pts[$j]->getY()) - ($p->getY() * $pts[$j]->getX());
+    }
+    
+  	return abs(($a / 2));
+  }
+  
+  public function getCentroid() {
+    $exterior_ring = $this->components[0];
+    $pts = $exterior_ring->getComponents();
+    
+  	$c = count($pts);
+  	if((int)$c == '0') return NULL;
+  	$cn = array('x' => '0', 'y' => '0');
+  	$a = $this->getArea(TRUE);
+  	foreach($pts as $k => $p){
+  		$j = ($k + 1) % $c;
+  		$P = ($p->getX() * $pts[$j]->getY()) - ($p->getY() * $pts[$j]->getX());
+  		$cn['x'] = $cn['x'] + ($p->getX() + $pts[$j]->getX()) * $P;
+  		$cn['y'] = $cn['y'] + ($p->getY() + $pts[$j]->getY()) * $P;
+  	}	
+  	$cn['x'] = $cn['x'] / ( 6 * $a);
+  	$cn['y'] = $cn['y'] / ( 6 * $a);
+  	
+  	$centroid = new Point($cn['x'], $cn['y']);
+  	return $centroid;
+  }
 }
 

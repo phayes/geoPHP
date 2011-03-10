@@ -74,8 +74,10 @@ class WKT
         return new Point(floatval($coords[0]), floatval($coords[1]));
 
       case self::MULTIPOINT:
-        foreach (explode(',', trim($str)) as $point)
+        $points = $this->pregExplode('parenComma', $str);
+        foreach ($points as $p)
         {
+          $point = $this->trimParens( $p );
           $components[] = $this->parse(self::POINT, $point);
         }
         return new MultiPoint($components);
@@ -187,7 +189,6 @@ class WKT
     {
       case self::POINT:
         return $geometry->getX().' '.$geometry->getY();
-      case self::MULTIPOINT:
       case self::LINESTRING:
       case self::LINEARRING:
         foreach ($geometry as $geom)
@@ -195,6 +196,7 @@ class WKT
           $array[] = $this->extract($geom);
         }
         return implode(',', $array);
+      case self::MULTIPOINT:
       case self::MULTILINESTRING:
       case self::POLYGON:
       case self::MULTIPOLYGON:

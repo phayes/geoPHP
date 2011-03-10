@@ -28,6 +28,9 @@ class MultiPolygon extends Collection
   {
     parent::__construct($polygons);
   }
-  
+
+  public function intersects($distance) {
+    //TODO
+  }
 }
 

@@ -21,6 +21,14 @@ abstract class Geometry
 
   abstract public function getCoordinates();
   
+  abstract public function getCentroid();       // returns Point geometry
+
+  abstract public function getArea();       // returns Point geometry
+  
+  abstract public function getBBox();           // returns Polygon geometry
+  
+  abstract public function intersects($geometry); // returns true or false
+  
   /**
    * Accessor for the geometry type
    *
@@ -63,5 +71,16 @@ abstract class Geometry
   {
     return json_encode($this->getGeoInterface());
   }
+  
+  public function out($format) {
+    if ($format == 'json') {
+      return $this->toGeoJSON();
+    }
+    if ($format == 'wkt') {
+      $processor = new WKT();
+      return $processor->dump($this);
+    }
+  }
+  
+  
 }
-

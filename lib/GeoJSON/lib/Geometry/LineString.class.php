@@ -35,5 +35,10 @@ class LineString extends Collection
       throw new Exception("Linestring with less than two points");
     }
   }
+
+  public function intersects($distance) {
+    //TODO
+  }
+  
 }
 

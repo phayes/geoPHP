@@ -1,3 +1,4 @@
+<?php
 function pnpoly($poly, $lat, $lng) {
   $c = false;
   $npol = count($poly);

@@ -65,6 +65,30 @@ class Point extends Geometry
   {
     return $this->position[1];
   }
+  
+  
+  // A point's centroid is itself
+  public function getCentroid()
+  {
+    return $this; 
+  }
+  
+  public function getBBox() {
+    return array(
+      'maxy' => $this->getY(),
+      'miny' => $this->getY(),
+      'maxx' => $this->getX(),
+      'minx' => $this->getX(),
+    );
+  }
+
+  public function getArea() {
+    return 0;
+  }
+
+  public function intersects($distance) {
+    //TODO
+  }
 
 }
 

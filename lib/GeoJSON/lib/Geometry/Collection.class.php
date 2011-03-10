@@ -89,6 +89,68 @@ abstract class Collection extends Geometry implements Iterator
     return $this->current() !== false;
   }
 
+  // For collections, centroids and bbox are all the same
+  public function getCentroid()
+  {
+    // By default, the centroid of a collection is the average of x and y of all the component centroids
+    $i = 0;
+    
+    foreach ($this->components as $component) {
+      $component_centroid = $component->getCentroid();
+      $x_sum += $component_centroid->getX();
+      $y_sum += $component_centroid->getY();
+      $i++;
+    }
+    
+    $x = $x_sum / $i;
+    $y = $y_sum / $i;
+    
+    $centroid = new Point($x, $y);
+    
+    return $centroid;
+  }
+  
+  public function getBBox() {
+    // Go through each component and get the max and min x and y
+    $i = 0;
+    foreach ($this->components as $component) {
+      $component_bbox = $component->getBBox();
+      
+      // On the first run through, set the bbox to the component bbox
+      if ($i == 0) {
+        $maxx = $component_bbox['maxx'];
+        $maxy = $component_bbox['maxy'];
+        $minx = $component_bbox['minx'];
+        $miny = $component_bbox['miny'];
+      }
+      
+      // Do a check and replace on each boundary, slowly growing the bbox
+      $maxx = $component_bbox['maxx'] > $maxx ? $component_bbox['maxx'] : $maxx;
+      $maxy = $component_bbox['maxy'] > $maxy ? $component_bbox['maxy'] : $maxy;
+      $minx = $component_bbox['minx'] < $minx ? $component_bbox['minx'] : $minx;
+      $miny = $component_bbox['miny'] < $miny ? $component_bbox['miny'] : $miny;
+      $i++;
+    }
+    
+    return array(
+      'maxy' => $maxy,
+      'miny' => $miny,
+      'maxx' => $maxx,
+      'minx' => $minx,
+    );
+  }
+
+  public function getArea() {
+    $area = 0;
+    foreach ($this->components as $component) {
+      $area += $component->getArea();
+    }
+    return $area;
+  }
+
+  public function intersects($geometry) {
+    //TODO
+  }
 
 }
 
