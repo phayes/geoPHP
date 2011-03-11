@@ -97,8 +97,16 @@ abstract class Collection extends Geometry implements Iterator
     
     foreach ($this->components as $component) {
       $component_centroid = $component->getCentroid();
-      $x_sum += $component_centroid->getX();
-      $y_sum += $component_centroid->getY();
+      // On the first run through, set sum manually
+
+      if ($i == 0) {
+        $x_sum = $component_centroid->getX();
+        $y_sum = $component_centroid->getY();
+      }
+      else {
+        $x_sum += $component_centroid->getX();
+        $y_sum += $component_centroid->getY();
+      }
       $i++;
     }
     
