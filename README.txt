@@ -2,6 +2,8 @@ GeoPHP is meant to be a native PHP library for doing basic geometry operations. 
 
 It is not meant to be high-performance nor is it meant to be an extensive implementation of the spec. If you have root on your machine and are looking for a high-performance PHP library for doing geometric operations, check out the GEOS PHP extension.
 
+This project is currently looking for co-maintainers. If you think you can help out, please send me a message. Forks are also welcome, please issue pull requests and I will merge them into the main branch.
+
 
 Example usage:
 -------------------------------------------------
