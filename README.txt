@@ -39,3 +39,13 @@ $first_wkt = $multipoint_points[0]->out('wkt');
 
 print "This multipolygon has ".$num_points." points. The first point
 has a wkt representation of ".$first_wkt;
+
+
+
+Credit
+-------------------------------------------------
+
+* The original authors of much of this code is camptocamp (www.camptocamp.com).
+
+* It has been modified and extended by Patrick Hayes.
+
