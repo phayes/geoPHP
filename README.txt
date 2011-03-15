@@ -1,4 +1,4 @@
-GeoPHP is a native PHP library for doing basic geometry operations. It is written entirely in PHP and can therefore run on shared hosts. It is based on the Mapfish project and is BSD licensed.
+GeoPHP is a native PHP library for doing basic geometry operations. It is written entirely in PHP and can therefore run on shared hosts. It is based on the Mapfish project by Camptocamp and is BSD licensed.
 
 It is not meant to be high-performance nor is it meant to be an extensive implementation of the spec. If you have root on your machine and are looking for a high-performance PHP library for doing geometric operations, check out the GEOS PHP extension.
 
