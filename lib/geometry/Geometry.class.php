@@ -51,34 +51,15 @@ abstract class Geometry
       'coordinates'=> $this->getCoordinates()
     );
   }
-
-  /**
-   * Shortcut to dump geometry as GeoJSON
-   *
-   * @return string The GeoJSON representation of the geometry
-   */
-  public function __toString()
-  {
-    return $this->toGeoJSON();
-  }
-
-  /**
-   * Dumps Geometry as GeoJSON
-   *
-   * @return string The GeoJSON representation of the geometry
-   */
-  public function toGeoJSON()
-  {
-    return json_encode($this->getGeoInterface());
-  }
   
   public function out($format) {
     if ($format == 'json') {
-      return $this->toGeoJSON();
+      $processor = new GeoJSON();
+      return $processor->write($this);
     }
     if ($format == 'wkt') {
       $processor = new WKT();
-      return $processor->dump($this);
+      return $processor->write($this);
     }
   }
   

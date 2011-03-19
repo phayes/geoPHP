@@ -2,8 +2,6 @@
 
 include_once("lib/GeometryLoader.class.php");
 include_once("lib/adapters/GeoJSON.class.php");
-include_once("lib/adapters/GeoJSON_Adapter.class.php");
-include_once("lib/adapters/GeoJSON_Adapter_Doctrine.class.php");
 include_once("lib/adapters/WKT.class.php");
 include_once("lib/geometry/Geometry.class.php");
 include_once("lib/geometry/Point.class.php");

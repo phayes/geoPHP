@@ -18,28 +18,21 @@
  */
 class GeoJSON
 {
-
   /**
-   * Load Classes needed for GeoJSON class
+   * Deserializes a geojson string into an object
    *
    *
-   * Usage:
-   *   <?php spl_autoload_register(array('GeoJSON', 'autoload')); ?>
+   * @param string $string The GeoJSON string
    *
-   * @param string $className A class name to load
+   * @return object The PHP equivalent object
    */
-  static public function autoload($className)
+  static public function read($string)
   {
-
-    $i = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(dirname(__FILE__)));
-    foreach ($i as $file)
+    if (!($object = json_decode($string)))
     {
-      if ($className === basename($file->getFileName(), '.class.php'))
-      {
-        require_once $file->getPathName();
-      }
+      throw new Exception('Invalid JSON');
     }
-
+    return self::toInstance($object);
   }
 
   /**
@@ -50,83 +43,14 @@ class GeoJSON
    *
    * @return string The GeoJSON string
    */
-  static public function dump($obj)
+  static public function write($obj)
   {
     if (is_null($obj))
     {
       return null;
     }
 
-    if (!in_array(get_class($obj), array('Feature', 'FeatureCollection')))
-    {
-      throw new Exception('Input should be a Feature or a FeatureCollection');
-    }
-
     return json_encode($obj->getGeoInterface());
-  }
-
-  /**
-   * Deserializes a geojson string into an object
-   *
-   *
-   * @param string $string The GeoJSON string
-   *
-   * @return object The PHP equivalent object
-   */
-  static public function load($string)
-  {
-    if (!($object = json_decode($string)))
-    {
-      throw new Exception('Invalid JSON');
-    }
-    return self::toInstance($object);
-  }
-
-  /**
-   * returns a Feature|FeatureCollection instance build from $object through $adapter
-   *
-   * @param mixed $object The data to load
-   * @param GeoJSON_Adapter The adapter through which data will be extracted
-   *
-   * @return Feature|FeatureCollection A Feature|FeatureCollection instance
-   */
-  static public function loadFrom($object, GeoJSON_Adapter $adapter)
-  {
-    if ($adapter->isMultiple($object))
-    {
-      $result = new FeatureCollection();
-      foreach ($adapter->getIterable($object) as $feature)
-      {
-        $result->addFeature(self::loadFeatureFrom($feature, $adapter));
-      }
-    }
-    else
-    {
-      $result = self::loadFeatureFrom($object, $adapter);
-    }
-
-    return $result;
-  }
-
-  /**
-   * returns a GeoJSON instance build from $object through $adapter
-   *
-   * @param mixed $object The data to load
-   * @param GeoJSON_Adapter The adapter through which data will be extracted
-   *
-   * @return GeoJSON A GeoJSON instance
-   */
-  static protected function loadFeatureFrom($object, GeoJSON_Adapter $adapter)
-  {
-    $geometry = WKT::load($adapter->getObjectGeometry($object));
-    $feature = new Feature(
-      $adapter->getObjectId($object),
-      $geometry,
-      $adapter->getObjectProperties($object),
-      $adapter->getObjectBBox($object)
-    );
-
-    return $feature;
   }
 
   /**
@@ -135,7 +59,7 @@ class GeoJSON
    *
    * @param stdClass $obj Object resulting from json decoding a GeoJSON string
    *
-   * @return object Object from class: Feature, FeatureCollection or Geometry
+   * @return object Object from class eometry
    */
   static private function toInstance($obj)
    {
@@ -146,46 +70,10 @@ class GeoJSON
      if (!isset($obj->type))
      self::checkType($obj);
 
-     switch ($obj->type)
-     {
-       case 'FeatureCollection':
-         $features = array();
-         self::checkExists($obj, 'features', false, 'array');
-         foreach ($obj->features as $feature)
-         {
-           $features[] = self::toFeatureInstance($feature, true);
-         }
-         $instance = new FeatureCollection($features);
-         break;
-       case 'Feature':
-         $instance = self::toFeatureInstance($obj, false);
-         break;
-
-       default:
-         $instance = self::toGeomInstance($obj);
-     }
+     $instance = self::toGeomInstance($obj);
+     
      return $instance;
    }
-
-  /**
-   * Converts an stdClass object into a Feature
-   *
-   * @param stdClass $obj Object to convert
-   * @param boolean $testType Should we test that $obj is really a Feature ?
-   * @return object Object from class Feature
-   */
-  static private function toFeatureInstance($obj, $testType)
-  {
-    if ($testType)
-    {
-      self::checkType($obj, 'Feature');
-    }
-    self::checkExists($obj, 'geometry', true, 'object');
-    $geometry = self::toGeomInstance($obj->geometry);
-    self::checkExists($obj, 'properties', true, 'object');
-    $properties = get_object_vars($obj->properties);
-    return new Feature($obj->id, $geometry, $properties);
-  }
 
   /**
    * Converts an stdClass object into a Geometry based on its 'type' property
@@ -206,26 +94,6 @@ class GeoJSON
 
     switch ($obj->type)
     {
-      case 'FeatureCollection':
-        $features = array();
-        self::checkArray($obj, 'features');
-        foreach ($obj->features as $feature)
-        {
-          $features[] = self::toInstance($feature);
-        }
-        $instance = new FeatureCollection($features);
-        break;
-
-      case 'Feature':
-        self::checkExists($obj, 'geometry', true);
-        $geometry = self::toInstance($obj->geometry);
-        self::checkExists($obj, 'properties', true);
-        // TODO : more tests (either array or object ???) see geojson spec
-        $properties = (is_object($obj->properties)) ? get_object_vars($obj->properties) : $obj->properties;
-        self::checkExists($obj, 'id');
-        $instance = new Feature($obj->id, $geometry, $properties);
-        break;
-
       case 'Point':
       case 'LineString':
       case 'Polygon':

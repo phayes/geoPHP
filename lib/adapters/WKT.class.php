@@ -56,6 +56,25 @@ class WKT
   }
 
   /**
+   * Serialize geometries into a WKT string.
+   *
+   * @param Geometry $geometry
+   *
+   * @return string The WKT string representation of the input geometries
+   */
+  public function write(Geometry $geometry)
+  {
+    $type = strtolower(get_class($geometry));
+
+    if (is_null($data = $this->extract($geometry)))
+    {
+      return null;
+    }
+
+    return strtoupper($type).'('.$data.')';
+  }
+
+  /**
    * Parse WKT string into geometry objects
    *
    * @param string $WKT A WKT string
@@ -157,25 +176,6 @@ class WKT
   }
 
   /**
-   * Serialize geometries into a WKT string.
-   *
-   * @param Geometry $geometry
-   *
-   * @return string The WKT string representation of the input geometries
-   */
-  public function write(Geometry $geometry)
-  {
-    $type = strtolower(get_class($geometry));
-
-    if (is_null($data = $this->extract($geometry)))
-    {
-      return null;
-    }
-
-    return strtoupper($type).'('.$data.')';
-  }
-
-  /**
    * Extract geometry to a WKT string
    *
    * @param Geometry $geometry A Geometry object
@@ -227,19 +227,6 @@ class WKT
   {
     $instance = new self;
     return $instance->read($WKT);
-  }
-
-  /**
-   * Dumps a Geometry Object into a  WKT string
-   *
-   * @param Geometry $geometry
-   *
-   * @return String A WKT string corresponding to passed object
-   */
-  static public function dump(Geometry $geometry)
-  {
-    $instance = new self;
-    return $instance->write($geometry);
   }
 
 }
