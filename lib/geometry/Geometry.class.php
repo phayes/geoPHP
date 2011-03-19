@@ -26,7 +26,7 @@ abstract class Geometry
 
   abstract public function getArea();       // returns Point geometry
   
-  abstract public function getBBox();           // returns Polygon geometry
+  abstract public function getBBox();           // returns BBox array
   
   abstract public function intersects($geometry); // returns true or false
   
