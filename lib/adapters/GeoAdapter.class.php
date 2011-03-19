@@ -26,6 +26,6 @@ abstract class GeoAdapter
    * 
    * @return mixed
    */
-  abstract public function write($obj);
+  abstract public function write(Geometry $geometry);
   
 }

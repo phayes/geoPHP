@@ -12,8 +12,7 @@ include_once('geoPHP.inc');
 $loader = new GeometryLoader();
 
 // Polygon WKT example
-$polygon = $loader->load('POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2
-2))','wkt');
+$polygon = $loader->load('POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2))','wkt');
 $area = $polygon->getArea();
 $centroid = $polygon->getCentroid();
 $centX = $centroid->getX();
@@ -45,7 +44,9 @@ has a wkt representation of ".$first_wkt;
 Credit
 -------------------------------------------------
 
-* The original authors of much of this code is camptocamp (www.camptocamp.com).
+Maintainer: Patrick Hayes
+Code From:  sfMapFish Plugin by camptocamp (www.camptocamp.com)
+            CIS by GeoMemes Research (www.geomemes.com)
 
-* It has been modified and extended by Patrick Hayes.
-
+Where code from other projects or authors is included, those authors are included
+in the copyright notice in that file

@@ -1,8 +1,9 @@
 <?php
 /*
- * This file is part of the sfMapFishPlugin package.
  * (c) Camptocamp <info@camptocamp.com>
+ * (c) Patrick Hayes
  *
+ * This code is open-source and licenced under the Modified BSD License.
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
@@ -43,14 +44,14 @@ class GeoJSON extends GeoAdapter
    *
    * @return string The GeoJSON string
    */
-  public function write($obj)
+  public function write(Geometry $geometry)
   {
-    if (is_null($obj))
+    if (is_null($geometry))
     {
       return null;
     }
 
-    return json_encode($obj->getGeoInterface());
+    return json_encode($geometry->getGeoInterface());
   }
 
   /**

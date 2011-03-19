@@ -1,4 +1,11 @@
 <?php
+/*
+ * (c) Patrick Hayes 2011
+ *
+ * This code is open-source and licenced under the Modified BSD License.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 class GeometryLoader {
   

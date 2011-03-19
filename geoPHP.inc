@@ -1,4 +1,11 @@
 <?php
+/*
+ * (c) Patrick Hayes
+ *
+ * This code is open-source and licenced under the Modified BSD License.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 include_once("lib/GeometryLoader.class.php");
 include_once("lib/adapters/GeoAdapter.class.php");
