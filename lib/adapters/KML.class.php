@@ -1,6 +1,7 @@
 <?php
 /*
- * (c) Patrick Hayes
+ * Copyright (c) Patrick Hayes
+ * Copyright (c) 2010-2011, Arnaud Renevier
  *
  * This code is open-source and licenced under the Modified BSD License.
  * For the full copyright and license information, please view the LICENSE
