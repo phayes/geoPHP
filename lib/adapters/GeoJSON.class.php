@@ -39,7 +39,7 @@ class GeoJSON
    * Serializes an object into a geojson string
    *
    *
-   * @param Feature|FeatureCollection $obj The object to serialize
+   * @param Geometry $obj The object to serialize
    *
    * @return string The GeoJSON string
    */
@@ -54,8 +54,8 @@ class GeoJSON
   }
 
   /**
-   * Converts an stdClass object into a Feature or a FeatureCollection or a Geometry based on its 'type' property
-   * Converts an stdClass object into a Feature or a FeatureCollection or a Geometry, based on its 'type' property
+   * Converts an stdClass object into a Geometry based on its 'type' property
+   * Converts an stdClass object into a Geometry, based on its 'type' property
    *
    * @param stdClass $obj Object resulting from json decoding a GeoJSON string
    *
@@ -207,7 +207,7 @@ class GeoJSON
   }
 
   /**
-   * Converts an array of coordinates into a Point Feature
+   * Converts an array of coordinates into a Point Geomtery
    *
    * @param array $coordinates The X/Y coordinates
    *
@@ -223,7 +223,7 @@ class GeoJSON
   }
 
   /**
-   * Converts an array of coordinate arrays into a LineString Feature
+   * Converts an array of coordinate arrays into a LineString Geometry
    *
    * @param array $coordinates The array of coordinates arrays (aka positions)
    * @return LineString A LineString object
@@ -239,7 +239,7 @@ class GeoJSON
   }
 
   /**
-   * Converts an array of linestring coordinates into a Polygon Feature
+   * Converts an array of linestring coordinates into a Polygon Geometry
    *
    * @param array $coordinates The linestring coordinates
    * @return Polygon A Polygon object
