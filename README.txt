@@ -56,6 +56,40 @@ $first_wkt = $multipoint_points[0]->out('wkt');
 print "This multipolygon has ".$num_points." points. The first point
 has a wkt representation of ".$first_wkt;
 
+API
+-------------------------------------------------
+
+Adapters
+ - Methods
+   * read               Read from adapter format and return a geometry object
+   * write              Read a geometry object and return adapter format
+ - Instances
+   * WKT                Enables reading and writing WKT
+   * GeoJSON            Enables reading and writing GeoJSON
+Geometry
+ - Methods
+   * getCentroid        returns Point geometry
+   * getArea            returns area
+   * getBBox            returns bouding box array
+   * getGeomType        get the geometry type
+   * out                writes to specified adapter format
+ - Instances            
+   * Point              
+     - Methods          
+       * getX           Get the X or longitude
+       * getY           Get the Y or latitude
+   * Collection
+     - Methods
+       * getComponents  Get the member geometry components
+     - Instances
+       * LineString
+         - Instances
+           * LinearRing
+       * MultiLineString
+       * MultiPoint
+       * MultiPolygon
+       * Polygon
+       * GeometryCollection
 
 
 Credit
