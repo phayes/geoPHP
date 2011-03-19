@@ -66,6 +66,7 @@ Adapters
  - Instances
    * WKT                Enables reading and writing WKT
    * GeoJSON            Enables reading and writing GeoJSON
+   * KML                Enables reading and writing KML (Google Earth)
 
 Geometry
  - Methods
