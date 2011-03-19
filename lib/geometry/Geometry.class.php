@@ -62,6 +62,10 @@ abstract class Geometry
       $processor = new WKT();
       return $processor->write($this);
     }
+    if ($format == 'kml') {
+      $processor = new KML();
+      return $processor->write($this);
+    }
   }
   
   

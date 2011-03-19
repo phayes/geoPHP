@@ -11,6 +11,7 @@ include_once("lib/GeometryLoader.class.php");
 include_once("lib/adapters/GeoAdapter.class.php");
 include_once("lib/adapters/GeoJSON.class.php");
 include_once("lib/adapters/WKT.class.php");
+include_once("lib/adapters/KML.class.php");
 include_once("lib/geometry/Geometry.class.php");
 include_once("lib/geometry/Point.class.php");
 include_once("lib/geometry/Collection.class.php");

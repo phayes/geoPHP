@@ -13,6 +13,7 @@ class GeometryLoader {
     $type_map = array (
       'wkt' => 'WKT',
       'json' => 'GeoJSON',
+      'kml' => 'KML',
     );
     
     $processor_type = $type_map[$type];
