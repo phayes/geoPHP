@@ -16,7 +16,7 @@
  * @subpackage GeoJSON
  * @author     Camptocamp <info@camptocamp.com>
  */
-class GeoJSON
+class GeoJSON extends GeoAdapter
 {
   /**
    * Deserializes a geojson string into an object
@@ -26,7 +26,7 @@ class GeoJSON
    *
    * @return object The PHP equivalent object
    */
-  static public function read($string)
+  public function read($string)
   {
     if (!($object = json_decode($string)))
     {
@@ -43,7 +43,7 @@ class GeoJSON
    *
    * @return string The GeoJSON string
    */
-  static public function write($obj)
+  public function write($obj)
   {
     if (is_null($obj))
     {
