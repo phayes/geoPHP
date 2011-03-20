@@ -29,10 +29,9 @@ Example usage:
 -------------------------------------------------
 
 include_once('geoPHP.inc');
-$loader = new GeometryLoader();
 
 // Polygon WKT example
-$polygon = $loader->load('POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2))','wkt');
+$polygon = geoPHP::load('POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2))','wkt');
 $area = $polygon->getArea();
 $centroid = $polygon->getCentroid();
 $centX = $centroid->getX();
@@ -51,7 +50,7 @@ $json =
    ]
 }';
 
-$multipoint = $loader->load($json, 'json');
+$multipoint = geoPHP::load($json, 'json');
 $multipoint_points = $multipoint->getComponents();
 $num_points = count($multipoint_points);
 $first_wkt = $multipoint_points[0]->out('wkt');

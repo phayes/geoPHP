@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+// THIS FILE IS NOW DEPRECATED. PLEASE USE THE GeoPHP CLASS INSTEAD.
+// THIS FILE AND THE GeometryLoader CLASS WILL BE REMOVED
 class GeometryLoader {
   
   function load($data, $type = 'autodetect') {

@@ -22,11 +22,11 @@ abstract class Geometry
 
   abstract public function getCoordinates();
   
-  abstract public function getCentroid();       // returns Point geometry
+  abstract public function getCentroid();         // returns Point geometry
 
-  abstract public function getArea();       // returns Point geometry
+  abstract public function getArea();             // returns Point geometry
   
-  abstract public function getBBox();           // returns BBox array
+  abstract public function getBBox();             // returns BBox array
   
   abstract public function intersects($geometry); // returns true or false
   
@@ -54,18 +54,11 @@ abstract class Geometry
   }
   
   public function out($format) {
-    if ($format == 'json') {
-      $processor = new GeoJSON();
-      return $processor->write($this);
-    }
-    if ($format == 'wkt') {
-      $processor = new WKT();
-      return $processor->write($this);
-    }
-    if ($format == 'kml') {
-      $processor = new KML();
-      return $processor->write($this);
-    }
+    $type_map = geoPHP::getAdapterMap();
+    $processor_type = $type_map[$format];
+    $processor = new $processor_type();
+    
+    return $processor->write($this);
   }
   
   

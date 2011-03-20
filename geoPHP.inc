@@ -23,3 +23,23 @@ include_once("lib/geometry/MultiLineString.class.php");
 include_once("lib/geometry/MultiPolygon.class.php");
 include_once("lib/geometry/GeometryCollection.class.php");
 
+class geoPHP {
+  
+  function load($data, $type) {
+    $type_map = geoPHP::getAdapterMap();
+    
+    $processor_type = $type_map[$type];
+    $processor = new $processor_type();
+    
+    return $processor->read($data);
+  }
+  
+  function getAdapterMap() {
+    return array (
+      'wkt' => 'WKT',
+      'json' => 'GeoJSON',
+      'kml' => 'KML',
+    );
+  }
+  
+}
