@@ -24,7 +24,11 @@ include_once("lib/geometry/MultiPolygon.class.php");
 include_once("lib/geometry/GeometryCollection.class.php");
 
 class geoPHP {
-  
+
+  function version() {
+  	return '0.2';
+  }
+    
   function load($data, $type) {
     $type_map = geoPHP::getAdapterMap();
     
