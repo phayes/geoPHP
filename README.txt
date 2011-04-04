@@ -73,7 +73,7 @@ Adapters
    * WKT                  Enables reading and writing WKT
    * GeoJSON              Enables reading and writing GeoJSON
    * KML                  Enables reading and writing KML (Google Earth)
-   * GoogleGeocode         Enables geocoding and Reverse geocoding via google geocoding API
+   * GoogleGeocode        Enables geocoding and Reverse geocoding via google geocoding API
 
 Geometry
  - Methods
