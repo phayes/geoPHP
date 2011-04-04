@@ -54,7 +54,7 @@ class GoogleGeocode extends GeoAdapter
     		if ($return_type == 'point') {
     		  return $this->getPoint();
     	  }
-    		if ($return_type == 'bounds') {
+    		if ($return_type == 'bounds' || $return_type == 'polygon') {
     			return $this->getPolygon();
     	  }
     	}
