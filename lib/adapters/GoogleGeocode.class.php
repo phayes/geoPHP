@@ -66,7 +66,7 @@ class GoogleGeocode extends GeoAdapter
 	    		}
 	    		return new MultiPoint($points);
     		}
-    		if ($return_type == 'bounds') {
+    		if ($return_type == 'bounds' || $return_type == 'polygon') {
     			$polygons = array();
 	    		foreach ($this->result->results as $delta => $item) {
 	    			$polygons[] = $this->getPolygon($delta);
