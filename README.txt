@@ -70,9 +70,10 @@ Adapters
    * read               Read from adapter format and return a geometry object
    * write              Read a geometry object and return adapter format
  - Instances
-   * WKT                Enables reading and writing WKT
-   * GeoJSON            Enables reading and writing GeoJSON
-   * KML                Enables reading and writing KML (Google Earth)
+   * WKT                  Enables reading and writing WKT
+   * GeoJSON              Enables reading and writing GeoJSON
+   * KML                  Enables reading and writing KML (Google Earth)
+   * GoogleGeocode        Enables geocoding and Reverse geocoding via google geocoding API
 
 Geometry
  - Methods
