@@ -70,8 +70,22 @@ class GeoJSON extends GeoAdapter
      }
      if (!isset($obj->type))
      self::checkType($obj);
-
-     $instance = self::toGeomInstance($obj);
+     
+     if ($obj->type == 'Feature') {
+       $instance = self::toGeomInstance($obj->geometry);
+     }
+     if ($obj->type == 'FeatureCollection') {
+     	 $geometries = array();
+     	 foreach ($obj->features as $feature) {
+     	 	 $geometries[] = self::toGeomInstance($feature->geometry);
+     	 }
+     	 // Get a geometryCollection or MultiGeometry out of the the provided geometries
+     	 $instance = geoPHP::geometryReduce($geometries);
+     }
+     else {
+     	 // It's a geometry
+     	 $instance = self::toGeomInstance($obj);
+     }
      
      return $instance;
    }

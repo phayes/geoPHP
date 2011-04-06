@@ -64,5 +64,70 @@ class geoPHP {
       'google_geocode' => 'GoogleGeocode',
     );
   }
+
+
+  // Utility Functions
+  // --------------------------------
   
+  // Reduce a geometry, or an array of geometries, into their 'lowest' available common geometry.
+  // For example a GeometryCollection of only points will become a MultiPoint
+  // A multi-point containing a single point will return a point.
+  // An array of geometries can be passed and they will be compiled into a single geometry
+  function geometryReduce($geometry) {  	
+  	// If the geometry cannot even theoretically be reduced more, then pass it back
+  	if (gettype($geometry) == 'object') {
+  		$passbacks = array('Point','LineString','LinearRing','Polygon');
+  		if (in_array(get_class($geometry),$passbacks)) {
+  			return $geometry;
+  		}
+  	}
+  	
+  	// If it is a mutlti-geometry, check to see if it just has one member
+  	// If it does, then pass the member, if not, then just pass back the geometry
+  	if (gettype($geometry) == 'object') {
+  		$simple_collections = array('MultiPoint','MultiLineString','MultiPolygon');
+  		if (in_array(get_class($geometry),$passbacks)) {
+  			$components = $geometry->getComponents();
+  			if (count($components) == 1) {
+  				return $components[0];
+  			}
+  			else {
+  				return $geometry;
+  			}
+  		}
+  	}
+  	
+  	// So now we either have an array of geometries, a GeometryCollection, or an array of GeometryCollections  	
+  	if (!is_array($geometry)) {
+  		$geometry = array($geometry);
+  	}
+  	
+  	$geometries = array();
+  	$geom_types = array();
+  	
+  	$collections = array('MultiPoint','MultiLineString','MultiPolygon','GeometryCollection');
+  	
+  	foreach ($geometry as $item) {
+  		if (in_array(get_class($item), $collections)) {
+  			foreach ($item->getComponents() as $component) {
+  				$geometries[] = $component;
+  				$geom_types[] = get_class($component);
+  			}
+  		}
+  		else {
+  			$geometries[] = $item;
+  			$geom_types[] = get_class($item);
+  		}
+  	}
+  	
+  	$geom_types = array_unique($geom_types);
+  	
+  	if (count($geom_types) == 1) {
+  		$class = 'Multi'.$geom_types[0];
+  		return new $class($geometries);
+  	}
+  	else {
+  		return new GeometryCollection($geometries);
+  	}
+  }
 }
