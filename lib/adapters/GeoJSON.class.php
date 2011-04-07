@@ -74,7 +74,7 @@ class GeoJSON extends GeoAdapter
      if ($obj->type == 'Feature') {
        $instance = self::toGeomInstance($obj->geometry);
      }
-     if ($obj->type == 'FeatureCollection') {
+     else if ($obj->type == 'FeatureCollection') {
      	 $geometries = array();
      	 foreach ($obj->features as $feature) {
      	 	 $geometries[] = self::toGeomInstance($feature->geometry);
@@ -106,7 +106,7 @@ class GeoJSON extends GeoAdapter
     }
 
     self::checkType($obj);
-
+    
     switch ($obj->type)
     {
       case 'Point':
@@ -146,7 +146,7 @@ class GeoJSON extends GeoAdapter
         break;
 
       default:
-        throw new Exception("Unsupported object type");
+        throw new Exception("Unsupported object type ".$obj->type);
     }
     return $instance;
   }
