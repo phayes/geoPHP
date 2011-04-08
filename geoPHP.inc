@@ -69,11 +69,29 @@ class geoPHP {
   // Utility Functions
   // --------------------------------
   
+  function geometryList() {
+  	return array(
+  	  'point' => 'Point',
+  	  'linestring' => 'LineString',
+  	  'linearring' => 'LinearRing',
+  	  'polygon' => 'Polygon',
+  	  'multipoint' => 'MultiPoint',
+  	  'multilinestring' => 'MultiLineString',
+  	  'multipolygon' => 'MultiPolygon',
+  	  'geometrycollection' => 'GeometryCollection',
+  	);
+  }
+  
   // Reduce a geometry, or an array of geometries, into their 'lowest' available common geometry.
   // For example a GeometryCollection of only points will become a MultiPoint
   // A multi-point containing a single point will return a point.
   // An array of geometries can be passed and they will be compiled into a single geometry
-  function geometryReduce($geometry) {  	
+  function geometryReduce($geometry) {
+  	// If it's an array of one, then just parse the one
+  	if (is_array($geometry)) {
+  		if (count($geometry) == 1) return geoPHP::geometryReduce($geometry[0]);
+  	}
+  	
   	// If the geometry cannot even theoretically be reduced more, then pass it back
   	if (gettype($geometry) == 'object') {
   		$passbacks = array('Point','LineString','LinearRing','Polygon');

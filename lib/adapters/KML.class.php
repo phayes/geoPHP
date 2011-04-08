@@ -45,173 +45,128 @@ class KML extends GeoAdapter
     return $this->geometryToKML($geometry);
   }
   
-  static public function geomFromText($text) {
-        if (!function_exists("simplexml_load_string") || !function_exists("libxml_use_internal_errors")) {
-            throw new UnavailableResource("simpleXML");
-        }
+  public function geomFromText($text) {
         $ltext = strtolower($text);
-        libxml_use_internal_errors(true);
-        $xmlobj = simplexml_load_string($ltext);
+        $xmlobj = new DOMDocument();
+        $xmlobj->loadXML($ltext);
         if ($xmlobj === false) {
-            throw new Exception("Invalid KML: ". $text);
+          throw new Exception("Invalid KML: ". $text);
         }
-
+        
+        $this->xmlobj = $xmlobj;
         try {
-            $geom = static::_geomFromXML($xmlobj);
+          $geom = $this->geomFromXML();
         } catch(InvalidText $e) {
-            throw new Exception("Invalid KML: ". $text);
-        } catch(\Exception $e) {
+            throw new Exception("Cannot Read Geometry From KML: ". $text);
+        } catch(Exception $e) {
             throw $e;
         }
 
         return $geom;
     }
-
-    static protected function childElements($xml, $nodename = "") {
-        $nodename = strtolower($nodename);
-        $res = array();
-        foreach ($xml->children() as $child) {
-            if ($nodename) {
-                if (strtolower($child->getName()) == $nodename) {
-                    array_push($res, $child);
-                }
-            } else {
-                array_push($res, $child);
-            }
-        }
-        return $res;
+  
+    protected function geomFromXML() {
+    	$geometries = array();
+      $geom_types = geoPHP::geometryList();
+      $placemark_elements = $this->xmlobj->getElementsByTagName('placemark');
+      foreach ($placemark_elements as $placemark) {
+      	foreach ($placemark->childNodes as $child) {
+      		// Node names are all the same, except for MultiGeometry, which maps to GeometryCollection
+      		$node_name = $child->nodeName == 'multigeometry' ? 'geometrycollection' : $child->nodeName;
+      		if (array_key_exists($node_name, $geom_types)) {
+      			$function = 'parse'.$geom_types[$node_name];
+      			$geometries[] = $this->$function($child);
+      		}
+      	}
+      }
+      return geoPHP::geometryReduce($geometries); 
     }
 
-    static protected function _childsCollect($xml) {
-        $components = array();
-        foreach (static::childElements($xml) as $child) {
-            try {
-                $geom = static::_geomFromXML($child);
-                $components[] = $geom;
-            } catch(InvalidText $e) {
-            }
-        }
-
-        $ncomp = count($components);
-        if ($ncomp == 0) {
-            throw new Exception("Invalid KML");
-        } else if ($ncomp == 1) {
-            return $components[0];
-        } else {
-            return new GeometryCollection($components);
-        }
+    protected function childElements($xml, $nodename = '') {
+    	$children = array();
+      foreach ($xml->childNodes as $child) {
+        if ($child->nodeName == $nodename) {
+        	$children[] = $child;
+      	}
+      }
+      return $children;
     }
 
-    static protected function parsePoint($xml) {
-        $coordinates = static::_extractCoordinates($xml);
-        $coords = preg_split('/,/', (string)$coordinates[0]);
-        return array_map("trim", $coords);
+    protected function parsePoint($xml) {
+      $coordinates = $this->_extractCoordinates($xml);
+      return new Point(floatval($coordinates[0][0]),floatval($coordinates[0][1]));
     }
 
-    static protected function parseLineString($xml) {
-        $coordinates = static::_extractCoordinates($xml);
-        foreach (preg_split('/\s+/', trim((string)$coordinates[0])) as $compstr) {
-            $coords = preg_split('/,/', $compstr);
-            $components[] = new Point($coords[0],$coords[1]);
+    protected function parseLineString($xml) {
+      $coordinates = $this->_extractCoordinates($xml);
+      $point_array = array();
+      foreach ($coordinates as $set) {
+      	$point_array[] = new Point(floatval($set[0]),floatval($set[1]));
+      }
+      return new LineString($point_array);
+    }
+    
+    protected function parseLinearRing($xml) {
+      $coordinates = $this->_extractCoordinates($xml);
+      $components = array();
+      foreach ($coordinates as $set) {
+      	$components[] = new Point($set[0],$set[1]);
+      }
+      return new LinearRing($components);
+    }
+    
+    protected function parsePolygon($xml) {
+      $components = array();
+      
+      $outer_boundary_element_a = $this->childElements($xml, 'outerboundaryis');
+      $outer_boundary_element = $outer_boundary_element_a[0];
+      $outer_ring_element_a = $this->childElements($outer_boundary_element, 'linearring');
+      $outer_ring_element = $outer_ring_element_a[0];
+      $components[] = $this->parseLinearRing($outer_ring_element);
+      
+      if (count($components) != 1) {
+        throw new Exception("Invalid KML");
+      }
+      
+      $inner_boundary_element_a = $this->childElements($xml, 'innerboundaryis');
+        if (count($inner_boundary_element_a)) {
+        $inner_boundary_element = $inner_boundary_element_a[0];
+        foreach ($this->childElements($inner_boundary_element, 'linearring') as $inner_ring_element) {
+      	  $components[] = $this->parseLinearRing($inner_ring_element);
         }
-        return $components;
+      }
+      
+      return new Polygon($components);
     }
 
-    static protected function parseLinearRing($xml) {
-        return static::parseLineString($xml);
+    protected function parseGeometryCollection($xml) {
+      $components = array();
+      $geom_types = geoPHP::geometryList();
+      foreach ($xml->childNodes as $child) {
+      	$function = 'parse'.$geom_types[$child->nodeName];
+        $components[] = $this->$function($child);
+      }
+      return new GeometryCollection($components);
     }
 
-    static protected function parsePolygon($xml) {
-        $ring = array();
-        foreach (static::childElements($xml, 'outerboundaryis') as $elem) {
-            $ring = array_merge($ring, static::childElements($elem, 'linearring'));
+    protected function _extractCoordinates($xml) {
+    	$coord_elements = $this->childElements($xml, 'coordinates');
+      if (!count($coord_elements)) {
+      	throw new Exception('Bad KML: Missing coordinate element');
+      }
+      $coordinates = array();
+      $coord_sets = explode(' ',$coord_elements[0]->nodeValue);
+      foreach ($coord_sets as $set_string) {
+      	$set_string = trim($set_string);
+      	if ($set_string) {
+          $set_array = explode(',',$set_string);
+          if (count($set_array) >= 2) {
+            $coordinates[] = $set_array;
+          }
         }
-
-        if (count($ring) != 1) {
-            throw new Exception("Invalid KML");
-        }
-
-        $components = array(new LinearRing(static::parseLinearRing($ring[0])));
-        foreach (static::childElements($xml, 'innerboundaryis') as $elem) {
-            foreach (static::childElements($elem, 'linearring') as $ring) {
-                $components[] = new LinearRing(static::parseLinearRing($ring[0]));
-            }
-        }
-        return $components;
-    }
-
-    static protected function parseMultiGeometry($xml) {
-        $components = array();
-        foreach ($xml->children() as $child) {
-            $components[] = static::_geomFromXML($child);
-        }
-        return $components;
-    }
-
-    static protected function _extractCoordinates($xml) {
-        $coordinates = static::childElements($xml, 'coordinates');
-        if (count($coordinates) != 1) {
-            throw new Exception("Invalid KML");
-        }
-        return $coordinates;
-    }
-
-    static protected function _geomFromXML($xml) {
-        $nodename = strtolower($xml->getName());
-        if ($nodename == "kml" or $nodename == "placemark") {
-            return static::_childsCollect($xml);
-        }
-
-        foreach (array("Point", "LineString", "LinearRing", "Polygon", "MultiGeometry") as $kml_type) {
-            if (strtolower($kml_type) == $nodename) {
-                $type = $kml_type;
-                break;
-            }
-        }
-
-        if (!isset($type)) {
-            throw new Exception("Invalid KML");
-        }
-
-        try {
-            $components = call_user_func(array('static', 'parse'.$type), $xml);
-        } catch(InvalidText $e) {
-            throw new Exception("Invalid KML");
-        } catch(\Exception $e) {
-            throw $e;
-        }
-
-        if ($type == "MultiGeometry") {
-            if (count($components)) {
-                $possibletype = $components[0]::name;
-                $sametype = true;
-                foreach (array_slice($components, 1) as $component) {
-                    if ($component::name != $possibletype) {
-                        $sametype = false;
-                        break;
-                    }
-                }
-                if ($sametype) {
-                    switch ($possibletype) {
-                        case "Point":
-                            return new MultiPoint($components);
-                        break;
-                        case "LineString":
-                            return new MultiLineString($components);
-                        break;
-                        case "Polygon":
-                            return new MultiPolygon($components);
-                        break;
-                        default:
-                        break;
-                    }
-                }
-            }
-            return new GeometryCollection($components);
-        }
-
-        $constructor = __NAMESPACE__ . '\\' . $type;
-        return new $constructor($components);
+      }
+      
+      return $coordinates;
     }
     
     private function geometryToKML($geom) {
