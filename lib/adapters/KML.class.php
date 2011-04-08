@@ -46,9 +46,13 @@ class KML extends GeoAdapter
   }
   
   public function geomFromText($text) {
-        $ltext = strtolower($text);
+        // Change to lower-case and strip all CDATA
+        $text = strtolower($text);
+        $text = preg_replace('/<!\[cdata\[(.*?)\]\]>/s','',$text);
+        
+        // Load into DOMDOcument
         $xmlobj = new DOMDocument();
-        $xmlobj->loadXML($ltext);
+        $xmlobj->loadXML($text);
         if ($xmlobj === false) {
           throw new Exception("Invalid KML: ". $text);
         }
@@ -64,7 +68,7 @@ class KML extends GeoAdapter
 
         return $geom;
     }
-  
+    
     protected function geomFromXML() {
     	$geometries = array();
       $geom_types = geoPHP::geometryList();
@@ -81,7 +85,7 @@ class KML extends GeoAdapter
       }
       return geoPHP::geometryReduce($geometries); 
     }
-
+    
     protected function childElements($xml, $nodename = '') {
     	$children = array();
       foreach ($xml->childNodes as $child) {
@@ -91,12 +95,12 @@ class KML extends GeoAdapter
       }
       return $children;
     }
-
+    
     protected function parsePoint($xml) {
       $coordinates = $this->_extractCoordinates($xml);
       return new Point(floatval($coordinates[0][0]),floatval($coordinates[0][1]));
     }
-
+    
     protected function parseLineString($xml) {
       $coordinates = $this->_extractCoordinates($xml);
       $point_array = array();
@@ -138,7 +142,7 @@ class KML extends GeoAdapter
       
       return new Polygon($components);
     }
-
+    
     protected function parseGeometryCollection($xml) {
       $components = array();
       $geom_types = geoPHP::geometryList();
@@ -148,7 +152,7 @@ class KML extends GeoAdapter
       }
       return new GeometryCollection($components);
     }
-
+    
     protected function _extractCoordinates($xml) {
     	$coord_elements = $this->childElements($xml, 'coordinates');
       if (!count($coord_elements)) {
