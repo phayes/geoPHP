@@ -200,29 +200,34 @@ class KML extends GeoAdapter
     }
 
     private function linestringToKML($geom) {
-        $type = strtolower($geom->getGeomType());
-        return "<" . $type . "><coordinates>" . implode(" ", array_map(function($comp) {
-                    return $comp->getX().",".$comp->getY();
-                }, $geom->getComponents())). "</coordinates></" . $type . ">";
+      $type = strtolower($geom->getGeomType());
+      $str = '<'. $type .'><coordinates>';
+      foreach ($geom->getComponents() as $comp) {
+        $str .= $comp->getX() .','. $comp->getY();
+      }
+
+      return  $str .'</coordinates></'. $type .'>';
     }
 
     public function polygonToKML($geom) {
-        $componenets = $geom->getComponents();
-        $str = '<outerBoundaryIs>' . $this->linestringToKML($componenets[0]) . '</outerBoundaryIs>';
+      $components = $geom->getComponents();
+      $str = '<outerBoundaryIs>' . $this->linestringToKML($components[0]) . '</outerBoundaryIs>';
+      foreach (array_slice($components, 1) as $comp) {
+        $str .= '<innerBoundaryIs>' . $this->linestringToKML($comp) . '</innerBoundaryIs>';
+      }
         
-        $str .= implode("", array_map(function($comp) {
-            return '<innerBoundaryIs>' . $this->linestringToKML($comp) . '</innerBoundaryIs>';
-        }, array_slice($componenets, 1)));
-        
-        return '<polygon>' . $str . '</polygon>';
+      return '<polygon>'. $str .'</polygon>';
     }
     
     public function collectionToKML($geom) {
-      $componenets = $geom->getComponents();
-      return '<MultiGeometry>' . implode("", array_map(function($comp) {
+      $components = $geom->getComponents();
+      $str = '<MultiGeometry>';
+      foreach ($geom->getComponents() as $comp) {
         $sub_adapter = new KML();
-        return $sub_adapter->write($comp);
-      }, $componenets)) . '</MultiGeometry>';
+        $str .= $sub_adapter->write($comp);
+      }
+
+      return $str .'</MultiGeometry>';
     }
 
 }
