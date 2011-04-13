@@ -7,15 +7,21 @@
  * file that was distributed with this source code.
  */
 
+// Geometry Loader (Depreciated)
 include_once("lib/GeometryLoader.class.php");
-include_once("lib/adapters/GeoAdapter.class.php");
+
+// Adapters
+include_once("lib/adapters/GeoAdapter.class.php"); // Abtract class
 include_once("lib/adapters/GeoJSON.class.php");
 include_once("lib/adapters/WKT.class.php");
 include_once("lib/adapters/KML.class.php");
+include_once("lib/adapters/GPX.class.php");
 include_once("lib/adapters/GoogleGeocode.class.php");
-include_once("lib/geometry/Geometry.class.php");
+
+// Geometries
+include_once("lib/geometry/Geometry.class.php"); // Abtract class
 include_once("lib/geometry/Point.class.php");
-include_once("lib/geometry/Collection.class.php");
+include_once("lib/geometry/Collection.class.php"); // Abtract class
 include_once("lib/geometry/LineString.class.php");
 include_once("lib/geometry/MultiPoint.class.php");
 include_once("lib/geometry/LinearRing.class.php");
@@ -61,6 +67,7 @@ class geoPHP {
       'wkt' => 'WKT',
       'json' => 'GeoJSON',
       'kml' => 'KML',
+      'gpx' => 'GPX',
       'google_geocode' => 'GoogleGeocode',
     );
   }
