@@ -34,6 +34,11 @@ class Point extends Geometry
     {
       throw new Exception("Bad coordinates: x and y should be numeric");
     }
+    
+    // Convert to floatval in case they are passed in as a string or integer etc.
+    $x = floatval($x);
+    $y = floatval($y);
+    
     $this->position = array($x, $y);
   }
 
