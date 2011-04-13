@@ -98,14 +98,14 @@ class KML extends GeoAdapter
     
     protected function parsePoint($xml) {
       $coordinates = $this->_extractCoordinates($xml);
-      return new Point(floatval($coordinates[0][0]),floatval($coordinates[0][1]));
+      return new Point($coordinates[0][0],$coordinates[0][1]);
     }
     
     protected function parseLineString($xml) {
       $coordinates = $this->_extractCoordinates($xml);
       $point_array = array();
       foreach ($coordinates as $set) {
-      	$point_array[] = new Point(floatval($set[0]),floatval($set[1]));
+      	$point_array[] = new Point($set[0],$set[1]);
       }
       return new LineString($point_array);
     }
