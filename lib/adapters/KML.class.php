@@ -196,14 +196,17 @@ class KML extends GeoAdapter
     }
 
     private function pointToKML($geom) {
-      return "<point><coordinates>".$geom->getX().",".$geom->getY()."</coordinates></point>";
+      return "<Point><coordinates>".$geom->getX().",".$geom->getY()."</coordinates></Point>";
     }
 
     private function linestringToKML($geom) {
-      $type = strtolower($geom->getGeomType());
+      $type = $geom->getGeomType();
       $str = '<'. $type .'><coordinates>';
+      $i=0;
       foreach ($geom->getComponents() as $comp) {
+      	if ($i != 0) $str .= ' ';
         $str .= $comp->getX() .','. $comp->getY();
+        $i++;
       }
 
       return  $str .'</coordinates></'. $type .'>';
@@ -216,7 +219,7 @@ class KML extends GeoAdapter
         $str .= '<innerBoundaryIs>' . $this->linestringToKML($comp) . '</innerBoundaryIs>';
       }
         
-      return '<polygon>'. $str .'</polygon>';
+      return '<Polygon>'. $str .'</Polygon>';
     }
     
     public function collectionToKML($geom) {
