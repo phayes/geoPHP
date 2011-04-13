@@ -57,7 +57,7 @@ class Point extends Geometry
    *
    * @return integer The X coordinate
    */
-  public function getX()
+  public function x()
   {
     return $this->position[0];
   }
@@ -67,14 +67,14 @@ class Point extends Geometry
    *
    * @return integer The X coordinate
    */
-  public function getY()
+  public function y()
   {
     return $this->position[1];
   }
   
   
   // A point's centroid is itself
-  public function getCentroid()
+  public function centroid()
   {
     return $this; 
   }
@@ -88,13 +88,32 @@ class Point extends Geometry
     );
   }
 
-  public function getArea() {
+  public function area() {
     return 0;
   }
 
-  public function intersects($distance) {
-    //TODO
+  public function length() {
+    return 0;
   }
+
+  // The bounadry of a point is itself
+  public function boundary() {
+    return $this;
+  }
+  
+  // Not valid for this geometry type
+	public function numGeometries()    { return NULL; }
+	public function geometryN($n)      { return NULL; }
+  public function startPoint()       { return NULL; }
+	public function endPoint()         { return NULL; }
+	public function isRing()           { return NULL; }
+	public function isClosed()         { return NULL; }
+	public function numPoints()        { return NULL; }
+	public function pointN($n)         { return NULL; }
+	public function exteriorRing()     { return NULL; }
+	public function numInteriorRings() { return NULL; }
+  public function interiorRingN($n)  { return NULL; }
+	public function pointOnSurface()   { return NULL; }
 
 }
 

@@ -36,10 +36,38 @@ class LineString extends Collection
       throw new Exception("Linestring with less than two points");
     }
   }
-
-  public function intersects($distance) {
-    //TODO
+  
+  // The boundary of a linestring is itself
+  public function boundary() {
+  	return $this;
   }
+  
+  public function startPoint() {
+  	return $this->pointN(1);
+  }
+  
+  public function endPoint() {
+  	$last_n = $this->numPoints();
+  	return $this->pointN($last_n);
+  }
+  
+  public function isClosed() {
+    //@@TODO: Need to complete equal() first;
+    #return ($this->startPoint->equal($this->endPoint()));
+  }
+  
+	public function isRing() {
+		//@@TODO: need to complete isSimple first
+		#return ($this->isClosed() && $this->isSimple());
+	}
+
+	public function numPoints() {
+		return $this->numGeometries();
+	}
+	
+	public function pointN($n) {
+		return $this->geometryN($n);
+	}
   
 }
 

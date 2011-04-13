@@ -29,8 +29,24 @@ class MultiLineString extends Collection
     parent::__construct($linestrings);
   }
   
-  public function intersects($distance) {
-    //TODO
+  // Length of a MultiLineString is the sum of it's components
+	public function length() {
+		$length = 0;
+		foreach ($this->components as $line) {
+			$length += $line->length();
+		}
+		return $length;
+	}
+	
+	// MultiLineString is closed if all it's components are closed
+  public function isClosed() {
+		foreach ($this->components as $line) {
+			if (!$line->isClosed()) {
+				return FALSE;
+			}
+		}
+		return TRUE;
   }
+  
 }
 

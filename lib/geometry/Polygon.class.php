@@ -43,11 +43,7 @@ class Polygon extends Collection
     }
   }
   
-  public function intersects($distance) {
-    //TODO
-  }
-  
-  public function getArea($exterior_only = FALSE) {
+  public function area($exterior_only = FALSE) {
     //TODO: Calculate and subtract interior rings
     
     $exterior_ring = $this->components[0];
@@ -64,14 +60,14 @@ class Polygon extends Collection
   	return abs(($a / 2));
   }
   
-  public function getCentroid() {
+  public function centroid() {
     $exterior_ring = $this->components[0];
     $pts = $exterior_ring->getComponents();
     
   	$c = count($pts);
   	if((int)$c == '0') return NULL;
   	$cn = array('x' => '0', 'y' => '0');
-  	$a = $this->getArea(TRUE);
+  	$a = $this->area(TRUE);
   	foreach($pts as $k => $p){
   		$j = ($k + 1) % $c;
   		$P = ($p->getX() * $pts[$j]->getY()) - ($p->getY() * $pts[$j]->getX());
@@ -84,5 +80,22 @@ class Polygon extends Collection
   	$centroid = new Point($cn['x'], $cn['y']);
   	return $centroid;
   }
+
+	public function exteriorRing() {
+		return $this->components[0];
+	}
+	
+	public function numInteriorRings() {
+		return $this->numGeometries()-1;
+	}
+  
+  public function interiorRingN($n) {
+		return $this->geometryN($n+1);
+  }
+
+	// Not valid for this geometry type
+	// --------------------------------
+	public function length() { return NULL; }
+  
 }
 

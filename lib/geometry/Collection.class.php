@@ -95,13 +95,13 @@ abstract class Collection extends Geometry implements Iterator
   }
 
   // For collections, centroids and bbox are all the same
-  public function getCentroid()
+  public function centroid()
   {
     // By default, the centroid of a collection is the average of x and y of all the component centroids
     $i = 0;
     
     foreach ($this->components as $component) {
-      $component_centroid = $component->getCentroid();
+      $component_centroid = $component->centroid();
       // On the first run through, set sum manually
 
       if ($i == 0) {
@@ -153,17 +153,66 @@ abstract class Collection extends Geometry implements Iterator
     );
   }
 
-  public function getArea() {
+  public function area() {
     $area = 0;
     foreach ($this->components as $component) {
-      $area += $component->getArea();
+      $area += $component->area();
     }
     return $area;
   }
 
-  public function intersects($geometry) {
-    //TODO
+  // By default, the boundary of a collection is the boundary of it's components
+  public function boundary() {
+  	$components_boundaries = array();
+  	foreach ($this->components as $component) {
+  		$components_boundaries[] = $component->boundary();
+  	}
+  	return geoPHP::geometryReduce($components_boundaries);
   }
 
+  // Standard - Collection Only
+	public function numGeometries() {
+		return count($this->components);
+	}
+	
+	// Note that the standard is 1 based indexing
+	public function geometryN($n) {
+		$n = inval($n);
+		if (array_key_exists($n-1, $this->components)) {
+			return $this->components[$n-1];
+		}
+		else {
+			return NULL;
+		}
+	}
+
+  public function length() {
+  	$length = 0;
+  	foreach ($this->components as $delta => $point) {
+  		$next_point = $this->geometryN($delta);
+  		if ($next_point) {
+  			// Pythagorean Theorem
+  		  $distance = sqrt(($next_point->getX() - $point->getX())^2+($next_point->getY()- $point->getY())^2);
+  		  $length += $distance;
+  	  }
+  	}
+  	return $length;
+  }
+	
+	// Not valid for this geometry type
+	// --------------------------------
+	public function x()                { return NULL; }
+  public function y()                { return NULL; }
+  public function startPoint()       { return NULL; }
+	public function endPoint()         { return NULL; }
+	public function isRing()           { return NULL; }
+	public function isClosed()         { return NULL; }
+	public function numPoints()        { return NULL; }
+	public function pointN($n)         { return NULL; }
+	public function exteriorRing()     { return NULL; }
+	public function numInteriorRings() { return NULL; }
+  public function interiorRingN($n)  { return NULL; }
+	public function pointOnSurface()   { return NULL; }
+	
 }
 
