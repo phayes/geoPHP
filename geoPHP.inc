@@ -33,7 +33,7 @@ include_once("lib/geometry/GeometryCollection.class.php");
 class geoPHP {
 
   function version() {
-  	return '0.2';
+  	return '0.3';
   }
   
   // geoPHPLoad($data, $type, $other_args);
