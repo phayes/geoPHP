@@ -23,17 +23,19 @@ class GeoJSON extends GeoAdapter
    * Deserializes a geojson string into an object
    *
    *
-   * @param string $string The GeoJSON string
+   * @param mixed $input The GeoJSON string or object
    *
    * @return object The PHP equivalent object
    */
-  public function read($string)
+  public function read($input)
   {
-    if (!($object = json_decode($string)))
-    {
+  	if (is_string($input)) {
+  		$input = json_decode($input);
+  	}
+    if (!is_object($input)) {
       throw new Exception('Invalid JSON');
     }
-    return self::toInstance($object);
+    return self::toInstance($input);
   }
 
   /**
