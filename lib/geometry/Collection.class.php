@@ -27,6 +27,10 @@ abstract class Collection extends Geometry implements Iterator
    */
   public function __construct(array $components)
   {
+  	if (empty($components)) {
+  		throw new Exception("Cannot create empty collection");
+  	}
+  	
     foreach ($components as $component)
     {
       $this->add($component);
