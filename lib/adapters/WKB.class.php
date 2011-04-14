@@ -1,6 +1,5 @@
 <?php
 /*
- * (c) Camptocamp <info@camptocamp.com>
  * (c) Patrick Hayes
  *
  * This code is open-source and licenced under the Modified BSD License.
@@ -40,17 +39,6 @@ class WKB extends GeoAdapter
 		$geometry = $this->getGeometry($mem);
 		fclose($mem);
 		return $geometry;
-  }
-
-  /**
-   * Serialize geometries into WKB string.
-   *
-   * @param Geometry $geometry
-   *
-   * @return string The WKT string representation of the input geometries
-   */
-  public function write(Geometry $geometry, $write_as_hex = FALSE) {
-    //@@TODO
   }
 
 	function getGeometry(&$mem) {
@@ -134,5 +122,99 @@ class WKB extends GeoAdapter
 		    return new GeometryCollection($components);
 		}
 	}
+
+  /**
+   * Serialize geometries into WKB string.
+   *
+   * @param Geometry $geometry
+   *
+   * @return string The WKB string representation of the input geometries
+   */
+  public function write(Geometry $geometry, $write_as_hex = FALSE) {
+    // We always write into NDR (little endian)
+    $wkb = pack('c',1);
+    
+		switch ($geometry->getGeomType()) {
+		  case 'Point';
+		    $wkb .= pack('L',1);
+		    $wkb .= $this->writePoint($geometry);
+		    break;
+		  case 'LineString';
+  	    $wkb .= pack('L',2);
+		    $wkb .= $this->writeLineString($geometry);
+		    break;
+		  case 'Polygon';
+  	    $wkb .= pack('L',3);
+		    $wkb .= $this->writePolygon($geometry);
+		    break;
+		  case 'MultiPoint';
+  	    $wkb .= pack('L',4);
+		    $wkb .= $this->writeMulti($geometry);
+		    break;
+		  case 'MultiLineString';
+  	    $wkb .= pack('L',5);
+		    $wkb .= $this->writeMulti($geometry);
+		    break;
+		  case 'MultiPolygon';
+  	    $wkb .= pack('L',6);
+		    $wkb .= $this->writeMulti($geometry);
+		    break;
+		  case 'GeometryCollection';
+  	    $wkb .= pack('L',7);
+		    $wkb .= $this->writeMulti($geometry);
+		    break;
+		}
+		
+		if ($write_as_hex) {
+			$unpacked = unpack('H*',$wkb);
+			return $unpacked[1];
+		}
+		else {
+			return $wkb;
+		}
+  }
+  
+  function writePoint($point) {
+  	// Set the coords
+  	$wkb .= pack('dd',$point->x(), $point->y());
+  	
+  	return $wkb;
+  }
+
+  function writeLineString($line) {
+  	// Set the number of points in this line
+  	$wkb .= pack('L',$line->numPoints());
+  	
+  	// Set the coords
+  	foreach ($line->getComponents() as $point) {
+  	  $wkb .= pack('dd',$point->x(), $point->y());
+    }
+  	
+  	return $wkb;
+  }
+
+  function writePolygon($poly) {
+  	// Set the number of lines in this poly
+  	$wkb .= pack('L',$poly->numGeometries());
+  	
+  	// Write the lines
+  	foreach ($poly->getComponents() as $line) {
+  	  $wkb .= $this->writeLineString($line);
+    }
+  	
+  	return $wkb;
+  }
+
+  function writeMulti($geometry) {
+  	// Set the number of components
+  	$wkb .= pack('L',$geometry->numGeometries());
+  	
+  	// Write the components
+  	foreach ($geometry->getComponents() as $component) {
+  	  $wkb .= $this->write($component);
+    }
+  	
+  	return $wkb;
+  }
 
 }
