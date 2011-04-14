@@ -71,7 +71,7 @@ Adapters
    * write              Read a geometry object and return adapter format
  - Instances
    * WKT                  Enables reading and writing WKT (Well Known Text)
-   * WKT                  Enables reading and writing WKB(Well Known Binary). This is very fast.
+   * WKB                  Enables reading and writing WKB (Well Known Binary). This is very fast.
    * GeoJSON              Enables reading and writing GeoJSON
    * KML                  Enables reading and writing KML (Google Earth)
    * GoogleGeocode        Enables geocoding and reverse geocoding via google geocoding API
