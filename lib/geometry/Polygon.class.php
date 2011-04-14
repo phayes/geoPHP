@@ -44,8 +44,10 @@ class Polygon extends Collection
   }
   
   public function area($exterior_only = FALSE) {
-    //TODO: Calculate and subtract interior rings
-    
+  	if ($this->geos() && $exterior_only == FALSE) {
+  		return $this->geos()->area();
+  	}
+  	
     $exterior_ring = $this->components[0];
     $pts = $exterior_ring->getComponents();
     
@@ -57,10 +59,24 @@ class Polygon extends Collection
   		$a = $a + ($p->getX() * $pts[$j]->getY()) - ($p->getY() * $pts[$j]->getX());
     }
     
-  	return abs(($a / 2));
+    $area = abs(($a / 2));
+    if ($exterior_only == TRUE) {
+    	return $area;
+    }
+    foreach ($this->components as $delta => $component) {
+    	if ($delta != 0) {
+    		$inner_poly = new Polgyon($component);
+    		$area -= $inner_poly->area();
+    	}
+    }
+    return $area;
   }
   
   public function centroid() {
+  	if ($this->geos()) {
+  		return $this->geos()->centroid();
+  	}
+  	
     $exterior_ring = $this->components[0];
     $pts = $exterior_ring->getComponents();
     
@@ -91,6 +107,10 @@ class Polygon extends Collection
   
   public function interiorRingN($n) {
 		return $this->geometryN($n+1);
+  }
+
+	public function dimension() {
+  	return 2;
   }
 
 	// Not valid for this geometry type

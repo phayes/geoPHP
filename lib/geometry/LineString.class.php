@@ -68,6 +68,10 @@ class LineString extends Collection
 	public function pointN($n) {
 		return $this->geometryN($n);
 	}
+	
+	public function dimension() {
+  	return 1;
+  }
   
 }
 

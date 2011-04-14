@@ -95,8 +95,11 @@ abstract class Collection extends Geometry implements Iterator
   }
 
   // For collections, centroids and bbox are all the same
-  public function centroid()
-  {
+  public function centroid() {
+		if ($this->geos()) {
+			return geoPHP::load($this->geos()->centroid(),'wkt');
+		}
+  	
     // By default, the centroid of a collection is the average of x and y of all the component centroids
     $i = 0;
     
@@ -154,6 +157,10 @@ abstract class Collection extends Geometry implements Iterator
   }
 
   public function area() {
+  	if ($this->geos()) {
+			return $this->geos()->area();
+		}
+		
     $area = 0;
     foreach ($this->components as $component) {
       $area += $component->area();
@@ -163,6 +170,10 @@ abstract class Collection extends Geometry implements Iterator
 
   // By default, the boundary of a collection is the boundary of it's components
   public function boundary() {
+  	if ($this->geos()) {
+			return $this->geos()->boundary();
+		}
+		
   	$components_boundaries = array();
   	foreach ($this->components as $component) {
   		$components_boundaries[] = $component->boundary();
@@ -187,6 +198,10 @@ abstract class Collection extends Geometry implements Iterator
 	}
 
   public function length() {
+  	if ($this->geos()) {
+			return $this->geos()->length();
+		}
+		
   	$length = 0;
   	foreach ($this->components as $delta => $point) {
   		$next_point = $this->geometryN($delta);
@@ -198,6 +213,17 @@ abstract class Collection extends Geometry implements Iterator
   	}
   	return $length;
   }
+  
+  public function dimension() {
+  	$dimention = 0;
+  	foreach ($this->components as $component) {
+  		if ($component->dimention() > $dimention) {
+  			$dimention = $component->dimention();
+  		}
+  	}
+  	return $dimention;
+  }
+  
 	
 	// Not valid for this geometry type
 	// --------------------------------

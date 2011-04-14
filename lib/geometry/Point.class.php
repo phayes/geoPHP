@@ -19,7 +19,6 @@
 class Point extends Geometry
 {
   private $position = array(2);
-
   protected $geom_type = 'Point';
 
   /**
@@ -99,6 +98,10 @@ class Point extends Geometry
   // The bounadry of a point is itself
   public function boundary() {
     return $this;
+  }
+  
+  public function dimension() {
+  	return 0;
   }
   
   // Not valid for this geometry type

@@ -18,8 +18,10 @@
  */
 abstract class Geometry 
 {
+	private   $geos = NULL;
   protected $geom_type;
   protected $srid;
+
 	
   // Abtract: Standard
   // -----------------
@@ -40,47 +42,8 @@ abstract class Geometry
 	abstract public function exteriorRing();
 	abstract public function numInteriorRings();
   abstract public function interiorRingN($n);
-	abstract public function pointOnSurface();    // Polygon --> not done
-  /**
-  //@@TODO: UNFISHED (NOT YET IMPLEMENDTED)
-	abstract public function equals();
-	abstract public function equalsExact();
-  abstract public function relate();
-	abstract public function relateBoundaryNodeRule(); 
-	abstract public function isEmpty();
-	abstract public function checkValidity();
-	abstract public function isSimple();
-	abstract public function typeName();
-	abstract public function typeId();
-	
-	abstract public function project();
-	abstract public function interpolate();
-	abstract public function buffer();
-	abstract public function intersection();
-	abstract public function convexHull();
-	abstract public function difference();
-	abstract public function symDifference();
-	abstract public function union(); // also does union cascaded
-	abstract public function simplify(); // also does topology-preserving
-	abstract public function extractUniquePoints(); 
-	abstract public function disjoint();
-	abstract public function touches();
-	abstract public function intersects();
-	abstract public function crosses();
-	abstract public function within();
-	abstract public function contains();
-	abstract public function overlaps();
-	abstract public function covers();
-	abstract public function coveredBy();
-	abstract public function numCoordinates();
 	abstract public function dimension();
-	abstract public function coordinateDimension();
-	abstract public function distance();
-	abstract public function hausdorffDistance();
-	abstract public function snapTo();
-
-	*/
-  
+	
   // Abtract: Non-Standard
   // ---------------------
   abstract public function getCoordinates();
@@ -94,6 +57,9 @@ abstract class Geometry
   }
   
 	public function setSRID($srid) {
+		if ($this->geos()) {
+			$this->geos()->setSRID($srid);
+		}
 		$this->srid = $srid;
 	}
 	
@@ -101,8 +67,32 @@ abstract class Geometry
 	  // geoPHP does not support Z values at the moment
 	  return FALSE;	
 	}
+
+  public function is3D() {
+	  // geoPHP does not support 3D geometries at the moment
+	  return FALSE;	
+	}
+
+	public function isMeasured() {
+  	// geoPHP does not yet support M values
+  	return FALSE;
+  }
+	
+	public function isEmpty() {
+  	// geoPHP does not yet support empty geometries
+  	return FALSE;
+  }
+
+	public function coordinateDimension() {
+		// geoPHP only supports 2-dimentional space
+		return 2;
+	}
   
   public function envelope() {
+  	if ($this->geom) {
+  		return geoPHP::load($this->geos->envelope(),'wkt');
+  	}
+  	
   	$bbox = $this->getBBox();
   	$points = array (
   	  new Point($bbox['maxy'],$bbox['minx']),
@@ -112,7 +102,7 @@ abstract class Geometry
   	  new Point($bbox['maxy'],$bbox['minx']),
   	);
   	$outer_boundary = new LinearRing($points);
-  	return new Polygon($outer_boundary);
+  	return new Polygon(array($outer_boundary));
   }
 
   
@@ -129,12 +119,32 @@ abstract class Geometry
     );
   }
   
+  public function geos() {
+  	// If it's already been set, just return it
+  	if ($this->geos !== NULL) {
+  		return $this->geos;
+  	}
+  	// It hasn't been set yet, generate it
+  	if (class_exists('GEOSGeometry')) {
+	  	$reader = new GEOSWKTReader();
+	    $this->geos = $reader->read($this->out('wkt'));
+  	}
+  	else {
+  		$this->geos = FALSE;
+    }
+    return $this->geos;
+  }
+
+  public function setGeos($geos) {
+  	$this->geos = $geos;
+  }
+
   public function out($format) {
     $type_map = geoPHP::getAdapterMap();
     $processor_type = $type_map[$format];
     $processor = new $processor_type();
-    
-    return $processor->write($this);
+    $value = $processor->write($this);
+    return $value;
   }
   
   
@@ -156,4 +166,162 @@ abstract class Geometry
 		return $this->y();
 	}
 
+	public function getGeos() {
+		return $this->geos();
+	}
+	
+  // Public: GEOS Only Functions
+  // ---------------------------
+	public function pointOnSurface() {
+		if ($this->geos()) {
+			return geoPHP::load($this->geos()->pointOnSurface(),'wkt');
+		}
+	}
+	
+	public function equals($geometry) {
+		if ($this->geos()) {
+			return $this->geos()->equals($geometry->geos());
+		}
+	}
+	
+	public function equalsExact($geometry) {
+		if ($this->geos()) {
+			return $this->geos()->equalsExact($geometry->geos());
+		}
+	}
+	
+  public function relate($geometry) {
+  	//@@TODO: Deal with second "pattern" parameter
+		if ($this->geos()) {
+			return $this->geos()->relate($geometry->geos());
+		}
+  }
+  
+	public function checkValidity() {
+		if ($this->geos()) {
+			return $this->geos()->checkValidity();
+		}
+  }
+
+	public function isSimple() {
+		if ($this->geos()) {
+			return $this->geos()->isSimple();
+		}
+  }
+  
+	public function project($srid) {
+		if ($this->geos()) {
+			return geoPHP::load($this->geos()->project($srid),'wkt');
+		}
+	}
+	
+	public function buffer($distance, $style_array = FASLSE) {
+		if ($this->geos()) {
+			return geoPHP::load($this->geos()->buffer($distance, $style_array),'wkt');
+		}
+	}
+	
+	public function intersection($geometry) {
+		if ($this->geos()) {
+			return geoPHP::load($this->geos()->intersection($geometry->geom),'wkt');
+		}
+	}
+	
+	public function convexHull() {
+		if ($this->geos()) {
+			return geoPHP::load($this->geos()->convexHull(),'wkt');
+		}
+	}
+	
+	public function difference($geometry) {
+		if ($this->geos()) {
+			return geoPHP::load($this->geos()->difference($geometry->geom),'wkt');
+		}
+	}
+	
+	public function symDifference($geometry) {
+		if ($this->geos()) {
+			return geoPHP::load($this->geos()->symDifference($geometry->geom),'wkt');
+		}
+	}
+	
+	public function union($geometry) {
+		//@@TODO: also does union cascade
+		if ($this->geos()) {
+			return geoPHP::load($this->geos()->union($geometry->geom),'wkt');
+		}
+	}
+	
+	public function simplify($tolerance, $preserveTopology = FALSE) {
+		if ($this->geos()) {
+			return geoPHP::load($this->geos()->simplify($tolerance, $preserveTopology),'wkt');
+		}
+	}
+	
+	public function disjoint($geometry) {
+		if ($this->geos()) {
+			return $this->geos()->disjoint($geometry->geos());
+		}
+	}
+	
+	public function touches($geometry) {
+		if ($this->geos()) {
+			return $this->geos()->touches($geometry->geos());
+		}
+	}
+	
+	public function intersects($geometry) {
+		if ($this->geos()) {
+			return $this->geos()->intersects($geometry->geos());
+		}
+	}
+	
+	public function crosses($geometry) {
+		if ($this->geos()) {
+			return $this->geos()->crosses($geometry->geos());
+		}
+	}
+
+	public function within($geometry) {
+		if ($this->geos()) {
+			return $this->geos()->within($geometry->geos());
+		}
+	}
+	
+	public function contains($geometry) {
+		if ($this->geos()) {
+			return $this->geos()->contains($geometry->geos());
+		}
+	}
+	
+	public function overlaps($geometry) {
+		if ($this->geos()) {
+			return $this->geos()->overlaps($geometry->geos());
+		}
+	}
+	
+	public function covers($geometry) {
+		if ($this->geos()) {
+			return $this->geos()->covers($geometry->geos());
+		}
+	}
+	
+	public function coveredBy($geometry) {
+		if ($this->geos()) {
+			return $this->geos()->coveredBy($geometry->geos());
+		}
+	}
+
+	public function distance($geometry) {
+		if ($this->geos()) {
+			return $this->geos()->distance($geometry->geos());
+		}
+	}
+	
+	public function hausdorffDistance($geometry) {
+		if ($this->geos()) {
+			return $this->geos()->hausdorffDistance($geometry->geos());
+		}
+	}
+	
 }
