@@ -45,10 +45,12 @@ class WKT extends GeoAdapter
    *
    * @return Geometry|GeometryCollection
    */
-  public function read($WKT)
+  public function read($wkt)
   {
+  	$wkt = strval($wkt);
+  	
     $matches = array();
-    if (!preg_match($this->regExes['typeStr'], $WKT, $matches))
+    if (!preg_match($this->regExes['typeStr'], $wkt, $matches))
     {
       return null;
     }

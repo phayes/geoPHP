@@ -71,7 +71,7 @@ class geoPHP {
       'google_geocode' => 'GoogleGeocode',
     );
   }
-
+  
 
   // Utility Functions
   // --------------------------------
