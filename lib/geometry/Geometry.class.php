@@ -90,7 +90,7 @@ abstract class Geometry
   
   public function envelope() {
   	if ($this->geom) {
-  		return geoPHP::load($this->geos->envelope(),'wkt');
+  		return geoPHP::geosToGeometry($this->geos->envelope());
   	}
   	
   	$bbox = $this->getBBox();
@@ -174,7 +174,7 @@ abstract class Geometry
   // ---------------------------
 	public function pointOnSurface() {
 		if ($this->geos()) {
-			return geoPHP::load($this->geos()->pointOnSurface(),'wkt');
+			return geoPHP::geosToGeometry($this->geos()->pointOnSurface());
 		}
 	}
 	
@@ -211,50 +211,50 @@ abstract class Geometry
   
 	public function project($srid) {
 		if ($this->geos()) {
-			return geoPHP::load($this->geos()->project($srid),'wkt');
+			return geoPHP::geosToGeometry($this->geos()->project($srid));
 		}
 	}
 	
 	public function buffer($distance, $style_array = FASLSE) {
 		if ($this->geos()) {
-			return geoPHP::load($this->geos()->buffer($distance, $style_array),'wkt');
+			return geoPHP::geosToGeometry($this->geos()->buffer($distance, $style_array));
 		}
 	}
 	
 	public function intersection($geometry) {
 		if ($this->geos()) {
-			return geoPHP::load($this->geos()->intersection($geometry->geom),'wkt');
+			return geoPHP::geosToGeometry($this->geos()->intersection($geometry->geom));
 		}
 	}
 	
 	public function convexHull() {
 		if ($this->geos()) {
-			return geoPHP::load($this->geos()->convexHull(),'wkt');
+			return geoPHP::geosToGeometry($this->geos()->convexHull());
 		}
 	}
 	
 	public function difference($geometry) {
 		if ($this->geos()) {
-			return geoPHP::load($this->geos()->difference($geometry->geom),'wkt');
+			return geoPHP::geosToGeometry($this->geos()->difference($geometry->geom));
 		}
 	}
 	
 	public function symDifference($geometry) {
 		if ($this->geos()) {
-			return geoPHP::load($this->geos()->symDifference($geometry->geom),'wkt');
+			return geoPHP::geosToGeometry($this->geos()->symDifference($geometry->geom));
 		}
 	}
 	
 	public function union($geometry) {
 		//@@TODO: also does union cascade
 		if ($this->geos()) {
-			return geoPHP::load($this->geos()->union($geometry->geom),'wkt');
+			return geoPHP::geosToGeometry($this->geos()->union($geometry->geom));
 		}
 	}
 	
 	public function simplify($tolerance, $preserveTopology = FALSE) {
 		if ($this->geos()) {
-			return geoPHP::load($this->geos()->simplify($tolerance, $preserveTopology),'wkt');
+			return geoPHP::geosToGeometry($this->geos()->simplify($tolerance, $preserveTopology));
 		}
 	}
 	

@@ -14,6 +14,7 @@ include_once("lib/GeometryLoader.class.php");
 include_once("lib/adapters/GeoAdapter.class.php"); // Abtract class
 include_once("lib/adapters/GeoJSON.class.php");
 include_once("lib/adapters/WKT.class.php");
+include_once("lib/adapters/WKB.class.php");
 include_once("lib/adapters/KML.class.php");
 include_once("lib/adapters/GPX.class.php");
 include_once("lib/adapters/GoogleGeocode.class.php");
@@ -65,6 +66,7 @@ class geoPHP {
   function getAdapterMap() {
     return array (
       'wkt' => 'WKT',
+      'wkb' => 'WKB',
       'json' => 'GeoJSON',
       'kml' => 'KML',
       'gpx' => 'GPX',
@@ -75,6 +77,14 @@ class geoPHP {
 
   // Utility Functions
   // --------------------------------
+  
+  function geosToGeometry($geos) {
+  	$wkb_writer = new GEOSWKBWriter();
+  	$wkb = $wkb_writer->writeHEX($geos);
+  	$geometry = geoPHP::load($wkb,'wkb',TRUE);
+  	$geometry->setGeos($geos);
+  	return $geometry;
+  }
   
   function geometryList() {
   	return array(

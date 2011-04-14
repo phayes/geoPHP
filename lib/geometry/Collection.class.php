@@ -94,34 +94,15 @@ abstract class Collection extends Geometry implements Iterator
     return $this->current() !== false;
   }
 
-  // For collections, centroids and bbox are all the same
   public function centroid() {
 		if ($this->geos()) {
-			return geoPHP::load($this->geos()->centroid(),'wkt');
+			return geoPHP::geosToGeometry($this->geos()->centroid());
 		}
   	
-    // By default, the centroid of a collection is the average of x and y of all the component centroids
-    $i = 0;
-    
-    foreach ($this->components as $component) {
-      $component_centroid = $component->centroid();
-      // On the first run through, set sum manually
-
-      if ($i == 0) {
-        $x_sum = $component_centroid->getX();
-        $y_sum = $component_centroid->getY();
-      }
-      else {
-        $x_sum += $component_centroid->getX();
-        $y_sum += $component_centroid->getY();
-      }
-      $i++;
-    }
-    
-    $x = $x_sum / $i;
-    $y = $y_sum / $i;
-    
-    $centroid = new Point($x, $y);
+    // As a rough estimate, we say that the centroid of a colletion is the centroid of it's envelope
+    // @@TODO: Make this the centroid of the convexHull
+    // Note: Outside of polygons, geometryCollections and the trivial case of points, there is no standard on what a "centroid" is
+    $centroid = $this->envelope()->centroid();
     
     return $centroid;
   }
