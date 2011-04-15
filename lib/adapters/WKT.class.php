@@ -66,12 +66,11 @@ class WKT extends GeoAdapter
   public function write(Geometry $geometry) {
     $type = strtolower(get_class($geometry));
 
-    if (is_null($data = $this->extract($geometry)))
-    {
+    if (is_null($data = $this->extract($geometry))) {
       return null;
     }
 
-    return strtoupper($type).'('.$data.')';
+    return strtoupper($type).' ('.$data.')';
   }
 
   /**
@@ -182,7 +181,7 @@ class WKT extends GeoAdapter
         foreach ($geometry as $geom) {
           $array[] = $this->extract($geom);
         }
-        return implode(',', $array);
+        return implode(', ', $array);
       case self::MULTIPOINT:
       case self::MULTILINESTRING:
       case self::POLYGON:
@@ -190,12 +189,12 @@ class WKT extends GeoAdapter
         foreach ($geometry as $geom) {
           $array[] = '('.$this->extract($geom).')';
         }
-        return implode(',', $array);
+        return implode(', ', $array);
       case self::GEOMETRYCOLLECTION:
         foreach ($geometry as $geom) {
-          $array[] = strtoupper(get_class($geom)).'('.$this->extract($geom).')';
+          $array[] = strtoupper(get_class($geom)).' ('.$this->extract($geom).')';
         }
-        return implode(',', $array);
+        return implode(', ', $array);
       default:
         return null;
     }
