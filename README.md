@@ -1,27 +1,21 @@
-GeoPHP is a native PHP library for doing basic geometry operations. It is written entirely in PHP and 
-can therefore run on shared hosts. It is based on the Mapfish project by Camptocamp and is BSD licensed.
+GeoPHP is a open-source native PHP library for doing geometry operations. It is written entirely in PHP and 
+can therefore run on shared hosts. It can read and write a wide variety of formats (WKT, WKB, GeoJSON, 
+KML, GPX). It can also be used to get centroids, bounding-boxes, area, and a wide variety of other
+useful information. 
 
-It is not meant to be high-performance nor is it meant to be an extensive implementation of the spec. 
-If you have root on your machine and are looking for a high-performance PHP library for doing geometric 
-operations, check out the GEOS PHP extension.
+geoPHP also helpfully wraps the GEOS php extension so that applications can get a transparent performance 
+increase when GEOS is installed on the server. When GEOS is installed, geoPHP also becomes
+fully compliant with OpenGIS® Implementation Standard for Geographic information. This means that
+you get the full-set of openGIS functions in PHP like Union, IsWithin, Touches etc. 
+
+Applications can get a useful "core-set" of geometry operations that work in all environments, and an "extended-set"
+of operations for environments that have GEOS installed. As time and resources allow we will be porting as much as
+possible to native PHP to enable more operations on hosts without GEOS.
+
+See the 'getting started' section below for references and examples of everything that geoPHP can do.
 
 This project is currently looking for co-maintainers. If you think you can help out, please send me a 
 message. Forks are also welcome, please issue pull requests and I will merge them into the main branch.
-
-Long Terms Goals
--------------------------------------------------
-
-The long-term goal of this project is to enable the full OpenGIS Simple Features Specification For SQL 
-in PHP. We will optionally 'wrap' the geos-php extention so that applications can get a transparent 
-'speed-up' when geos-php is installed on the server. This means that an application can use geoPHP 
-to transparently enable geometry operations on both shared-hosts (via native PHP) and optimized 
-servers (via geos-php) without the headache of switching libraries depending on the server environment.
-
-We will start by implementing the most common methods and geometry-types, and wrapping the geos-php 
-extention for the rest. This means that applications can get a useful "core-set" of geometry operations 
-that work in all environments, and an "extended-set" of operations for environments that have geos-php
-enabled. As time and resources allow we will be porting as much as possible to native PHP to enable
-more operations on hosts without goes-php.
 
 Getting Started
 -----------------------
