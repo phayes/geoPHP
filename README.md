@@ -8,8 +8,6 @@ operations, check out the GEOS PHP extension.
 This project is currently looking for co-maintainers. If you think you can help out, please send me a 
 message. Forks are also welcome, please issue pull requests and I will merge them into the main branch.
 
-
-
 Long Terms Goals
 -------------------------------------------------
 
@@ -30,39 +28,44 @@ more operations on hosts without goes-php.
 Example usage:
 -------------------------------------------------
 
-include_once('geoPHP.inc');
-
-// Polygon WKT example
-$polygon = geoPHP::load('POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2))','wkt');
-$area = $polygon->getArea();
-$centroid = $polygon->getCentroid();
-$centX = $centroid->getX();
-$centY = $centroid->getY();
-
-print "This polygon has an area of ".$area." and a centroid with X=".$centX."
-and Y=".$centY;
-
-// MultiPoint json example
-print "<br/>";
-$json = 
-'{
-   "type": "MultiPoint",
-   "coordinates": [
-       [100.0, 0.0], [101.0, 1.0]
-   ]
-}';
-
-$multipoint = geoPHP::load($json, 'json');
-$multipoint_points = $multipoint->getComponents();
-$num_points = count($multipoint_points);
-$first_wkt = $multipoint_points[0]->out('wkt');
-
-print "This multipolygon has ".$num_points." points. The first point
-has a wkt representation of ".$first_wkt;
+    include_once('geoPHP.inc');
+    
+    // Polygon WKT example
+    $polygon = geoPHP::load('POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2))','wkt');
+    $area = $polygon->getArea();
+    $centroid = $polygon->getCentroid();
+    $centX = $centroid->getX();
+    $centY = $centroid->getY();
+    
+    print "This polygon has an area of ".$area." and a centroid with X=".$centX."
+    and Y=".$centY;
+    
+    // MultiPoint json example
+    print "<br/>";
+    $json = 
+    '{
+       "type": "MultiPoint",
+       "coordinates": [
+           [100.0, 0.0], [101.0, 1.0]
+       ]
+    }';
+    
+    $multipoint = geoPHP::load($json, 'json');
+    $multipoint_points = $multipoint->getComponents();
+    $num_points = count($multipoint_points);
+    $first_wkt = $multipoint_points[0]->out('wkt');
+    
+    print "This multipolygon has ".$num_points." points. The first point
+    has a wkt representation of ".$first_wkt;
 
 
 Getting Started
 -----------------------
+
+ * Read the API Reference at: https://github.com/phayes/geoPHP/wiki/API-Referece
+ * Examples
+ ** Using geoPHP as a GIS format converter: https://github.com/phayes/geoPHP/wiki/Example-format-converter
+
 
 Credit
 -------------------------------------------------
