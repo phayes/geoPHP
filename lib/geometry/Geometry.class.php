@@ -172,6 +172,14 @@ abstract class Geometry
   public function getSRID() {
     return $this->SRID();
   }
+
+  public function asText() {
+    return $this->out('wkt');
+  }
+ 
+   public function asBinary() {
+    return $this->out('wkb');
+  }
   
   // Public: GEOS Only Functions
   // ---------------------------
