@@ -18,7 +18,7 @@
  */
 class LinearRing extends LineString
 {
-  protected $geom_type = 'LinearRing';
+  protected $geom_type = 'LineString';
   
   /**
    * Constructor

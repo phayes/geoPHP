@@ -70,6 +70,12 @@ class WKT extends GeoAdapter
    * @return string The WKT string representation of the input geometries
    */
   public function write(Geometry $geometry) {
+    // If geos is installed, then we take a shortcut and let it write the WKT
+    if (geoPHP::geosInstalled()) {
+      $writer = new GEOSWKTWriter();
+      return $writer->write($geometry->geos());
+    }
+    
     $type = strtolower($geometry->geometryType());
     
     if (is_null($data = $this->extract($geometry))) {

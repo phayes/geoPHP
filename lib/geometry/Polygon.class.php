@@ -58,7 +58,7 @@ class Polygon extends Collection
     }
     foreach ($this->components as $delta => $component) {
       if ($delta != 0) {
-        $inner_poly = new Polgyon($component);
+        $inner_poly = new Polygon(array($component));
         $area -= $inner_poly->area();
       }
     }
@@ -77,12 +77,21 @@ class Polygon extends Collection
     if((int)$c == '0') return NULL;
     $cn = array('x' => '0', 'y' => '0');
     $a = $this->area(TRUE);
+    
+    // If this is a polygon with no area. Just return the first point.
+    if ($a == 0) {
+      return $this->exteriorRing()->pointN(1);
+    }
+    
     foreach($pts as $k => $p){
       $j = ($k + 1) % $c;
       $P = ($p->getX() * $pts[$j]->getY()) - ($p->getY() * $pts[$j]->getX());
       $cn['x'] = $cn['x'] + ($p->getX() + $pts[$j]->getX()) * $P;
       $cn['y'] = $cn['y'] + ($p->getY() + $pts[$j]->getY()) * $P;
-    }  
+    }
+    
+
+    
     $cn['x'] = $cn['x'] / ( 6 * $a);
     $cn['y'] = $cn['y'] / ( 6 * $a);
     

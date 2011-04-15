@@ -121,7 +121,7 @@ class geoPHP
     // If the geometry cannot even theoretically be reduced more, then pass it back
     if (gettype($geometry) == 'object') {
       $passbacks = array('Point','LineString','LinearRing','Polygon');
-      if (in_array(get_class($geometry),$passbacks)) {
+      if (in_array($geometry->geometryType(),$passbacks)) {
         return $geometry;
       }
     }
@@ -155,12 +155,12 @@ class geoPHP
       if (in_array(get_class($item), $collections)) {
         foreach ($item->getComponents() as $component) {
           $geometries[] = $component;
-          $geom_types[] = get_class($component);
+          $geom_types[] = $component->geometryType();
         }
       }
       else {
         $geometries[] = $item;
-        $geom_types[] = get_class($item);
+        $geom_types[] = $item->geometryType();
       }
     }
     
