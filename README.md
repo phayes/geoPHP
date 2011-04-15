@@ -5,7 +5,7 @@ useful information.
 
 geoPHP also helpfully wraps the GEOS php extension so that applications can get a transparent performance 
 increase when GEOS is installed on the server. When GEOS is installed, geoPHP also becomes
-fully compliant with OpenGIS® Implementation Standard for Geographic information. This means that
+fully compliant with the OpenGIS® Implementation Standard for Geographic information. This means that
 you get the full-set of openGIS functions in PHP like Union, IsWithin, Touches etc. 
 
 Applications can get a useful "core-set" of geometry operations that work in all environments, and an "extended-set"
