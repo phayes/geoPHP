@@ -23,7 +23,13 @@ that work in all environments, and an "extended-set" of operations for environme
 enabled. As time and resources allow we will be porting as much as possible to native PHP to enable
 more operations on hosts without goes-php.
 
-  
+Getting Started
+-----------------------
+
+ * Read the API Reference at: <https://github.com/phayes/geoPHP/wiki/API-Referece>
+ * Examples
+   * Using geoPHP as a GIS format converter: <http://github.com/phayes/geoPHP/wiki/Example-format-converter>
+
 
 Example usage:
 -------------------------------------------------
@@ -57,14 +63,6 @@ Example usage:
     
     print "This multipolygon has ".$num_points." points. The first point
     has a wkt representation of ".$first_wkt;
-
-
-Getting Started
------------------------
-
- * Read the API Reference at: http://github.com/phayes/geoPHP/wiki/API-Referece
- * Examples
-   * Using geoPHP as a GIS format converter: http://github.com/phayes/geoPHP/wiki/Example-format-converter
 
 
 Credit
