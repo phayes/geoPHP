@@ -52,11 +52,9 @@ Example usage:
     
     $multipoint = geoPHP::load($json, 'json');
     $multipoint_points = $multipoint->getComponents();
-    $num_points = count($multipoint_points);
     $first_wkt = $multipoint_points[0]->out('wkt');
     
-    print "This multipolygon has ".$num_points." points. The first point
-    has a wkt representation of ".$first_wkt;
+    print "This multipolygon has ".$multipoint->numGeometries()." points. The first point has a wkt representation of ".$first_wkt;
 
 
 Credit
