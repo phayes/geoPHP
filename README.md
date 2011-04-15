@@ -72,8 +72,8 @@ Maintainer: Patrick Hayes
 
 Code From:
 
- * sfMapFish Plugin by camptocamp (www.camptocamp.com)
- * CIS by GeoMemes Research (www.geomemes.com)
- * gisconverter.php by Arnaud Renevier (https://github.com/arenevier/gisconverter.php)
+ * sfMapFish Plugin by camptocamp <www.camptocamp.com>
+ * CIS by GeoMemes Research <www.geomemes.com>
+ * gisconverter.php by Arnaud Renevier <https://github.com/arenevier/gisconverter.php>
             
 Where code from other projects or authors is included, those authors are included in the copyright notice in that file
