@@ -61,55 +61,18 @@ print "This multipolygon has ".$num_points." points. The first point
 has a wkt representation of ".$first_wkt;
 
 
-
-API
--------------------------------------------------
-
-Adapters
- - Methods
-   * read               Read from adapter format and return a geometry object
-   * write              Read a geometry object and return adapter format
- - Instances
-   * WKT                  Enables reading and writing WKT (Well Known Text)
-   * WKB                  Enables reading and writing WKB (Well Known Binary). This is very fast.
-   * GeoJSON              Enables reading and writing GeoJSON
-   * KML                  Enables reading and writing KML (Google Earth)
-   * GoogleGeocode        Enables geocoding and reverse-geocoding via google geocoding API
-   * GPX                  Enables reading and writing GPX (from handheld GPS devices)
-
-Geometry
- - Methods
-   * getCentroid        returns Point geometry
-   * getArea            returns area
-   * getBBox            returns bouding box array
-   * getGeomType        get the geometry type
-   * out                writes to specified adapter format
- - Instances            
-   * Point              
-     - Methods          
-       * getX           Get the X or longitude
-       * getY           Get the Y or latitude
-   * Collection
-     - Methods
-       * getComponents  Get the member geometry components
-     - Instances
-       * LineString
-         - Instances
-           * LinearRing
-       * MultiLineString
-       * MultiPoint
-       * MultiPolygon
-       * Polygon
-       * GeometryCollection
-
+Getting Started
+-----------------------
 
 Credit
 -------------------------------------------------
 
 Maintainer: Patrick Hayes
-Code From:  sfMapFish Plugin by camptocamp (www.camptocamp.com)
-            CIS by GeoMemes Research (www.geomemes.com)
-            gisconverter.php by Arnaud Renevier (https://github.com/arenevier/gisconverter.php)
+
+Code From:
+
+ * sfMapFish Plugin by camptocamp (www.camptocamp.com)
+ * CIS by GeoMemes Research (www.geomemes.com)
+ * gisconverter.php by Arnaud Renevier (https://github.com/arenevier/gisconverter.php)
             
-Where code from other projects or authors is included, those authors are included
-in the copyright notice in that file
+Where code from other projects or authors is included, those authors are included in the copyright notice in that file
