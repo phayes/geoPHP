@@ -48,6 +48,12 @@ class WKT extends GeoAdapter
   public function read($wkt) {
     $wkt = strval($wkt);
     
+    // If geos is installed, then we take a shortcut and let it parse the WKT
+    if (geoPHP::geosInstalled()) {
+      $reader = new GEOSWKTReader();
+      return geoPHP::geosToGeometry($reader->read($wkt));
+    }
+    
     $matches = array();
     if (!preg_match($this->regExes['typeStr'], $wkt, $matches)) {
       return null;
