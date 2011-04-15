@@ -65,8 +65,8 @@ abstract class Geometry
   }
   
   public function envelope() {
-    if ($this->geom) {
-      return geoPHP::geosToGeometry($this->geos->envelope());
+    if ($this->geos()) {
+      return geoPHP::geosToGeometry($this->geos()->envelope());
     }
     
     $bbox = $this->getBBox();

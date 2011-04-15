@@ -40,7 +40,6 @@ class WKB extends GeoAdapter
     if ($base_info['order'] !== 1) {
       throw new Exception('Only NDR (little endian) SKB format is supported at the moment');
     }
-   
     switch ($base_info['type']) {
       case 1:
         return $this->getPoint($mem);
@@ -98,6 +97,9 @@ class WKB extends GeoAdapter
   function getMulti(&$mem, $type) {
     // Get the number of items expected in this multi out of the first 4 bytes
     $multi_length = unpack('L',fread($mem,4));
+    
+    //@@TODO: create an EMPTY geometry instead of returning null
+    if (!$multi_length[1]) return NULL;
     
     $components = array();
     $i = 1;

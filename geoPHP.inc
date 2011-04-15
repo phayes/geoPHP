@@ -101,8 +101,11 @@ class geoPHP
     $wkb_writer = new GEOSWKBWriter();
     $wkb = $wkb_writer->writeHEX($geos);
     $geometry = geoPHP::load($wkb,'wkb',TRUE);
-    $geometry->setGeos($geos);
-    return $geometry;
+    //@@TODO: We no longer need to check this once we have Empty geometries
+    if ($geometry) {
+      $geometry->setGeos($geos);
+      return $geometry;
+    }
   }
   
   // Reduce a geometry, or an array of geometries, into their 'lowest' available common geometry.

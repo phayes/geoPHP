@@ -87,7 +87,10 @@ abstract class Collection extends Geometry implements Iterator
   
   public function centroid() {
     if ($this->geos()) {
-      return geoPHP::geosToGeometry($this->geos()->centroid());
+      $geos_centroid = $this->geos()->centroid();
+      if ($geos_centroid->typeName == 'Point') {
+        return geoPHP::geosToGeometry($this->geos()->centroid());
+      }
     }
     
     // As a rough estimate, we say that the centroid of a colletion is the centroid of it's envelope
@@ -100,7 +103,12 @@ abstract class Collection extends Geometry implements Iterator
   
   public function getBBox() {
     if ($this->geos()) {
-      $geos_ring = $this->geos()->envelope()->exteriorRing();
+      $envelope = $this->geos()->envelope();
+      if ($envelope->typeName() == 'Point') {
+        return geoPHP::geosToGeometry($envelope)->getBBOX();
+      }
+      
+      $geos_ring = $envelope->exteriorRing();
       return array(
         'maxy' => $geos_ring->pointN(3)->getY(),
         'miny' => $geos_ring->pointN(1)->getY(),
