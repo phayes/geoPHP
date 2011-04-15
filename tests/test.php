@@ -13,13 +13,17 @@ foreach (scandir('./input') as $file) {
 }
 
 function test_geometry($geometry) {
+  // Test adapter output
   $geometry->out('wkt');
   $geometry->out('wkb');
   $geometry->out('kml');
   $geometry->out('gpx');
   $geometry->out('json');
-  $geometry->out('google_geocode');  
   
+  //Don't test google geocoder regularily. Uncomment to test
+  #$geometry->out('google_geocode');  
+  
+  // Test common functions
   $geometry->area();
   $geometry->boundary();
   $geometry->envelope();
