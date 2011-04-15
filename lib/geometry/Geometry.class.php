@@ -53,7 +53,7 @@ abstract class Geometry
   
   // Public: Standard -- Common to all geometries
   // --------------------------------------------
-  public function getSRID() {
+  public function SRID() {
     return $this->srid;
   }
   
@@ -106,13 +106,13 @@ abstract class Geometry
     return new Polygon(array($outer_boundary));
   }
   
-  
-  // Public: Non-Standard -- Common to all geometries
-  // ------------------------------------------------
-  public function getGeomType() {
+  public function geometryType() {
     return $this->geom_type;
   }
   
+  
+  // Public: Non-Standard -- Common to all geometries
+  // ------------------------------------------------
   public function getGeoInterface() {
     return array(
       'type'=> $this->getGeomType(),
@@ -184,7 +184,14 @@ abstract class Geometry
   public function getGeos() {
     return $this->geos();
   }
-  
+
+  public function getGeomType() {
+    return $this->geometryType();
+  }
+
+  public function getSRID() {
+    return $this->SRID();
+  }
   
   // Public: GEOS Only Functions
   // ---------------------------

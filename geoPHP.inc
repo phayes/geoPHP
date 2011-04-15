@@ -72,14 +72,6 @@ class geoPHP
     );
   }
   
-  static function geosToGeometry($geos) {
-    $wkb_writer = new GEOSWKBWriter();
-    $wkb = $wkb_writer->writeHEX($geos);
-    $geometry = geoPHP::load($wkb,'wkb',TRUE);
-    $geometry->setGeos($geos);
-    return $geometry;
-  }
-  
   static function geometryList() {
     return array(
       'point' => 'Point',
@@ -91,6 +83,14 @@ class geoPHP
       'multipolygon' => 'MultiPolygon',
       'geometrycollection' => 'GeometryCollection',
     );
+  }
+  
+  static function geosToGeometry($geos) {
+    $wkb_writer = new GEOSWKBWriter();
+    $wkb = $wkb_writer->writeHEX($geos);
+    $geometry = geoPHP::load($wkb,'wkb',TRUE);
+    $geometry->setGeos($geos);
+    return $geometry;
   }
   
   // Reduce a geometry, or an array of geometries, into their 'lowest' available common geometry.
