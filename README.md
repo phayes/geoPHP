@@ -26,7 +26,7 @@ Getting Started
  * Other Interesting Links:
    * GEOS and geoPHP Performance: <https://github.com/phayes/geoPHP/wiki/performance>
 
-Example usage:
+Example usage
 -------------------------------------------------
 
     include_once('geoPHP.inc');
