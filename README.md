@@ -20,7 +20,7 @@ message. Forks are also welcome, please issue pull requests and I will merge the
 Getting Started
 -----------------------
 
- * Read the API Reference at: <https://github.com/phayes/geoPHP/wiki/API-Referece>
+ * Read the API Reference at: <https://github.com/phayes/geoPHP/wiki/API-Reference>
  * Examples
    * Using geoPHP as a GIS format converter: <http://github.com/phayes/geoPHP/wiki/Example-format-converter>
  * Other Interesting Links:
