@@ -8,7 +8,7 @@ increase when GEOS is installed on the server. When GEOS is installed, geoPHP al
 fully compliant with the OpenGIS® Implementation Standard for Geographic information. This means that
 you get the full-set of openGIS functions in PHP like Union, IsWithin, Touches etc. 
 
-Applications can get a useful "core-set" of geometry operations that work in all environments, and an "extended-set"
+Applications get a useful "core-set" of geometry operations that work in all environments, and an "extended-set"
 of operations for environments that have GEOS installed. As time and resources allow we will be porting as much as
 possible to native PHP to enable more operations on hosts without GEOS.
 
