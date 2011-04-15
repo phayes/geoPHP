@@ -21,11 +21,10 @@ Getting Started
 -----------------------
 
  * Read the API Reference at: <https://github.com/phayes/geoPHP/wiki/API-Reference>
- * Learn about GEOS integration at: <https://github.com/phayes/geoPHP/wiki/GEOS>
  * Examples
    * Using geoPHP as a GIS format converter: <http://github.com/phayes/geoPHP/wiki/Example-format-converter>
  * Other Interesting Links:
-   * GEOS and geoPHP Performance: <https://github.com/phayes/geoPHP/wiki/performance>
+   * Learn about GEOS integration at: <https://github.com/phayes/geoPHP/wiki/GEOS>
 
 Example usage
 -------------------------------------------------
