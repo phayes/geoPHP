@@ -29,18 +29,17 @@ class GoogleGeocode extends GeoAdapter
    * @param return_multiple - Return all results in a multipoint or multipolygon
    * @return Geometry|GeometryCollection
    */
-  public function read($address, $return_type = 'point', $bounds = FALSE, $return_multiple = FALSE)
-  {
+  public function read($address, $return_type = 'point', $bounds = FALSE, $return_multiple = FALSE) {
     if (is_array($address)) $address = join(',', $address);
     
     if (gettype($bounds) == 'object') {
-    	$bounds = $bounds->getBBox();
+      $bounds = $bounds->getBBox();
     }
     if (gettype($bounds) == 'array') {
-    	$bounds_string = '&bounds='.$bounds['miny'].','.$bounds['minx'].'|'.$bounds['maxy'].','.$bounds['maxx'];
+      $bounds_string = '&bounds='.$bounds['miny'].','.$bounds['minx'].'|'.$bounds['maxy'].','.$bounds['maxx'];
     }
     else {
-    	$bounds_string = '';
+      $bounds_string = '';
     }
     
     $url = "http://maps.googleapis.com/maps/api/geocode/json";
@@ -50,30 +49,30 @@ class GoogleGeocode extends GeoAdapter
     $this->result = json_decode(@file_get_contents($url));
     
     if ($this->result->status == 'OK') {
-    	if ($return_multiple == FALSE) {
-    		if ($return_type == 'point') {
-    		  return $this->getPoint();
-    	  }
-    		if ($return_type == 'bounds' || $return_type == 'polygon') {
-    			return $this->getPolygon();
-    	  }
-    	}
-    	if ($return_multiple == TRUE) {
-    		if ($return_type == 'point') {
-    			$points = array();
-	    		foreach ($this->result->results as $delta => $item) {
-	    			$points[] = $this->getPoint($delta);
-	    		}
-	    		return new MultiPoint($points);
-    		}
-    		if ($return_type == 'bounds' || $return_type == 'polygon') {
-    			$polygons = array();
-	    		foreach ($this->result->results as $delta => $item) {
-	    			$polygons[] = $this->getPolygon($delta);
-	    		}
-	    		return new MultiPolygon($polygons);
-    	  }
-    	}
+      if ($return_multiple == FALSE) {
+        if ($return_type == 'point') {
+          return $this->getPoint();
+        }
+        if ($return_type == 'bounds' || $return_type == 'polygon') {
+          return $this->getPolygon();
+        }
+      }
+      if ($return_multiple == TRUE) {
+        if ($return_type == 'point') {
+          $points = array();
+          foreach ($this->result->results as $delta => $item) {
+            $points[] = $this->getPoint($delta);
+          }
+          return new MultiPoint($points);
+        }
+        if ($return_type == 'bounds' || $return_type == 'polygon') {
+          $polygons = array();
+          foreach ($this->result->results as $delta => $item) {
+            $polygons[] = $this->getPolygon($delta);
+          }
+          return new MultiPolygon($polygons);
+        }
+      }
     }
   }
 
@@ -85,66 +84,65 @@ class GoogleGeocode extends GeoAdapter
    *
    * @return string Does a reverse geocode of the geometry
    */
-  public function write(Geometry $geometry, $return_type = 'string')
-  {
-  	$centroid = $geometry->getCentroid();
-  	$lat = $centroid->getY();
-  	$lon = $centroid->getX();
-  	
+  public function write(Geometry $geometry, $return_type = 'string') {
+    $centroid = $geometry->getCentroid();
+    $lat = $centroid->getY();
+    $lon = $centroid->getX();
+    
     $url = "http://maps.googleapis.com/maps/api/geocode/json";
     $url .= '?latlng='.$lat.','.$lon;
     $url .= '&sensor=false';
     $this->result = json_decode(@file_get_contents($url));
     
     if ($this->result->status == 'OK') {
-    	if ($return_type == 'string') {
-    		return $this->result->results[0]->formatted_address;
-    	}
-    	if ($return_type == 'array') {
-    		return $this->result->results[0]->address_components;
-    	}
+      if ($return_type == 'string') {
+        return $this->result->results[0]->formatted_address;
+      }
+      if ($return_type == 'array') {
+        return $this->result->results[0]->address_components;
+      }
     }
   }
   
   private function getPoint($delta = 0) {
-  	$lat = $this->result->results[$delta]->geometry->location->lat;
-  	$lon = $this->result->results[$delta]->geometry->location->lng;
-  	return new Point($lon, $lat);
+    $lat = $this->result->results[$delta]->geometry->location->lat;
+    $lon = $this->result->results[$delta]->geometry->location->lng;
+    return new Point($lon, $lat);
   }
 
   private function getPolygon($delta = 0) {
-  	$points = array (
-  	  $this->getTopLeft($delta),
-  	  $this->getTopRight($delta),
-  	  $this->getBottomRight($delta),
-  	  $this->getBottomLeft($delta),
-  	  $this->getTopLeft($delta),
-  	);
-  	$outer_ring = new LinearRing($points);
-  	return new Polygon(array($outer_ring));
+    $points = array (
+      $this->getTopLeft($delta),
+      $this->getTopRight($delta),
+      $this->getBottomRight($delta),
+      $this->getBottomLeft($delta),
+      $this->getTopLeft($delta),
+    );
+    $outer_ring = new LinearRing($points);
+    return new Polygon(array($outer_ring));
   }
 
   private function getTopLeft($delta = 0) {
-  	$lat = $this->result->results[$delta]->geometry->bounds->northeast->lat;
-  	$lon = $this->result->results[$delta]->geometry->bounds->southwest->lng;
-  	return new Point($lon, $lat);
+    $lat = $this->result->results[$delta]->geometry->bounds->northeast->lat;
+    $lon = $this->result->results[$delta]->geometry->bounds->southwest->lng;
+    return new Point($lon, $lat);
   }
 
   private function getTopRight($delta = 0) {
-  	$lat = $this->result->results[$delta]->geometry->bounds->northeast->lat;
-  	$lon = $this->result->results[$delta]->geometry->bounds->northeast->lng;
-  	return new Point($lon, $lat);
+    $lat = $this->result->results[$delta]->geometry->bounds->northeast->lat;
+    $lon = $this->result->results[$delta]->geometry->bounds->northeast->lng;
+    return new Point($lon, $lat);
   }
   
   private function getBottomLeft($delta = 0) {
-  	$lat = $this->result->results[$delta]->geometry->bounds->southwest->lat;
-  	$lon = $this->result->results[$delta]->geometry->bounds->southwest->lng;
-   	return new Point($lon, $lat);
+    $lat = $this->result->results[$delta]->geometry->bounds->southwest->lat;
+    $lon = $this->result->results[$delta]->geometry->bounds->southwest->lng;
+     return new Point($lon, $lat);
   }
 
   private function getBottomRight($delta = 0) {
-  	$lat = $this->result->results[$delta]->geometry->bounds->southwest->lat;
-  	$lon = $this->result->results[$delta]->geometry->bounds->northeast->lng;
-  	return new Point($lon, $lat);
+    $lat = $this->result->results[$delta]->geometry->bounds->southwest->lat;
+    $lon = $this->result->results[$delta]->geometry->bounds->northeast->lng;
+    return new Point($lon, $lat);
   }
 }

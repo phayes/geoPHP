@@ -25,13 +25,9 @@ class MultiPolygon extends Collection
    *
    * @param array $polygons The Polygon array
    */
-  public function __construct(array $polygons) 
-  {
+  public function __construct(array $polygons) {
     parent::__construct($polygons);
   }
-
-  public function intersects($distance) {
-    //TODO
-  }
+  
 }
 

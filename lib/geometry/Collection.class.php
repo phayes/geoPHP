@@ -19,36 +19,55 @@
 abstract class Collection extends Geometry implements Iterator
 {
   protected $components = array();
-
+  
   /**
    * Constructor
    *
    * @param array $components The components array
    */
-  public function __construct(array $components)
-  {
-  	if (empty($components)) {
-  		throw new Exception("Cannot create empty collection");
-  	}
-  	
+  public function __construct(array $components) {
+    if (empty($components)) {
+      throw new Exception("Cannot create empty collection");
+    }
+    
     foreach ($components as $component)
     {
       $this->add($component);
     }
   }
-
-  private function add($component)
-  {
+  
+  // Iterator Interface functions
+  // ----------------------------
+  public function rewind() {
+    reset($this->components);
+  }
+  
+  public function current() {
+    return current($this->components);
+  }
+  
+  public function key() {
+    return key($this->components);
+  }
+  
+  public function next() {
+    return next($this->components);
+  }
+  
+  private function add($component) {
     $this->components[] = $component;
   }
-
+  
+  public function valid() {
+    return $this->current() !== false;
+  }
+  
   /**
    * An accessor method which recursively calls itself to build the coordinates array
    *
    * @return array The coordinates array
    */
-  public function getCoordinates()
-  {
+  public function getCoordinates() {
     $coordinates = array();
     foreach ($this->components as $component)
     {
@@ -56,49 +75,21 @@ abstract class Collection extends Geometry implements Iterator
     }
     return $coordinates;
   }
-
+  
   /**
    * Returns Colection components
    *
    * @return array
    */
-  public function getComponents()
-  {
+  public function getComponents() {
     return $this->components;
   }
-
-  # Iterator Interface functions
-
-  public function rewind()
-  {
-    reset($this->components);
-  }
-
-  public function current()
-  {
-    return current($this->components);
-  }
-
-  public function key()
-  {
-    return key($this->components);
-  }
-
-  public function next()
-  {
-    return next($this->components);
-  }
-
-  public function valid()
-  {
-    return $this->current() !== false;
-  }
-
+  
   public function centroid() {
-		if ($this->geos()) {
-			return geoPHP::geosToGeometry($this->geos()->centroid());
-		}
-  	
+    if ($this->geos()) {
+      return geoPHP::geosToGeometry($this->geos()->centroid());
+    }
+    
     // As a rough estimate, we say that the centroid of a colletion is the centroid of it's envelope
     // @@TODO: Make this the centroid of the convexHull
     // Note: Outside of polygons, geometryCollections and the trivial case of points, there is no standard on what a "centroid" is
@@ -108,6 +99,16 @@ abstract class Collection extends Geometry implements Iterator
   }
   
   public function getBBox() {
+    if ($this->geos()) {
+      $geos_ring = $this->geos()->envelope()->exteriorRing();
+      return array(
+        'maxy' => $geos_ring->pointN(3)->getY(),
+        'miny' => $geos_ring->pointN(1)->getY(),
+        'maxx' => $geos_ring->pointN(1)->getX(),
+        'minx' => $geos_ring->pointN(3)->getX(),
+      );
+    }
+    
     // Go through each component and get the max and min x and y
     $i = 0;
     foreach ($this->components as $component) {
@@ -138,10 +139,10 @@ abstract class Collection extends Geometry implements Iterator
   }
 
   public function area() {
-  	if ($this->geos()) {
-			return $this->geos()->area();
-		}
-		
+    if ($this->geos()) {
+      return $this->geos()->area();
+    }
+    
     $area = 0;
     foreach ($this->components as $component) {
       $area += $component->area();
@@ -151,75 +152,74 @@ abstract class Collection extends Geometry implements Iterator
 
   // By default, the boundary of a collection is the boundary of it's components
   public function boundary() {
-  	if ($this->geos()) {
-			return $this->geos()->boundary();
-		}
-		
-  	$components_boundaries = array();
-  	foreach ($this->components as $component) {
-  		$components_boundaries[] = $component->boundary();
-  	}
-  	return geoPHP::geometryReduce($components_boundaries);
+    if ($this->geos()) {
+      return $this->geos()->boundary();
+    }
+    
+    $components_boundaries = array();
+    foreach ($this->components as $component) {
+      $components_boundaries[] = $component->boundary();
+    }
+    return geoPHP::geometryReduce($components_boundaries);
   }
-
-  // Standard - Collection Only
-	public function numGeometries() {
-		return count($this->components);
-	}
-	
-	// Note that the standard is 1 based indexing
-	public function geometryN($n) {
-		$n = inval($n);
-		if (array_key_exists($n-1, $this->components)) {
-			return $this->components[$n-1];
-		}
-		else {
-			return NULL;
-		}
-	}
-
+  
+  public function numGeometries() {
+    return count($this->components);
+  }
+  
+  // Note that the standard is 1 based indexing
+  public function geometryN($n) {
+    $n = inval($n);
+    if (array_key_exists($n-1, $this->components)) {
+      return $this->components[$n-1];
+    }
+    else {
+      return NULL;
+    }
+  }
+  
   public function length() {
-  	if ($this->geos()) {
-			return $this->geos()->length();
-		}
-		
-  	$length = 0;
-  	foreach ($this->components as $delta => $point) {
-  		$next_point = $this->geometryN($delta);
-  		if ($next_point) {
-  			// Pythagorean Theorem
-  		  $distance = sqrt(($next_point->getX() - $point->getX())^2+($next_point->getY()- $point->getY())^2);
-  		  $length += $distance;
-  	  }
-  	}
-  	return $length;
+    if ($this->geos()) {
+      return $this->geos()->length();
+    }
+    
+    $length = 0;
+    foreach ($this->components as $delta => $point) {
+      $next_point = $this->geometryN($delta);
+      if ($next_point) {
+        // Pythagorean Theorem
+        $distance = sqrt(($next_point->getX() - $point->getX())^2+($next_point->getY()- $point->getY())^2);
+        $length += $distance;
+      }
+    }
+    return $length;
   }
   
   public function dimension() {
-  	$dimention = 0;
-  	foreach ($this->components as $component) {
-  		if ($component->dimention() > $dimention) {
-  			$dimention = $component->dimention();
-  		}
-  	}
-  	return $dimention;
+    $dimention = 0;
+    foreach ($this->components as $component) {
+      if ($component->dimention() > $dimention) {
+        $dimention = $component->dimention();
+      }
+    }
+    return $dimention;
   }
   
-	
-	// Not valid for this geometry type
-	// --------------------------------
-	public function x()                { return NULL; }
+  
+  // Not valid for this geometry type
+  // --------------------------------
+  public function x()                { return NULL; }
   public function y()                { return NULL; }
   public function startPoint()       { return NULL; }
-	public function endPoint()         { return NULL; }
-	public function isRing()           { return NULL; }
-	public function isClosed()         { return NULL; }
-	public function numPoints()        { return NULL; }
-	public function pointN($n)         { return NULL; }
-	public function exteriorRing()     { return NULL; }
-	public function numInteriorRings() { return NULL; }
+  public function endPoint()         { return NULL; }
+  public function isRing()           { return NULL; }
+  public function isClosed()         { return NULL; }
+  public function numPoints()        { return NULL; }
+  public function pointN($n)         { return NULL; }
+  public function exteriorRing()     { return NULL; }
+  public function numInteriorRings() { return NULL; }
   public function interiorRingN($n)  { return NULL; }
-	public function pointOnSurface()   { return NULL; }
-	
+  public function pointOnSurface()   { return NULL; }
+  
 }
 

@@ -25,11 +25,10 @@ class GeometryCollection extends Collection
    *
    * @param array $geometries The Geometries array
    */
-  public function __construct(array $geometries = null) 
-  {
+  public function __construct(array $geometries = null) {
     parent::__construct($geometries);
   }
-
+  
   /**
    * Returns an array suitable for serialization
    *
@@ -37,8 +36,7 @@ class GeometryCollection extends Collection
    *
    * @return array
    */
-  public function getGeoInterface() 
-  {
+  public function getGeoInterface() {
     $geometries = array();
     foreach ($this->components as $geometry) 
     {

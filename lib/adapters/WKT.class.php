@@ -45,13 +45,11 @@ class WKT extends GeoAdapter
    *
    * @return Geometry|GeometryCollection
    */
-  public function read($wkt)
-  {
-  	$wkt = strval($wkt);
-  	
+  public function read($wkt) {
+    $wkt = strval($wkt);
+    
     $matches = array();
-    if (!preg_match($this->regExes['typeStr'], $wkt, $matches))
-    {
+    if (!preg_match($this->regExes['typeStr'], $wkt, $matches)) {
       return null;
     }
 
@@ -65,8 +63,7 @@ class WKT extends GeoAdapter
    *
    * @return string The WKT string representation of the input geometries
    */
-  public function write(Geometry $geometry)
-  {
+  public function write(Geometry $geometry) {
     $type = strtolower(get_class($geometry));
 
     if (is_null($data = $this->extract($geometry)))
@@ -84,47 +81,41 @@ class WKT extends GeoAdapter
    *
    * @return Geometry|GeometryCollection
    */
-  public function parse($type, $str)
-  {
+  public function parse($type, $str) {
     $matches = array();
     $components = array();
 
-    switch ($type)
-    {
+    switch ($type) {
       case self::POINT:
         $coords = $this->pregExplode('spaces', $str);
         return new Point(floatval($coords[0]), floatval($coords[1]));
 
       case self::MULTIPOINT:
         $points = $this->pregExplode('parenComma', $str);
-        foreach ($points as $p)
-        {
+        foreach ($points as $p) {
           $point = $this->trimParens( $p );
           $components[] = $this->parse(self::POINT, $point);
         }
         return new MultiPoint($components);
 
       case self::LINESTRING:
-        foreach (explode(',', trim($str)) as $point)
-        {
+        foreach (explode(',', trim($str)) as $point) {
           $components[] = $this->parse(self::POINT, $point);
         }
         return new LineString($components);
 
       case self::MULTILINESTRING:
         $lines = $this->pregExplode('parenComma', $str);
-        foreach ($lines as $l)
-        {
-		  $line = $this->trimParens( $l );
+        foreach ($lines as $l) {
+          $line = $this->trimParens( $l );
           $components[] = $this->parse(self::LINESTRING, $line);
         }
         return new MultiLineString($components);
 
       case self::POLYGON:
         $rings= $this->pregExplode('parenComma', $str);
-        foreach ($rings as $r)
-        {
-		  $ring = $this->trimParens( $r );
+        foreach ($rings as $r) {
+          $ring = $this->trimParens( $r );
           $linestring = $this->parse(self::LINESTRING, $ring);
           $components[] = new LinearRing($linestring->getComponents());
         }
@@ -132,9 +123,8 @@ class WKT extends GeoAdapter
 
       case self::MULTIPOLYGON:
         $polygons = $this->pregExplode('doubleParenComma', $str);
-        foreach ($polygons as $p)
-        {
-		  $polygon = $this->trimParens( $p );
+        foreach ($polygons as $p) {
+          $polygon = $this->trimParens( $p );
           $components[] = $this->parse(self::POLYGON, $polygon);
         }
         return new MultiPolygon($components);
@@ -142,8 +132,7 @@ class WKT extends GeoAdapter
       case self::GEOMETRYCOLLECTION:
         $str = preg_replace('/,\s*([A-Za-z])/', '|$1', $str);
         $wktArray = explode('|', trim($str));
-        foreach ($wktArray as $wkt)
-        {
+        foreach ($wktArray as $wkt) {
           $components[] = $this->read($wkt);
         }
         return new GeometryCollection($components);
@@ -157,8 +146,7 @@ class WKT extends GeoAdapter
    * Trim the parenthesis 
    *
    */
-  protected function trimParens($str)
-  {
+  protected function trimParens($str) {
    $open_parent = stripos( $str, '(' );
    $open_parent = ($open_parent!==false)?$open_parent+1:0;
    $close_parent = strripos( $str, ')' );
@@ -171,8 +159,7 @@ class WKT extends GeoAdapter
    * Split string according to first match of passed regEx index of $regExes
    *
    */
-  protected function pregExplode($regEx, $str)
-  {
+  protected function pregExplode($regEx, $str) {
     $matches = array();
     preg_match($this->regExes[$regEx], $str, $matches);
     return empty($matches)?array(trim($str)):explode($matches[0], trim($str));
@@ -185,17 +172,14 @@ class WKT extends GeoAdapter
    *
    * @return strin
    */
-  public function extract(Geometry $geometry)
-  {
+  public function extract(Geometry $geometry) {
     $array = array();
-    switch (strtolower(get_class($geometry)))
-    {
+    switch (strtolower(get_class($geometry))) {
       case self::POINT:
         return $geometry->getX().' '.$geometry->getY();
       case self::LINESTRING:
       case self::LINEARRING:
-        foreach ($geometry as $geom)
-        {
+        foreach ($geometry as $geom) {
           $array[] = $this->extract($geom);
         }
         return implode(',', $array);
@@ -203,14 +187,12 @@ class WKT extends GeoAdapter
       case self::MULTILINESTRING:
       case self::POLYGON:
       case self::MULTIPOLYGON:
-        foreach ($geometry as $geom)
-        {
+        foreach ($geometry as $geom) {
           $array[] = '('.$this->extract($geom).')';
         }
         return implode(',', $array);
       case self::GEOMETRYCOLLECTION:
-        foreach ($geometry as $geom)
-        {
+        foreach ($geometry as $geom) {
           $array[] = strtoupper(get_class($geom)).'('.$this->extract($geom).')';
         }
         return implode(',', $array);
@@ -226,8 +208,7 @@ class WKT extends GeoAdapter
    *
    * @return  Geometry
    */
-  static public function load($WKT)
-  {
+  static public function load($WKT) {
     $instance = new self;
     return $instance->read($WKT);
   }

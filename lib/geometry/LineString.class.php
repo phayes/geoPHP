@@ -25,8 +25,7 @@ class LineString extends Collection
    *
    * @param array $positions The Point array
    */
-  public function __construct(array $positions) 
-  {
+  public function __construct(array $positions) {
     if (count($positions) > 1)
     {
       parent::__construct($positions);
@@ -39,16 +38,16 @@ class LineString extends Collection
   
   // The boundary of a linestring is itself
   public function boundary() {
-  	return $this;
+    return $this;
   }
   
   public function startPoint() {
-  	return $this->pointN(1);
+    return $this->pointN(1);
   }
   
   public function endPoint() {
-  	$last_n = $this->numPoints();
-  	return $this->pointN($last_n);
+    $last_n = $this->numPoints();
+    return $this->pointN($last_n);
   }
   
   public function isClosed() {
@@ -56,22 +55,26 @@ class LineString extends Collection
     #return ($this->startPoint->equal($this->endPoint()));
   }
   
-	public function isRing() {
-		//@@TODO: need to complete isSimple first
-		#return ($this->isClosed() && $this->isSimple());
-	}
-
-	public function numPoints() {
-		return $this->numGeometries();
-	}
-	
-	public function pointN($n) {
-		return $this->geometryN($n);
-	}
-	
-	public function dimension() {
-  	return 1;
+  public function isRing() {
+    //@@TODO: need to complete isSimple first
+    #return ($this->isClosed() && $this->isSimple());
   }
   
+  public function numPoints() {
+    return $this->numGeometries();
+  }
+  
+  public function pointN($n) {
+    return $this->geometryN($n);
+  }
+  
+  public function dimension() {
+    return 1;
+  }
+  
+  public function area() {
+    return 0;
+  }
+
 }
 

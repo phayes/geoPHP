@@ -11,10 +11,6 @@
 /**
  * Polygon : a Polygon geometry.
  *
- * @package    sfMapFishPlugin
- * @subpackage GeoJSON
- * @author     Camptocamp <info@camptocamp.com>
- * @version    
  */
 class Polygon extends Collection 
 {
@@ -25,97 +21,94 @@ class Polygon extends Collection
    *
    * The first linestring is the outer ring
    * The subsequent ones are holes
-   * All linestrings should be linearrings
+   * All linestrings should be a LinearRing
    *
    * @param array $linestrings The LineString array
    */
-  public function __construct(array $linestrings) 
-  {
+  public function __construct(array $linestrings) {
     // the GeoJSON spec (http://geojson.org/geojson-spec.html) says nothing about linestring count. 
     // What should we do ?
-    if (count($linestrings) > 0) 
-    {
+    if (count($linestrings) > 0) {
       parent::__construct($linestrings);
     }
-    else
-    {
+    else {
       throw new Exception("Polygon without an exterior ring");
     }
   }
   
   public function area($exterior_only = FALSE) {
-  	if ($this->geos() && $exterior_only == FALSE) {
-  		return $this->geos()->area();
-  	}
-  	
+    if ($this->geos() && $exterior_only == FALSE) {
+      return $this->geos()->area();
+    }
+    
     $exterior_ring = $this->components[0];
     $pts = $exterior_ring->getComponents();
     
     $c = count($pts);
-  	if((int)$c == '0') return NULL;
-  	$a = '0';
-  	foreach($pts as $k => $p){
-  	  $j = ($k + 1) % $c;
-  		$a = $a + ($p->getX() * $pts[$j]->getY()) - ($p->getY() * $pts[$j]->getX());
+    if((int)$c == '0') return NULL;
+    $a = '0';
+    foreach($pts as $k => $p){
+      $j = ($k + 1) % $c;
+      $a = $a + ($p->getX() * $pts[$j]->getY()) - ($p->getY() * $pts[$j]->getX());
     }
     
     $area = abs(($a / 2));
     if ($exterior_only == TRUE) {
-    	return $area;
+      return $area;
     }
     foreach ($this->components as $delta => $component) {
-    	if ($delta != 0) {
-    		$inner_poly = new Polgyon($component);
-    		$area -= $inner_poly->area();
-    	}
+      if ($delta != 0) {
+        $inner_poly = new Polgyon($component);
+        $area -= $inner_poly->area();
+      }
     }
     return $area;
   }
   
   public function centroid() {
-  	if ($this->geos()) {
-  		return $this->geos()->centroid();
-  	}
-  	
+    if ($this->geos()) {
+      return $this->geos()->centroid();
+    }
+    
     $exterior_ring = $this->components[0];
     $pts = $exterior_ring->getComponents();
     
-  	$c = count($pts);
-  	if((int)$c == '0') return NULL;
-  	$cn = array('x' => '0', 'y' => '0');
-  	$a = $this->area(TRUE);
-  	foreach($pts as $k => $p){
-  		$j = ($k + 1) % $c;
-  		$P = ($p->getX() * $pts[$j]->getY()) - ($p->getY() * $pts[$j]->getX());
-  		$cn['x'] = $cn['x'] + ($p->getX() + $pts[$j]->getX()) * $P;
-  		$cn['y'] = $cn['y'] + ($p->getY() + $pts[$j]->getY()) * $P;
-  	}	
-  	$cn['x'] = $cn['x'] / ( 6 * $a);
-  	$cn['y'] = $cn['y'] / ( 6 * $a);
-  	
-  	$centroid = new Point($cn['x'], $cn['y']);
-  	return $centroid;
+    $c = count($pts);
+    if((int)$c == '0') return NULL;
+    $cn = array('x' => '0', 'y' => '0');
+    $a = $this->area(TRUE);
+    foreach($pts as $k => $p){
+      $j = ($k + 1) % $c;
+      $P = ($p->getX() * $pts[$j]->getY()) - ($p->getY() * $pts[$j]->getX());
+      $cn['x'] = $cn['x'] + ($p->getX() + $pts[$j]->getX()) * $P;
+      $cn['y'] = $cn['y'] + ($p->getY() + $pts[$j]->getY()) * $P;
+    }  
+    $cn['x'] = $cn['x'] / ( 6 * $a);
+    $cn['y'] = $cn['y'] / ( 6 * $a);
+    
+    $centroid = new Point($cn['x'], $cn['y']);
+    return $centroid;
   }
 
-	public function exteriorRing() {
-		return $this->components[0];
-	}
-	
-	public function numInteriorRings() {
-		return $this->numGeometries()-1;
-	}
+  public function exteriorRing() {
+    return $this->components[0];
+  }
+  
+  public function numInteriorRings() {
+    return $this->numGeometries()-1;
+  }
   
   public function interiorRingN($n) {
-		return $this->geometryN($n+1);
+    return $this->geometryN($n+1);
   }
 
-	public function dimension() {
-  	return 2;
+  public function dimension() {
+    return 2;
   }
 
-	// Not valid for this geometry type
-	// --------------------------------
-	public function length() { return NULL; }
+  // Not valid for this geometry type
+  // --------------------------------
+  public function length() { return NULL; }
   
 }
 

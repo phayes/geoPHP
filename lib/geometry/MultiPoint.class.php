@@ -25,13 +25,9 @@ class MultiPoint extends Collection
    *
    * @param array $points The Point array
    */
-  public function __construct(array $points) 
-  {
+  public function __construct(array $points) {
     parent::__construct($points);
   }
   
-  public function intersects($distance) {
-    //TODO
-  }
 }
 

@@ -7,9 +7,6 @@
  * file that was distributed with this source code.
  */
 
-// Geometry Loader (Depreciated)
-include_once("lib/GeometryLoader.class.php");
-
 // Adapters
 include_once("lib/adapters/GeoAdapter.class.php"); // Abtract class
 include_once("lib/adapters/GeoJSON.class.php");
@@ -31,20 +28,21 @@ include_once("lib/geometry/MultiLineString.class.php");
 include_once("lib/geometry/MultiPolygon.class.php");
 include_once("lib/geometry/GeometryCollection.class.php");
 
-class geoPHP {
-
-  function version() {
-  	return '0.3';
+class geoPHP
+{
+  
+  static function version() {
+    return '0.3';
   }
   
-  // geoPHPLoad($data, $type, $other_args);
-  function load() {
-  	
-  	$args = func_get_args();
-  	
-  	$data = array_shift($args);
-  	$type = array_shift($args);
-  	
+  // geoPHP::load($data, $type, $other_args);
+  static function load() {
+    
+    $args = func_get_args();
+    
+    $data = array_shift($args);
+    $type = array_shift($args);
+    
     $type_map = geoPHP::getAdapterMap();
     
     $processor_type = $type_map[$type];
@@ -63,7 +61,7 @@ class geoPHP {
     return $result;
   }
   
-  function getAdapterMap() {
+  static function getAdapterMap() {
     return array (
       'wkt' => 'WKT',
       'wkb' => 'WKB',
@@ -74,95 +72,91 @@ class geoPHP {
     );
   }
   
-
-  // Utility Functions
-  // --------------------------------
-  
-  function geosToGeometry($geos) {
-  	$wkb_writer = new GEOSWKBWriter();
-  	$wkb = $wkb_writer->writeHEX($geos);
-  	$geometry = geoPHP::load($wkb,'wkb',TRUE);
-  	$geometry->setGeos($geos);
-  	return $geometry;
+  static function geosToGeometry($geos) {
+    $wkb_writer = new GEOSWKBWriter();
+    $wkb = $wkb_writer->writeHEX($geos);
+    $geometry = geoPHP::load($wkb,'wkb',TRUE);
+    $geometry->setGeos($geos);
+    return $geometry;
   }
   
-  function geometryList() {
-  	return array(
-  	  'point' => 'Point',
-  	  'linestring' => 'LineString',
-  	  'linearring' => 'LinearRing',
-  	  'polygon' => 'Polygon',
-  	  'multipoint' => 'MultiPoint',
-  	  'multilinestring' => 'MultiLineString',
-  	  'multipolygon' => 'MultiPolygon',
-  	  'geometrycollection' => 'GeometryCollection',
-  	);
+  static function geometryList() {
+    return array(
+      'point' => 'Point',
+      'linestring' => 'LineString',
+      'linearring' => 'LinearRing',
+      'polygon' => 'Polygon',
+      'multipoint' => 'MultiPoint',
+      'multilinestring' => 'MultiLineString',
+      'multipolygon' => 'MultiPolygon',
+      'geometrycollection' => 'GeometryCollection',
+    );
   }
   
   // Reduce a geometry, or an array of geometries, into their 'lowest' available common geometry.
   // For example a GeometryCollection of only points will become a MultiPoint
   // A multi-point containing a single point will return a point.
   // An array of geometries can be passed and they will be compiled into a single geometry
-  function geometryReduce($geometry) {
-  	// If it's an array of one, then just parse the one
-  	if (is_array($geometry)) {
-  		if (count($geometry) == 1) return geoPHP::geometryReduce($geometry[0]);
-  	}
-  	
-  	// If the geometry cannot even theoretically be reduced more, then pass it back
-  	if (gettype($geometry) == 'object') {
-  		$passbacks = array('Point','LineString','LinearRing','Polygon');
-  		if (in_array(get_class($geometry),$passbacks)) {
-  			return $geometry;
-  		}
-  	}
-  	
-  	// If it is a mutlti-geometry, check to see if it just has one member
-  	// If it does, then pass the member, if not, then just pass back the geometry
-  	if (gettype($geometry) == 'object') {
-  		$simple_collections = array('MultiPoint','MultiLineString','MultiPolygon');
-  		if (in_array(get_class($geometry),$passbacks)) {
-  			$components = $geometry->getComponents();
-  			if (count($components) == 1) {
-  				return $components[0];
-  			}
-  			else {
-  				return $geometry;
-  			}
-  		}
-  	}
-  	
-  	// So now we either have an array of geometries, a GeometryCollection, or an array of GeometryCollections  	
-  	if (!is_array($geometry)) {
-  		$geometry = array($geometry);
-  	}
-  	
-  	$geometries = array();
-  	$geom_types = array();
-  	
-  	$collections = array('MultiPoint','MultiLineString','MultiPolygon','GeometryCollection');
-  	
-  	foreach ($geometry as $item) {
-  		if (in_array(get_class($item), $collections)) {
-  			foreach ($item->getComponents() as $component) {
-  				$geometries[] = $component;
-  				$geom_types[] = get_class($component);
-  			}
-  		}
-  		else {
-  			$geometries[] = $item;
-  			$geom_types[] = get_class($item);
-  		}
-  	}
-  	
-  	$geom_types = array_unique($geom_types);
-  	
-  	if (count($geom_types) == 1) {
-  		$class = 'Multi'.$geom_types[0];
-  		return new $class($geometries);
-  	}
-  	else {
-  		return new GeometryCollection($geometries);
-  	}
+  static function geometryReduce($geometry) {
+    // If it's an array of one, then just parse the one
+    if (is_array($geometry)) {
+      if (count($geometry) == 1) return geoPHP::geometryReduce($geometry[0]);
+    }
+    
+    // If the geometry cannot even theoretically be reduced more, then pass it back
+    if (gettype($geometry) == 'object') {
+      $passbacks = array('Point','LineString','LinearRing','Polygon');
+      if (in_array(get_class($geometry),$passbacks)) {
+        return $geometry;
+      }
+    }
+    
+    // If it is a mutlti-geometry, check to see if it just has one member
+    // If it does, then pass the member, if not, then just pass back the geometry
+    if (gettype($geometry) == 'object') {
+      $simple_collections = array('MultiPoint','MultiLineString','MultiPolygon');
+      if (in_array(get_class($geometry),$passbacks)) {
+        $components = $geometry->getComponents();
+        if (count($components) == 1) {
+          return $components[0];
+        }
+        else {
+          return $geometry;
+        }
+      }
+    }
+    
+    // So now we either have an array of geometries, a GeometryCollection, or an array of GeometryCollections    
+    if (!is_array($geometry)) {
+      $geometry = array($geometry);
+    }
+    
+    $geometries = array();
+    $geom_types = array();
+    
+    $collections = array('MultiPoint','MultiLineString','MultiPolygon','GeometryCollection');
+    
+    foreach ($geometry as $item) {
+      if (in_array(get_class($item), $collections)) {
+        foreach ($item->getComponents() as $component) {
+          $geometries[] = $component;
+          $geom_types[] = get_class($component);
+        }
+      }
+      else {
+        $geometries[] = $item;
+        $geom_types[] = get_class($item);
+      }
+    }
+    
+    $geom_types = array_unique($geom_types);
+    
+    if (count($geom_types) == 1) {
+      $class = 'Multi'.$geom_types[0];
+      return new $class($geometries);
+    }
+    else {
+      return new GeometryCollection($geometries);
+    }
   }
 }
