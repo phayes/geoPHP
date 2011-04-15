@@ -58,10 +58,10 @@ class WKT extends GeoAdapter
     if (!preg_match($this->regExes['typeStr'], $wkt, $matches)) {
       return null;
     }
-
+    
     return $this->parse(strtolower($matches[1]), $matches[2]);
   }
-
+  
   /**
    * Serialize geometries into a WKT string.
    *
@@ -70,12 +70,12 @@ class WKT extends GeoAdapter
    * @return string The WKT string representation of the input geometries
    */
   public function write(Geometry $geometry) {
-    $type = strtolower(get_class($geometry));
-
+    $type = strtolower($geometry->geometryType());
+    
     if (is_null($data = $this->extract($geometry))) {
       return null;
     }
-
+    
     return strtoupper($type).' ('.$data.')';
   }
 
@@ -146,7 +146,7 @@ class WKT extends GeoAdapter
         return null;
     }
   }
-
+  
   /**
    * Trim the parenthesis 
    *
@@ -158,8 +158,7 @@ class WKT extends GeoAdapter
    $close_parent = ($close_parent!==false)?$close_parent:strlen($str);
    return substr( $str, $open_parent, $close_parent);
   }
-
-
+  
   /**
    * Split string according to first match of passed regEx index of $regExes
    *
@@ -169,7 +168,7 @@ class WKT extends GeoAdapter
     preg_match($this->regExes[$regEx], $str, $matches);
     return empty($matches)?array(trim($str)):explode($matches[0], trim($str));
   }
-
+  
   /**
    * Extract geometry to a WKT string
    *
@@ -205,7 +204,7 @@ class WKT extends GeoAdapter
         return null;
     }
   }
-
+  
   /**
    * Loads a WKT string into a Geometry Object
    *
