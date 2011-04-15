@@ -38,8 +38,7 @@ class GeometryCollection extends Collection
    */
   public function getGeoInterface() {
     $geometries = array();
-    foreach ($this->components as $geometry) 
-    {
+    foreach ($this->components as $geometry) {
       $geometries[] = $geometry->getGeoInterface();
     }
     return array(
@@ -47,5 +46,9 @@ class GeometryCollection extends Collection
       'geometries' => $geometries
     );
   }
+
+  // Not valid for this geomettry
+  public function boundary() { return NULL; }
+  public function isSimple() { return NULL; }
 }
 

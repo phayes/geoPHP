@@ -169,7 +169,7 @@ abstract class Collection extends Geometry implements Iterator
   
   // Note that the standard is 1 based indexing
   public function geometryN($n) {
-    $n = inval($n);
+    $n = intval($n);
     if (array_key_exists($n-1, $this->components)) {
       return $this->components[$n-1];
     }
@@ -196,13 +196,13 @@ abstract class Collection extends Geometry implements Iterator
   }
   
   public function dimension() {
-    $dimention = 0;
+    $dimension = 0;
     foreach ($this->components as $component) {
-      if ($component->dimention() > $dimention) {
-        $dimention = $component->dimention();
+      if ($component->dimension() > $dimention) {
+        $dimension = $component->dimension();
       }
     }
-    return $dimention;
+    return $dimension;
   }
   
   

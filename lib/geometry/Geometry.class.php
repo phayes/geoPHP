@@ -64,31 +64,6 @@ abstract class Geometry
     $this->srid = $srid;
   }
   
-  public function hasZ() {
-    // geoPHP does not support Z values at the moment
-    return FALSE;  
-  }
-  
-  public function is3D() {
-    // geoPHP does not support 3D geometries at the moment
-    return FALSE;  
-  }
-  
-  public function isMeasured() {
-    // geoPHP does not yet support M values
-    return FALSE;
-  }
-  
-  public function isEmpty() {
-    // geoPHP does not yet support empty geometries
-    return FALSE;
-  }
-  
-  public function coordinateDimension() {
-    // geoPHP only supports 2-dimentional space
-    return 2;
-  }
-  
   public function envelope() {
     if ($this->geom) {
       return geoPHP::geosToGeometry($this->geos->envelope());
@@ -240,21 +215,15 @@ abstract class Geometry
     }
   }
   
-  public function project($srid) {
+  public function buffer($distance) {
     if ($this->geos()) {
-      return geoPHP::geosToGeometry($this->geos()->project($srid));
-    }
-  }
-  
-  public function buffer($distance, $style_array = FASLSE) {
-    if ($this->geos()) {
-      return geoPHP::geosToGeometry($this->geos()->buffer($distance, $style_array));
+      return geoPHP::geosToGeometry($this->geos()->buffer($distance));
     }
   }
   
   public function intersection($geometry) {
     if ($this->geos()) {
-      return geoPHP::geosToGeometry($this->geos()->intersection($geometry->geom));
+      return geoPHP::geosToGeometry($this->geos()->intersection($geometry->geos()));
     }
   }
   
@@ -266,20 +235,20 @@ abstract class Geometry
   
   public function difference($geometry) {
     if ($this->geos()) {
-      return geoPHP::geosToGeometry($this->geos()->difference($geometry->geom));
+      return geoPHP::geosToGeometry($this->geos()->difference($geometry->geos()));
     }
   }
   
   public function symDifference($geometry) {
     if ($this->geos()) {
-      return geoPHP::geosToGeometry($this->geos()->symDifference($geometry->geom));
+      return geoPHP::geosToGeometry($this->geos()->symDifference($geometry->geos()));
     }
   }
   
   public function union($geometry) {
     //@@TODO: also does union cascade
     if ($this->geos()) {
-      return geoPHP::geosToGeometry($this->geos()->union($geometry->geom));
+      return geoPHP::geosToGeometry($this->geos()->union($geometry->geos()));
     }
   }
   
@@ -353,6 +322,44 @@ abstract class Geometry
     if ($this->geos()) {
       return $this->geos()->hausdorffDistance($geometry->geos());
     }
+  }
+  
+  
+  // Public - Placeholders
+  // ---------------------
+  public function hasZ() {
+    // geoPHP does not support Z values at the moment
+    return FALSE;  
+  }
+  
+  public function is3D() {
+    // geoPHP does not support 3D geometries at the moment
+    return FALSE;  
+  }
+  
+  public function isMeasured() {
+    // geoPHP does not yet support M values
+    return FALSE;
+  }
+  
+  public function isEmpty() {
+    // geoPHP does not yet support empty geometries
+    return FALSE;
+  }
+  
+  public function coordinateDimension() {
+    // geoPHP only supports 2-dimentional space
+    return 2;
+  }
+  
+  public function z() {
+    // geoPHP only supports 2-dimentional space
+    return NULL;
+  }
+
+  public function m() {
+    // geoPHP only supports 2-dimentional space
+    return NULL;
   }
   
 }
