@@ -85,7 +85,19 @@ class geoPHP
     );
   }
   
+  static function geosInstalled() {
+    static $geos_intalled = NULL;
+    if ($geos_intalled !== NULL) {
+      return $geos_installed; 
+    }
+    $geos_installed = class_exists('GEOSGeometry');
+    return $geos_installed;
+  }
+  
   static function geosToGeometry($geos) {
+    if (!geoPHP::geosInstalled()) {
+      return NULL;
+    }
     $wkb_writer = new GEOSWKBWriter();
     $wkb = $wkb_writer->writeHEX($geos);
     $geometry = geoPHP::load($wkb,'wkb',TRUE);

@@ -120,26 +120,6 @@ abstract class Geometry
     );
   }
   
-  public function geos() {
-    // If it's already been set, just return it
-    if ($this->geos !== NULL) {
-      return $this->geos;
-    }
-    // It hasn't been set yet, generate it
-    if (class_exists('GEOSGeometry')) {
-      $reader = new GEOSWKBReader();
-      $this->geos = $reader->readHEX($this->out('wkb',TRUE));
-    }
-    else {
-      $this->geos = FALSE;
-    }
-    return $this->geos;
-  }
-
-  public function setGeos($geos) {
-    $this->geos = $geos;
-  }
-  
   // $this->out($format, $other_args);
   public function out() {
     $args = func_get_args();
@@ -195,6 +175,26 @@ abstract class Geometry
   
   // Public: GEOS Only Functions
   // ---------------------------
+  public function geos() {
+    // If it's already been set, just return it
+    if ($this->geos !== NULL) {
+      return $this->geos;
+    }
+    // It hasn't been set yet, generate it
+    if (geoPHP::geosInstalled()) {
+      $reader = new GEOSWKBReader();
+      $this->geos = $reader->readHEX($this->out('wkb',TRUE));
+    }
+    else {
+      $this->geos = FALSE;
+    }
+    return $this->geos;
+  }
+
+  public function setGeos($geos) {
+    $this->geos = $geos;
+  }
+  
   public function pointOnSurface() {
     if ($this->geos()) {
       return geoPHP::geosToGeometry($this->geos()->pointOnSurface());
