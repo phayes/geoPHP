@@ -88,7 +88,7 @@ abstract class Collection extends Geometry implements Iterator
   public function centroid() {
     if ($this->geos()) {
       $geos_centroid = $this->geos()->centroid();
-      if ($geos_centroid->typeName == 'Point') {
+      if ($geos_centroid->typeName() == 'Point') {
         return geoPHP::geosToGeometry($this->geos()->centroid());
       }
     }

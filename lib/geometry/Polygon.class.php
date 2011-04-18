@@ -67,7 +67,7 @@ class Polygon extends Collection
   
   public function centroid() {
     if ($this->geos()) {
-      return $this->geos()->centroid();
+      return geoPHP::geosToGeometry($this->geos()->centroid());
     }
     
     $exterior_ring = $this->components[0];
