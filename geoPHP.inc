@@ -22,7 +22,6 @@ include_once("lib/geometry/Point.class.php");
 include_once("lib/geometry/Collection.class.php"); // Abtract class
 include_once("lib/geometry/LineString.class.php");
 include_once("lib/geometry/MultiPoint.class.php");
-include_once("lib/geometry/LinearRing.class.php");
 include_once("lib/geometry/Polygon.class.php");
 include_once("lib/geometry/MultiLineString.class.php");
 include_once("lib/geometry/MultiPolygon.class.php");
@@ -76,7 +75,6 @@ class geoPHP
     return array(
       'point' => 'Point',
       'linestring' => 'LineString',
-      'linearring' => 'LinearRing',
       'polygon' => 'Polygon',
       'multipoint' => 'MultiPoint',
       'multilinestring' => 'MultiLineString',
@@ -120,7 +118,7 @@ class geoPHP
     
     // If the geometry cannot even theoretically be reduced more, then pass it back
     if (gettype($geometry) == 'object') {
-      $passbacks = array('Point','LineString','LinearRing','Polygon');
+      $passbacks = array('Point','LineString','Polygon');
       if (in_array($geometry->geometryType(),$passbacks)) {
         return $geometry;
       }

@@ -77,7 +77,7 @@ abstract class Geometry
       new Point($bbox['miny'],$bbox['minx']),
       new Point($bbox['maxy'],$bbox['minx']),
     );
-    $outer_boundary = new LinearRing($points);
+    $outer_boundary = new LineString($points);
     return new Polygon(array($outer_boundary));
   }
   

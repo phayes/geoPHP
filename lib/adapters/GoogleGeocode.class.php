@@ -118,7 +118,7 @@ class GoogleGeocode extends GeoAdapter
       $this->getBottomLeft($delta),
       $this->getTopLeft($delta),
     );
-    $outer_ring = new LinearRing($points);
+    $outer_ring = new LineString($points);
     return new Polygon(array($outer_ring));
   }
 

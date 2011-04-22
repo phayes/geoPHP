@@ -33,7 +33,6 @@ class WKT extends GeoAdapter
   const MULTIPOINT          = 'multipoint';
   const LINESTRING          = 'linestring';
   const MULTILINESTRING     = 'multilinestring';
-  const LINEARRING          = 'linearring';
   const POLYGON             = 'polygon';
   const MULTIPOLYGON        = 'multipolygon';
   const GEOMETRYCOLLECTION  = 'geometrycollection';
@@ -128,7 +127,7 @@ class WKT extends GeoAdapter
         foreach ($rings as $r) {
           $ring = $this->trimParens( $r );
           $linestring = $this->parse(self::LINESTRING, $ring);
-          $components[] = new LinearRing($linestring->getComponents());
+          $components[] = new LineString($linestring->getComponents());
         }
         return new Polygon($components);
 
@@ -188,7 +187,6 @@ class WKT extends GeoAdapter
       case self::POINT:
         return $geometry->getX().' '.$geometry->getY();
       case self::LINESTRING:
-      case self::LINEARRING:
         foreach ($geometry as $geom) {
           $array[] = $this->extract($geom);
         }

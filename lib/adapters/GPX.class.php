@@ -132,7 +132,6 @@ class GPX extends GeoAdapter
         return $this->pointToGPX($geom);
         break;
       case 'linestring':
-      case 'linearring':
         return $this->linestringToGPX($geom);
         break;
       case 'polygon':

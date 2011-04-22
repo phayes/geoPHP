@@ -108,15 +108,6 @@ class KML extends GeoAdapter
     return new LineString($point_array);
   }
   
-  protected function parseLinearRing($xml) {
-    $coordinates = $this->_extractCoordinates($xml);
-    $components = array();
-    foreach ($coordinates as $set) {
-      $components[] = new Point($set[0],$set[1]);
-    }
-    return new LinearRing($components);
-  }
-  
   protected function parsePolygon($xml) {
     $components = array();
     
@@ -124,7 +115,7 @@ class KML extends GeoAdapter
     $outer_boundary_element = $outer_boundary_element_a[0];
     $outer_ring_element_a = $this->childElements($outer_boundary_element, 'linearring');
     $outer_ring_element = $outer_ring_element_a[0];
-    $components[] = $this->parseLinearRing($outer_ring_element);
+    $components[] = $this->parseLineString($outer_ring_element);
     
     if (count($components) != 1) {
       throw new Exception("Invalid KML");
@@ -134,7 +125,7 @@ class KML extends GeoAdapter
       if (count($inner_boundary_element_a)) {
       $inner_boundary_element = $inner_boundary_element_a[0];
       foreach ($this->childElements($inner_boundary_element, 'linearring') as $inner_ring_element) {
-        $components[] = $this->parseLinearRing($inner_ring_element);
+        $components[] = $this->parseLineString($inner_ring_element);
       }
     }
     
@@ -145,7 +136,8 @@ class KML extends GeoAdapter
     $components = array();
     $geom_types = geoPHP::geometryList();
     foreach ($xml->childNodes as $child) {
-      $function = 'parse'.$geom_types[$child->nodeName];
+      $nodeName = ($child->nodeName == 'linearring') ? 'linestring' : $child->nodeName;
+      $function = 'parse'.$geom_types[$nodeName];
       $components[] = $this->$function($child);
     }
     return new GeometryCollection($components);
@@ -178,7 +170,6 @@ class KML extends GeoAdapter
         return $this->pointToKML($geom);
         break;
       case 'linestring':
-      case 'linearring':
         return $this->linestringToKML($geom);
         break;
       case 'polygon':

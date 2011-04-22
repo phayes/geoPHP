@@ -21,13 +21,11 @@ class Polygon extends Collection
    *
    * The first linestring is the outer ring
    * The subsequent ones are holes
-   * All linestrings should be a LinearRing
+   * All linestrings should be a closed LineString
    *
    * @param array $linestrings The LineString array
    */
   public function __construct(array $linestrings) {
-    // the GeoJSON spec (http://geojson.org/geojson-spec.html) says nothing about linestring count. 
-    // What should we do ?
     if (count($linestrings) > 0) {
       parent::__construct($linestrings);
     }
