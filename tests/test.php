@@ -2,6 +2,13 @@
 
 include_once('../geoPHP.inc');
 
+if (geoPHP::geosInstalled()) {
+  print "GEOS is installed. ";
+}
+else {
+  print "GEOS is not installed. ";
+}
+
 foreach (scandir('./input') as $file) {
   $parts = explode('.',$file);
   if ($parts[0]) {
@@ -12,16 +19,7 @@ foreach (scandir('./input') as $file) {
   }
 }
 
-function test_geometry($geometry) {
-  // Test adapter output
-  $geometry->out('wkt');
-  $geometry->out('wkb');
-  $geometry->out('kml');
-  $geometry->out('gpx');
-  $geometry->out('json');
-  
-  //Don't test google geocoder regularily. Uncomment to test
-  #$geometry->out('google_geocode');  
+function test_geometry($geometry, $test_adapters = TRUE) {
   
   // Test common functions
   $geometry->area();
@@ -98,6 +96,19 @@ function test_geometry($geometry) {
   $geometry->coordinateDimension();
   $geometry->z();
   $geometry->m();
+
+  // Test adapter output and input. Do a round-trip and re-test
+  if ($test_adapters) {
+    foreach (geoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
+      if ($adapter != 'google_geocode') { //Don't test google geocoder regularily. Uncomment to test
+        $format = $geometry->out($adapter_key);
+        $adapter_loader = new $adapter_class();
+        $translated_geometry = $adapter_loader->read($format);
+        #test_geometry($translated_geometry, FALSE);
+      }
+    }
+  }
+  
 }
 
 print "Done! Test passes!";

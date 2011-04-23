@@ -71,14 +71,24 @@ class KML extends GeoAdapter
     $geometries = array();
     $geom_types = geoPHP::geometryList();
     $placemark_elements = $this->xmlobj->getElementsByTagName('placemark');
-    foreach ($placemark_elements as $placemark) {
-      foreach ($placemark->childNodes as $child) {
-        // Node names are all the same, except for MultiGeometry, which maps to GeometryCollection
-        $node_name = $child->nodeName == 'multigeometry' ? 'geometrycollection' : $child->nodeName;
-        if (array_key_exists($node_name, $geom_types)) {
-          $function = 'parse'.$geom_types[$node_name];
-          $geometries[] = $this->$function($child);
+    if ($placemark_elements->length) {
+      foreach ($placemark_elements as $placemark) {
+        foreach ($placemark->childNodes as $child) {
+          // Node names are all the same, except for MultiGeometry, which maps to GeometryCollection
+          $node_name = $child->nodeName == 'multigeometry' ? 'geometrycollection' : $child->nodeName;
+          if (array_key_exists($node_name, $geom_types)) {
+            $function = 'parse'.$geom_types[$node_name];
+            $geometries[] = $this->$function($child);
+          }
         }
+      }
+    }
+    else {
+      // The document does not have a placemark, try to create a valid geometry from the root element
+      $node_name = $this->xmlobj->documentElement->nodeName == 'multigeometry' ? 'geometrycollection' : $this->xmlobj->documentElement->nodeName;
+      if (array_key_exists($node_name, $geom_types)) {
+        $function = 'parse'.$geom_types[$node_name];
+        $geometries[] = $this->$function($this->xmlobj->documentElement);
       }
     }
     return geoPHP::geometryReduce($geometries); 
@@ -188,8 +198,11 @@ class KML extends GeoAdapter
     return "<Point><coordinates>".$geom->getX().",".$geom->getY()."</coordinates></Point>";
   }
 
-  private function linestringToKML($geom) {
-    $type = $geom->getGeomType();
+  private function linestringToKML($geom, $type = FALSE) {
+    if (!$type) {
+      $type = $geom->getGeomType();
+    }
+    
     $str = '<'. $type .'><coordinates>';
     $i=0;
     foreach ($geom->getComponents() as $comp) {
@@ -203,7 +216,7 @@ class KML extends GeoAdapter
 
   public function polygonToKML($geom) {
     $components = $geom->getComponents();
-    $str = '<outerBoundaryIs>' . $this->linestringToKML($components[0]) . '</outerBoundaryIs>';
+    $str = '<outerBoundaryIs>' . $this->linestringToKML($components[0], 'LinearRing') . '</outerBoundaryIs>';
     foreach (array_slice($components, 1) as $comp) {
       $str .= '<innerBoundaryIs>' . $this->linestringToKML($comp) . '</innerBoundaryIs>';
     }

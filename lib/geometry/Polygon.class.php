@@ -88,8 +88,8 @@ class Polygon extends Collection
       $cn['y'] = $cn['y'] + ($p->getY() + $pts[$j]->getY()) * $P;
     }
     
-    $cn['x'] = - $cn['x'] / ( 6 * $a);
-    $cn['y'] = - $cn['y'] / ( 6 * $a);
+    $cn['x'] = $cn['x'] / ( 6 * $a);
+    $cn['y'] = $cn['y'] / ( 6 * $a);
         
     $centroid = new Point($cn['x'], $cn['y']);
     return $centroid;

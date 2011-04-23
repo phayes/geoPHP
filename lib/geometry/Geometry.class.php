@@ -71,12 +71,13 @@ abstract class Geometry
     
     $bbox = $this->getBBox();
     $points = array (
-      new Point($bbox['maxy'],$bbox['minx']),
-      new Point($bbox['maxy'],$bbox['maxx']),
-      new Point($bbox['miny'],$bbox['maxx']),
-      new Point($bbox['miny'],$bbox['minx']),
-      new Point($bbox['maxy'],$bbox['minx']),
+      new Point($bbox['maxx'],$bbox['miny']),
+      new Point($bbox['maxx'],$bbox['maxy']),
+      new Point($bbox['minx'],$bbox['maxy']),
+      new Point($bbox['minx'],$bbox['miny']),
+      new Point($bbox['maxx'],$bbox['miny']),
     );
+    
     $outer_boundary = new LineString($points);
     return new Polygon(array($outer_boundary));
   }
@@ -84,7 +85,6 @@ abstract class Geometry
   public function geometryType() {
     return $this->geom_type;
   }
-  
   
   // Public: Non-Standard -- Common to all geometries
   // ------------------------------------------------

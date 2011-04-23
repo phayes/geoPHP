@@ -32,7 +32,7 @@ class GPX extends GeoAdapter
    * @return string The KML string representation of the input geometries
    */
   public function write(Geometry $geometry) {
-    return $this->geometryToGPX($geometry);
+    return '<gpx creator="geoPHP" version="1.0">'.$this->geometryToGPX($geometry).'</gpx>';
   }
   
   public function geomFromText($text) {
