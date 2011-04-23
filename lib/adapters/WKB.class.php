@@ -172,14 +172,14 @@ class WKB extends GeoAdapter
   
   function writePoint($point) {
     // Set the coords
-    $wkb .= pack('dd',$point->x(), $point->y());
+    $wkb = pack('dd',$point->x(), $point->y());
     
     return $wkb;
   }
   
   function writeLineString($line) {
     // Set the number of points in this line
-    $wkb .= pack('L',$line->numPoints());
+    $wkb = pack('L',$line->numPoints());
     
     // Set the coords
     foreach ($line->getComponents() as $point) {
@@ -191,7 +191,7 @@ class WKB extends GeoAdapter
   
   function writePolygon($poly) {
     // Set the number of lines in this poly
-    $wkb .= pack('L',$poly->numGeometries());
+    $wkb = pack('L',$poly->numGeometries());
     
     // Write the lines
     foreach ($poly->getComponents() as $line) {
@@ -203,7 +203,7 @@ class WKB extends GeoAdapter
   
   function writeMulti($geometry) {
     // Set the number of components
-    $wkb .= pack('L',$geometry->numGeometries());
+    $wkb = pack('L',$geometry->numGeometries());
     
     // Write the components
     foreach ($geometry->getComponents() as $component) {
