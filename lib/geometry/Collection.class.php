@@ -206,7 +206,7 @@ abstract class Collection extends Geometry implements Iterator
   public function dimension() {
     $dimension = 0;
     foreach ($this->components as $component) {
-      if ($component->dimension() > $dimention) {
+      if ($component->dimension() > $dimension) {
         $dimension = $component->dimension();
       }
     }
