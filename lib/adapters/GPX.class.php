@@ -105,7 +105,7 @@ class GPX extends GeoAdapter
           $components[] = new Point($lon, $lat);
         }
       }
-      $lines[] = new LineString($components);
+      if ($components) {$lines[] = new LineString($components);}
     }
     return $lines;
   }

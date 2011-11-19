@@ -100,7 +100,7 @@ function test_geometry($geometry, $test_adapters = TRUE) {
   // Test adapter output and input. Do a round-trip and re-test
   if ($test_adapters) {
     foreach (geoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
-      if ($adapter != 'google_geocode') { //Don't test google geocoder regularily. Uncomment to test
+      if ($adapter_key != 'google_geocode') { //Don't test google geocoder regularily. Uncomment to test
         $format = $geometry->out($adapter_key);
         $adapter_loader = new $adapter_class();
         $translated_geometry = $adapter_loader->read($format);
