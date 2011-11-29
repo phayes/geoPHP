@@ -104,15 +104,8 @@ abstract class Geometry
     $processor_type = $type_map[$format];
     $processor = new $processor_type();
 
-    // @@TODO: Hack alert!
-    // There has got to be a better way to do this...
-    // Is there an equivilent to call_user_func for objects???
-    if (count($args) == 0) $result = $processor->write($this);
-    if (count($args) == 1) $result = $processor->write($this, $args[0]);
-    if (count($args) == 2) $result = $processor->write($this, $args[0],$args[1]);
-    if (count($args) == 3) $result = $processor->write($this, $args[0],$args[1],$args[2]);
-    if (count($args) == 4) $result = $processor->write($this, $args[0],$args[1],$args[2], $args[3]);
-    if (count($args) == 5) $result = $processor->write($this, $args[0],$args[1],$args[2], $args[3], $args[4]);
+    array_unshift($args, $this);
+    $result = call_user_func_array(array($processor, 'write'), $args);
 
     return $result;
   }
