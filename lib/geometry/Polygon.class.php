@@ -34,7 +34,7 @@ class Polygon extends Collection
     }
   }
   
-  public function area($exterior_only = FALSE) {
+  public function area($exterior_only = FALSE, $signed = FALSE) {
     if ($this->geos() && $exterior_only == FALSE) {
       return $this->geos()->area();
     }
@@ -50,7 +50,9 @@ class Polygon extends Collection
       $a = $a + ($p->getX() * $pts[$j]->getY()) - ($p->getY() * $pts[$j]->getX());
     }
     
-    $area = abs(($a / 2));
+    if ($signed) $area = ($a / 2);
+    else $area = abs(($a / 2));
+    
     if ($exterior_only == TRUE) {
       return $area;
     }
@@ -74,7 +76,7 @@ class Polygon extends Collection
     $c = count($pts);
     if((int)$c == '0') return NULL;
     $cn = array('x' => '0', 'y' => '0');
-    $a = $this->area(TRUE);
+    $a = $this->area(TRUE, TRUE);
     
     // If this is a polygon with no area. Just return the first point.
     if ($a == 0) {
@@ -90,7 +92,7 @@ class Polygon extends Collection
     
     $cn['x'] = $cn['x'] / ( 6 * $a);
     $cn['y'] = $cn['y'] / ( 6 * $a);
-        
+    
     $centroid = new Point($cn['x'], $cn['y']);
     return $centroid;
   }
