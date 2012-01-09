@@ -83,9 +83,10 @@ class geoPHP
     );
   }
   
-  static function geosInstalled() {
-    static $geos_intalled = NULL;
-    if ($geos_intalled !== NULL) {
+  static function geosInstalled($force = NULL) {
+    static $geos_installed = NULL;
+    if ($force !== NULL) $geos_installed = $force;
+    if ($geos_installed !== NULL) {
       return $geos_installed; 
     }
     $geos_installed = class_exists('GEOSGeometry');

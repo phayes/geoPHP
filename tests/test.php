@@ -1,12 +1,13 @@
 <?php
+header("Content-type: text");
 
 include_once('../geoPHP.inc');
 
 if (geoPHP::geosInstalled()) {
-  print "GEOS is installed. ";
+  print "GEOS is installed.\n";
 }
 else {
-  print "GEOS is not installed. ";
+  print "GEOS is not installed.\n";
 }
 
 foreach (scandir('./input') as $file) {
@@ -15,6 +16,8 @@ foreach (scandir('./input') as $file) {
     $format = $parts[1];
     $value = file_get_contents('./input/'.$file);
     $geometry = geoPHP::load($value, $format);
+    print '---- Testing '.$file."\n";
+    test_methods($geometry);
     test_geometry($geometry);
   }
 }
@@ -111,4 +114,67 @@ function test_geometry($geometry, $test_adapters = TRUE) {
   
 }
 
-print "Done! Test passes!";
+
+function test_methods($geometry) {
+  // Cannot test methods if GEOS is not intstalled
+  if (!geoPHP::geosInstalled()) return;  
+  
+  $methods = array(
+    //'boundary', //@@TODO: Uncomment this and fix errors
+    'envelope',   //@@TODO: Testing reveales errors in this method
+    'getBBox',
+    'centroid',
+    'x',
+    'y',
+    'startPoint',
+    'endPoint',
+    'isRing',
+    'isClosed',
+    'numPoints',
+    'getCoordinates', 
+  );
+  
+  foreach ($methods as $method) {
+    // Turn GEOS on
+    geoPHP::geosInstalled(TRUE);
+    $geos_result = $geometry->$method();
+            
+    // Turn GEOS off
+    geoPHP::geosInstalled(FALSE);
+    $norm_result = $geometry->$method();
+    
+    $geos_type = gettype($geos_result);
+    $norm_type = gettype($norm_result);
+    
+    if ($geos_type != $norm_type) {
+      print 'Type mismatch on '.$method."\n";
+      var_dump($geos_type);
+      var_dump($norm_type);
+      continue;
+    }
+    
+    // Now check base on type
+    if ($geos_type == 'object') {
+      $geos_wkt = $geos_result->out('wkt');
+      $norm_wkt = $norm_result->out('wkt');
+      
+      // Round - we can't expect them to be identitcal
+      $geos_wkt = preg_replace_callback("/[-+]?[0-9]*\.?[0-9]+/", create_function('$matches','return round($matches[0]);'), $geos_wkt);
+      $norm_wkt = preg_replace_callback("/[-+]?[0-9]*\.?[0-9]+/", create_function('$matches','return round($matches[0]);'), $norm_wkt);
+      
+      if ($geos_wkt != $norm_wkt) {
+        print 'Output mismatch on '.$method.":\n";
+        print 'GEOS : '.$geos_wkt."\n";
+        print 'NORM : '.$norm_wkt."\n";
+        continue;
+      }
+    }
+    
+    //@@TODO: Run tests for output of types boolean, arrays, and text.
+  }
+  
+  // Turn GEOS back on
+  geoPHP::geosInstalled(TRUE);
+} 
+
+print "Testing Done!";
