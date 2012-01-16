@@ -15,8 +15,8 @@ foreach (scandir('./input') as $file) {
   if ($parts[0]) {
     $format = $parts[1];
     $value = file_get_contents('./input/'.$file);
-    $geometry = geoPHP::load($value, $format);
     print '---- Testing '.$file."\n";
+    $geometry = geoPHP::load($value, $format);
     test_methods($geometry);
     test_geometry($geometry);
   }
