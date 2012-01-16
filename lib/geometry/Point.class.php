@@ -54,9 +54,9 @@ class Point extends Geometry
   }
 
   /**
-   * Returns X coordinate of the point
+   * Returns Y coordinate of the point
    *
-   * @return integer The X coordinate
+   * @return integer The Y coordinate
    */
   public function y() {
     return $this->position[1];
