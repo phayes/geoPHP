@@ -143,6 +143,9 @@ function test_methods($geometry) {
     geoPHP::geosInstalled(FALSE);
     $norm_result = $geometry->$method();
     
+    // Turn GEOS back On
+    geoPHP::geosInstalled(TRUE);
+    
     $geos_type = gettype($geos_result);
     $norm_type = gettype($norm_result);
     
@@ -155,26 +158,34 @@ function test_methods($geometry) {
     
     // Now check base on type
     if ($geos_type == 'object') {
-      $geos_wkt = $geos_result->out('wkt');
-      $norm_wkt = $norm_result->out('wkt');
+      $haus_dist = $geos_result->hausdorffDistance(geoPHP::load($norm_result->out('wkt'),'wkt'));
       
-      // Round - we can't expect them to be identitcal
-      $geos_wkt = preg_replace_callback("/[-+]?[0-9]*\.?[0-9]+/", create_function('$matches','return round($matches[0]);'), $geos_wkt);
-      $norm_wkt = preg_replace_callback("/[-+]?[0-9]*\.?[0-9]+/", create_function('$matches','return round($matches[0]);'), $norm_wkt);
+      // Get the length of the diagonal of the bbox - this is used to scale the haustorff distance
+      // Using Pythagorean theorem
+      $bb = $geos_result->getBBox();
+      $scale = sqrt((($bb['maxy'] - $bb['miny'])^2) + (($bb['maxx'] - $bb['minx'])^2));
       
-      if ($geos_wkt != $norm_wkt) {
+      // The difference in the output of GEOS and native-PHP methods should be less than 0.5 scaled haustorff units
+      if ($haus_dist / $scale > 0.5) {
         print 'Output mismatch on '.$method.":\n";
-        print 'GEOS : '.$geos_wkt."\n";
-        print 'NORM : '.$norm_wkt."\n";
+        print 'GEOS : '.$geos_result->out('wkt')."\n";
+        print 'NORM : '.$norm_result->out('wkt')."\n";
         continue;
       }
     }
     
-    //@@TODO: Run tests for output of types boolean, arrays, and text.
+    if ($geos_type == 'boolean' || $geos_type == 'string') {
+      if ($geos_result !== $norm_result) {
+        print 'Output mismatch on '.$method.":\n";
+        print 'GEOS : '.(string) $geos_result."\n";
+        print 'NORM : '.(string) $norm_result."\n";
+        continue;
+      }
+    }
+    
+    //@@TODO: Run tests for output of types arrays and float
+    //@@TODO: centroid function is non-compliant for collections and strings
   }
-  
-  // Turn GEOS back on
-  geoPHP::geosInstalled(TRUE);
 } 
 
 print "Testing Done!";
