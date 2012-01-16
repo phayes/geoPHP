@@ -14,6 +14,7 @@ include_once("lib/adapters/WKT.class.php");
 include_once("lib/adapters/WKB.class.php");
 include_once("lib/adapters/KML.class.php");
 include_once("lib/adapters/GPX.class.php");
+include_once("lib/adapters/GeoRSS.class.php");
 include_once("lib/adapters/GoogleGeocode.class.php");
 
 // Geometries
@@ -67,6 +68,7 @@ class geoPHP
       'json' => 'GeoJSON',
       'kml' => 'KML',
       'gpx' => 'GPX',
+      'georss' => 'GeoRSS',
       'google_geocode' => 'GoogleGeocode',
     );
   }

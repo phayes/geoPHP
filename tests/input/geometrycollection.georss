@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" 
+  xmlns:georss="http://www.georss.org/georss">
+  <title>Earthquakes</title>
+  <subtitle>International earthquake observation labs</subtitle>
+  <link href="http://example.org/"/>
+  <updated>2005-12-13T18:30:02Z</updated>
+  <author>
+    <name>Dr. Thaddeus Remor</name>
+    <email>tremor@quakelab.edu</email>
+  </author>
+  <id>urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6</id>
+  <entry>
+    <title>This has multiple georss entries in it</title>
+    <link href="http://example.org/2005/09/09/atom01"/>
+    <id>urn:uuid:1225c695-cfb8-4ebb-aaaa-80da344efa6a</id>
+    <updated>2005-08-17T07:02:32Z</updated>
+    <summary>We just had a big one.</summary>
+    <georss:point>45.256 -71.92</georss:point>
+    <georss:point>42.256 -69.92</georss:point>
+    <georss:line>45.256 -110.45 46.46 -109.48 43.84 -109.86</georss:line>
+    <georss:polygon>45.256 -110.45 46.46 -109.48 43.84 -109.86 45.256 -110.45</georss:polygon>
+  </entry>
+  <entry>
+    <title>Another Entry</title>d
+    <summary>Another point.</summary>
+    <georss:point>46.256 -70.92</georss:point>
+  </entry>
+</feed>
