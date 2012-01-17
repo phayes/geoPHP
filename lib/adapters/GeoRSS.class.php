@@ -91,7 +91,7 @@ class GeoRSS extends GeoAdapter
         $lat = $item;
       }
       else {
-        // It's a latitude
+        // It's a longitude
         $lon = $item;
         $coords[] = new Point($lon, $lat);
       }
@@ -165,19 +165,19 @@ class GeoRSS extends GeoAdapter
     $type = strtolower($geom->getGeomType());
     switch ($type) {
       case 'point':
-        $output .= $this->pointToGeoRSS($geom);
+        return $this->pointToGeoRSS($geom);
         break;
       case 'linestring':
-        $output .= $this->linestringToGeoRSS($geom);
+        return $this->linestringToGeoRSS($geom);
         break;
       case 'polygon':
-        $output .= $this->PolygonToGeoRSS($geom);
+        return $this->PolygonToGeoRSS($geom);
         break;
       case 'multipoint':
       case 'multilinestring':
       case 'multipolygon':
       case 'geometrycollection':
-        $output .= $this->collectionToGeoRSS($geom);
+        return $this->collectionToGeoRSS($geom);
         break;
     }
     return $output;
