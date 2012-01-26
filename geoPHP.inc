@@ -36,8 +36,8 @@ class geoPHP
   }
   
   // geoPHP::load($data, $type, $other_args);
+  // if $data is an array, all passed in values will be combined into a single geometry
   static function load() {
-    
     $args = func_get_args();
     
     $data = array_shift($args);
@@ -48,7 +48,18 @@ class geoPHP
     $processor_type = $type_map[$type];
     $processor = new $processor_type();
     
-    $result = call_user_func_array(array($processor, "read"), array_merge(array($data), $args));
+    // Data is not an array, just pass it normally
+    if (!is_array($data)) {
+      $result = call_user_func_array(array($processor, "read"), array_merge(array($data), $args));
+    }
+    // Data is an array, combine all passed in items into a single geomtetry
+    else {
+      $geoms = array();
+      foreach ($data as $item) {
+        $geoms[] = call_user_func_array(array($processor, "read"), array_merge(array($data), $args));
+      }
+      $result = geoPHP::geometryReduce($geoms);
+    }
     
     return $result;
   }
