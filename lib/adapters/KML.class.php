@@ -133,10 +133,11 @@ class KML extends GeoAdapter
     }
     
     $inner_boundary_element_a = $this->childElements($xml, 'innerboundaryis');
-      if (count($inner_boundary_element_a)) {
-      $inner_boundary_element = $inner_boundary_element_a[0];
-      foreach ($this->childElements($inner_boundary_element, 'linearring') as $inner_ring_element) {
-        $components[] = $this->parseLineString($inner_ring_element);
+    if (count($inner_boundary_element_a)) {
+      foreach ($inner_boundary_element_a as $inner_boundary_element) {
+        foreach ($this->childElements($inner_boundary_element, 'linearring') as $inner_ring_element) {
+          $components[] = $this->parseLineString($inner_ring_element);
+        }
       }
     }
     
