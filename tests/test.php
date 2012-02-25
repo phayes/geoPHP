@@ -17,12 +17,13 @@ foreach (scandir('./input') as $file) {
     $value = file_get_contents('./input/'.$file);
     print '---- Testing '.$file."\n";
     $geometry = geoPHP::load($value, $format);
+    test_adapters($geometry, $format, $value);
     test_methods($geometry);
     test_geometry($geometry);
   }
 }
 
-function test_geometry($geometry, $test_adapters = TRUE) {
+function test_geometry($geometry) {
   
   // Test common functions
   $geometry->area();
@@ -99,19 +100,52 @@ function test_geometry($geometry, $test_adapters = TRUE) {
   $geometry->coordinateDimension();
   $geometry->z();
   $geometry->m();
+}
 
+function test_adapters($geometry, $format, $input) {
   // Test adapter output and input. Do a round-trip and re-test
-  if ($test_adapters) {
-    foreach (geoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
-      if ($adapter_key != 'google_geocode') { //Don't test google geocoder regularily. Uncomment to test
-        $format = $geometry->out($adapter_key);
-        $adapter_loader = new $adapter_class();
-        $translated_geometry = $adapter_loader->read($format);
-        #test_geometry($translated_geometry, FALSE);
+  foreach (geoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
+    if ($adapter_key != 'google_geocode') { //Don't test google geocoder regularily. Uncomment to test
+      $output = $geometry->out($adapter_key);
+      $adapter_loader = new $adapter_class();
+      $test_geom_1 = $adapter_loader->read($output);
+      $test_geom_2 = $adapter_loader->read($test_geom_1->out($adapter_key));
+      
+      // Check to make sure a round-trip results in the same geometry
+      if ($test_geom_1->out('wkt') != $test_geom_2->out('wkt')) {
+        print "Mismatched adapter output in ".$adapter_class."\n";
       }
     }
   }
   
+  // Test to make sure adapter work the same wether GEOS is ON or OFF
+  // Cannot test methods if GEOS is not intstalled
+  if (!geoPHP::geosInstalled()) return;
+  
+  foreach (geoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
+    if ($adapter_key != 'google_geocode') { //Don't test google geocoder regularily. Uncomment to test
+      // Turn GEOS on
+      geoPHP::geosInstalled(TRUE);
+      
+      $output = $geometry->out($adapter_key);
+      $adapter_loader = new $adapter_class();
+  
+      $test_geom_1 = $adapter_loader->read($output);
+      
+      // Turn GEOS off
+      geoPHP::geosInstalled(FALSE);      
+      
+      $test_geom_2 = $adapter_loader->read($output);
+      
+      // Turn GEOS back On
+      geoPHP::geosInstalled(TRUE);
+      
+      // Check to make sure a both are the same with geos and without
+      if ($test_geom_1->out('wkt') != $test_geom_2->out('wkt')) {
+        print "Mismatched adapter output between GEOS and NORM in ".$adapter_class."\n";
+      }
+    }
+  }
 }
 
 
