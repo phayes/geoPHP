@@ -14,7 +14,7 @@
  */
 class Point extends Geometry
 {
-  private $position = array(2);
+  public $position = array(2);
   protected $geom_type = 'Point';
   
   /**

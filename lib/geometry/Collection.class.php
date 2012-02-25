@@ -18,7 +18,7 @@
  */
 abstract class Collection extends Geometry implements Iterator
 {
-  protected $components = array();
+  public $components = array();
   
   /**
    * Constructor
