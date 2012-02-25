@@ -155,9 +155,8 @@ function test_methods($geometry) {
   
   $methods = array(
     //'boundary', //@@TODO: Uncomment this and fix errors
-    'envelope',   //@@TODO: Testing reveales errors in this method
+    'envelope',   //@@TODO: Testing reveales errors in this method -- POINT vs. POLYGON
     'getBBox',
-    'centroid',
     'x',
     'y',
     'startPoint',
