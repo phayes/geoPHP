@@ -26,7 +26,6 @@ class WKT extends GeoAdapter
     'spaces'                => '/\s+/',
     'parenComma'            => '/\)\s*,\s*\(/',
     'doubleParenComma'      => '/\)\s*\)\s*,\s*\(\s*\(/',
-    'trimParens'            => '/^\s*\(?(.*?)\)?\s*$/'
   );
 
   const POINT               = 'point';
@@ -103,7 +102,7 @@ class WKT extends GeoAdapter
       case self::MULTIPOINT:
         $points = $this->pregExplode('parenComma', $str);
         foreach ($points as $p) {
-          $point = $this->trimParens( $p );
+          $point = $this->trimParens($p);
           $components[] = $this->parse(self::POINT, $point);
         }
         return new MultiPoint($components);
@@ -117,7 +116,7 @@ class WKT extends GeoAdapter
       case self::MULTILINESTRING:
         $lines = $this->pregExplode('parenComma', $str);
         foreach ($lines as $l) {
-          $line = $this->trimParens( $l );
+          $line = $this->trimParens($l);
           $components[] = $this->parse(self::LINESTRING, $line);
         }
         return new MultiLineString($components);
@@ -125,7 +124,7 @@ class WKT extends GeoAdapter
       case self::POLYGON:
         $rings= $this->pregExplode('parenComma', $str);
         foreach ($rings as $r) {
-          $ring = $this->trimParens( $r );
+          $ring = $this->trimParens($r);
           $linestring = $this->parse(self::LINESTRING, $ring);
           $components[] = new LineString($linestring->getComponents());
         }
@@ -134,7 +133,7 @@ class WKT extends GeoAdapter
       case self::MULTIPOLYGON:
         $polygons = $this->pregExplode('doubleParenComma', $str);
         foreach ($polygons as $p) {
-          $polygon = $this->trimParens( $p );
+          $polygon = $this->trimParens($p);
           $components[] = $this->parse(self::POLYGON, $polygon);
         }
         return new MultiPolygon($components);
@@ -157,11 +156,7 @@ class WKT extends GeoAdapter
    *
    */
   protected function trimParens($str) {
-   $open_parent = stripos( $str, '(' );
-   $open_parent = ($open_parent!==false)?$open_parent+1:0;
-   $close_parent = strripos( $str, ')' );
-   $close_parent = ($close_parent!==false)?$close_parent:strlen($str);
-   return substr( $str, $open_parent, $close_parent);
+    return trim($str,'() ');
   }
   
   /**
