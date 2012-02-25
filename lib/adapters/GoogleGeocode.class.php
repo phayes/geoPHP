@@ -74,6 +74,11 @@ class GoogleGeocode extends GeoAdapter
         }
       }
     }
+    else {
+      if ($this->result->status) throw new Exception('Error in Google Geocoder: '.$this->result->status);
+      else throw new Exception('Unknown error in Google Geocoder');
+      return FALSE;
+    }
   }
 
   /**
@@ -101,6 +106,11 @@ class GoogleGeocode extends GeoAdapter
       if ($return_type == 'array') {
         return $this->result->results[0]->address_components;
       }
+    }
+    else {
+      if ($this->result->status) throw new Exception('Error in Google Reverse Geocoder: '.$this->result->status);
+      else throw new Exception('Unknown error in Google Reverse Geocoder');
+      return FALSE;
     }
   }
   
