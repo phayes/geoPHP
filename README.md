@@ -57,6 +57,34 @@ Example usage
     
     print "This multipolygon has ".$multipoint->numGeometries()." points. The first point has a wkt representation of ".$first_wkt;
 
+The Well Known Text (WKT) and Well Known Binary (WKB) support is ideal for integrating with MySQL's spatial capability. 
+Once you have SELECTed your data with 'AsText(`geo_field`)' or 'AsBinary(`geo_field`)', you can put it straight into 
+geoPHP (can be wkt or wkb, but must be the same as how you extracted it from your database):
+    $geom = geoPHP::load($dbRow,'wkt');
+You can collect multiple geometries into one (note that you must use wkt for this):
+    $geom = geoPHP::load("GEOMETRYCOLLECTION(".$dbString1.",".$dbString2.")",'wkt');
+
+Google's geocoding offering <http://code.google.com/apis/maps/documentation/geocoding/> is one of the few out there, and is simply integrated:
+    $gg = new GoogleGeocode();
+    $geom = $gg->read('Birmingham');
+Note that the request is fired off to google as soon as you make call read(). You can then output the geometry in any of the formats.
+There are four possible parameters for GoogleGeocode->read(), they are:
+    read(string $address, string $return_type = 'point', bool $bounds = FALSE, bool $return_multiple = FALSE);
+Return type may be 'point' or 'bounds'. 
+
+Calling get components returns the sub-geometries within a geometry as an array.
+    $geom2 = $wkt_reader->read("GEOMETRYCOLLECTION(LINESTRING(1 1,5 1,5 5,1 5,1 1),LINESTRING(2 2,2 3,3 3,3 2,2 2))");
+    $geomComponents = $geom2->getComponents();    //an array of the two linestring geometries
+    $linestring1 = $geomComponents[0]->getComponents();	//an array of the first linestring's point geometries
+    $linestring2 = $geomComponents[1]->getComponents();
+    echo $linestring1[0]->x() . ", " . $linestring1[0]->y();    //outputs '1, 1'
+An alternative is to use the getCoordinates() method. Using the above geometry collection of two linestrings, 
+    $geometryArray = $geom2->getCoordinates();
+	echo $geometryArray[0][0][0] . ", " . $geometryArray[0][0][1];    //outputs '1, 1'
+
+Clearly, more complex analysis is possible.
+    echo $geom2->envelope()->area();
+
 
 Credit
 -------------------------------------------------
