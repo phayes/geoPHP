@@ -91,12 +91,15 @@ Calling get components returns the sub-geometries within a geometry as an array.
     $linestring1 = $geomComponents[0]->getComponents();	//an array of the first linestring's point geometries
     $linestring2 = $geomComponents[1]->getComponents();
     echo $linestring1[0]->x() . ", " . $linestring1[0]->y();    //outputs '1, 1'
+
 An alternative is to use the getCoordinates() method. Using the above geometry collection of two linestrings, 
-    $geometryArray = $geom2->getCoordinates();
+    
+	$geometryArray = $geom2->getCoordinates();
 	echo $geometryArray[0][0][0] . ", " . $geometryArray[0][0][1];    //outputs '1, 1'
 
 Clearly, more complex analysis is possible.
-    echo $geom2->envelope()->area();
+    
+	echo $geom2->envelope()->area();
 
 
 Credit
