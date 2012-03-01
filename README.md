@@ -62,7 +62,7 @@ More Examples
 -------------------------------------------------
 	
 The Well Known Text (WKT) and Well Known Binary (WKB) support is ideal for integrating with MySQL's spatial capability. 
-Once you have SELECTed your data with `'AsText(`geo_field`)'` or `'AsBinary(`geo_field`)'`, you can put it straight into 
+Once you have SELECTed your data with `'AsText('geo_field')'` or `'AsBinary('geo_field')'`, you can put it straight into 
 geoPHP (can be wkt or wkb, but must be the same as how you extracted it from your database):
 
     $geom = geoPHP::load($dbRow,'wkt');
