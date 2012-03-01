@@ -62,7 +62,7 @@ More Examples
 -------------------------------------------------
 	
 The Well Known Text (WKT) and Well Known Binary (WKB) support is ideal for integrating with MySQL's spatial capability. 
-Once you have SELECTed your data with 'AsText(`geo_field`)' or 'AsBinary(`geo_field`)', you can put it straight into 
+Once you have SELECTed your data with `'AsText(`geo_field`)'` or `'AsBinary(`geo_field`)'`, you can put it straight into 
 geoPHP (can be wkt or wkb, but must be the same as how you extracted it from your database):
 
     $geom = geoPHP::load($dbRow,'wkt');
@@ -76,13 +76,13 @@ Google's geocoding offering <http://code.google.com/apis/maps/documentation/geoc
     $gg = new GoogleGeocode();
     $geom = $gg->read('London');
 
-	Note that the request is fired off to google as soon as you make call read(). You can then output the geometry in any of the formats.
+	Note that the request is fired off to google as soon as you make call `read()`. You can then output the geometry in any of the formats.
 
-There are four possible parameters for GoogleGeocode->read(), they are:
+There are four possible parameters for `GoogleGeocode->read()`, they are:
 
     read(string $address, string $return_type = 'point', bool $bounds = FALSE, bool $return_multiple = FALSE);
 
-Return type may be 'point' or 'bounds'. 
+Return type may be `'point'` or `'bounds'`. 
 
 Calling get components returns the sub-geometries within a geometry as an array.
 
@@ -92,7 +92,7 @@ Calling get components returns the sub-geometries within a geometry as an array.
     $linestring2 = $geomComponents[1]->getComponents();
     echo $linestring1[0]->x() . ", " . $linestring1[0]->y();    //outputs '1, 1'
 
-An alternative is to use the getCoordinates() method. Using the above geometry collection of two linestrings, 
+An alternative is to use the `getCoordinates()` method. Using the above geometry collection of two linestrings, 
     
 	$geometryArray = $geom2->getCoordinates();
 	echo $geometryArray[0][0][0] . ", " . $geometryArray[0][0][1];    //outputs '1, 1'
