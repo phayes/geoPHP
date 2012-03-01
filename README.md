@@ -76,7 +76,7 @@ Google's geocoding offering <http://code.google.com/apis/maps/documentation/geoc
     $gg = new GoogleGeocode();
     $geom = $gg->read('London');
 
-	Note that the request is fired off to google as soon as you make call `read()`. You can then output the geometry in any of the formats.
+Note that the request is fired off to google as soon as you make call `read()`. You can then output the geometry in any of the formats.
 
 There are four possible parameters for `GoogleGeocode->read()`, they are:
 
