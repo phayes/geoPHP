@@ -1,38 +1,12 @@
 <?php
-/*
- * (c) Camptocamp <info@camptocamp.com>
- * (c) Patrick Hayes
- *
- * This code is open-source and licenced under the Modified BSD License.
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
 
 /**
- * Polygon : a Polygon geometry.
- *
+ * Polygon: A polygon is a plane figure that is bounded by a closed path, 
+ * composed of a finite sequence of straight line segments
  */
-class Polygon extends Collection 
+class Polygon extends Collection
 {
   protected $geom_type = 'Polygon';
-  
-  /**
-   * Constructor
-   *
-   * The first linestring is the outer ring
-   * The subsequent ones are holes
-   * All linestrings should be a closed LineString
-   *
-   * @param array $linestrings The LineString array
-   */
-  public function __construct(array $linestrings) {
-    if (count($linestrings) > 0) {
-      parent::__construct($linestrings);
-    }
-    else {
-      throw new Exception("Polygon without an exterior ring");
-    }
-  }
   
   public function area($exterior_only = FALSE, $signed = FALSE) {
     if ($this->geos() && $exterior_only == FALSE) {

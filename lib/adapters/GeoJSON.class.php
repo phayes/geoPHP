@@ -1,13 +1,4 @@
 <?php
-/*
- * (c) Camptocamp <info@camptocamp.com>
- * (c) Patrick Hayes
- *
- * This code is open-source and licenced under the Modified BSD License.
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 /**
  * GeoJSON class : a geojson reader/writer.
  * 
@@ -18,7 +9,7 @@
 class GeoJSON extends GeoAdapter
 {
   /**
-   * Deserializes a GeoJSON into an object
+   * Given an object or a string, return a Geometry
    *
    * @param mixed $input The GeoJSON string or object
    *
@@ -31,7 +22,96 @@ class GeoJSON extends GeoAdapter
     if (!is_object($input)) {
       throw new Exception('Invalid JSON');
     }
-    return self::toInstance($input);
+    if (!is_string($input->type)) {
+      throw new Exception('Invalid JSON');
+    }
+    
+    // Check to see if it's a FeatureCollection
+    if ($input->type == 'FeatureCollection') {
+      $geoms = array();
+      foreach ($input->features as $feature) {
+        $geoms[] = $this->read($feature);
+      }
+      return geoPHP::geometryReduce($geoms);
+    }
+    
+    // Check to see if it's a Feature
+    if ($input->type == 'Feature') {
+      return $this->read($feature->geometry);
+    }
+    
+    // It's a geometry - process it
+    return $this->objToGeom($input);
+  }
+  
+  private function objToGeom($obj) {
+    $type = $obj->type;
+    
+    if ($type == 'GeometryCollection') {
+      return $this->objToGeometryCollection($obj);
+    }
+    else {
+      if (empty($obj->coordinates)) {
+        throw new Exception ('Invalid GeoJSON: missing coordinates');
+      }
+      $method = 'arrayTo' . $type;
+      return $this->$method($obj->coordinates);
+    }
+  }
+  
+  private function arrayToPoint($array) {
+    return new Point($array[0], $array[1]);
+  }
+
+  private function arrayToLineString($array) {
+    $points = array();
+    foreach ($array as $comp_array) {
+      $points[] = $this->arrayToPoint($comp_array);
+    }
+    return new LineString($points);
+  }
+
+  private function arrayToPolygon($array) {
+    $lines = array();
+    foreach ($array as $comp_array) {
+      $lines[] = $this->arrayToLineString($comp_array);
+    }
+    return new Polygon($lines);
+  }
+
+  private function arrayToMultiPoint($array) {
+    $points = array();
+    foreach ($array as $comp_array) {
+      $points[] = $this->arrayToPoint($comp_array);
+    }
+    return new MultiPoint($points);
+  }
+
+  private function arrayToMultiLineString($array) {
+    $lines = array();
+    foreach ($array as $comp_array) {
+      $lines[] = $this->arrayToLineString($comp_array);
+    }
+    return new MultiLineString($lines);
+  }
+
+  private function arrayToMultiPolygon($array) {
+    $polys = array();
+    foreach ($array as $comp_array) {
+      $polys[] = $this->arrayToPolygon($comp_array);
+    }
+    return new MultiPolygon($polys);
+  }
+  
+  private function objToGeometryCollection($obj) {
+    $geoms = array();
+    if (empty($obj->geometries)) {
+      throw new Exception('Invalid GeoJSON: GeometryCollection with no component geometries');
+    }
+    foreach ($obj->geometries as $comp_object) {
+      $geoms[] = $this->objToGeom($comp_object);
+    }
+    return new GeometryCollection($geoms);
   }
   
   /**
@@ -42,203 +122,34 @@ class GeoJSON extends GeoAdapter
    *
    * @return string The GeoJSON string
    */
-  public function write(Geometry $geometry) {
-    if (is_null($geometry)) {
-      return null;
-    }
-
-    return json_encode($geometry->getGeoInterface());
-  }
-  
-  /**
-   * Converts an stdClass object into a Geometry based on its 'type' property
-   * Converts an stdClass object into a Geometry, based on its 'type' property
-   *
-   * @param stdClass $obj Object resulting from json decoding a GeoJSON string
-   *
-   * @return object Object from class eometry
-   */
-  static private function toInstance($obj) {
-    if (is_null($obj)) {
-      return null;
-    }
-    if (!isset($obj->type)) {
-      self::checkType($obj);
-    }
-    
-    if ($obj->type == 'Feature') {
-      $instance = self::toGeomInstance($obj->geometry);
-    }
-    else if ($obj->type == 'FeatureCollection') {
-      $geometries = array();
-      foreach ($obj->features as $feature) {
-        $geometries[] = self::toGeomInstance($feature->geometry);
-      }
-      // Get a geometryCollection or MultiGeometry out of the the provided geometries
-      $instance = geoPHP::geometryReduce($geometries);
+  public function write(Geometry $geometry, $return_array = FALSE) {
+    if ($return_array) {
+      return $this->getArray($geometry);
     }
     else {
-      // It's a geometry
-      $instance = self::toGeomInstance($obj);
-    }
-    
-    return $instance;
-  }
-  
-  /**
-   * Converts an stdClass object into a Geometry based on its 'type' property
-   *
-   * @param stdClass $obj Object resulting from json decoding a GeoJSON string
-   * @param boolean $allowGeometryCollection Do we allow $obj to be a GeometryCollection ?
-   *
-   * @return object Object from class Geometry
-   */
-  static private function toGeomInstance($obj, $allowGeometryCollection = true) {
-    if (is_null($obj)) {
-      return null;
-    }
-    
-    self::checkType($obj);
-    
-    switch ($obj->type) {
-      case 'Point':
-      case 'LineString':
-      case 'Polygon':
-        self::checkExists($obj, 'coordinates', false, 'array');
-        $instance = call_user_func(array('self', 'to'.$obj->type), $obj->coordinates);
-        break;
-
-      case 'MultiPoint':
-      case 'MultiLineString':
-      case 'MultiPolygon':
-        self::checkExists($obj, 'coordinates', false, 'array');
-        $items = array();
-        foreach ($obj->coordinates as $item) {
-          $items[] = call_user_func(array('self', 'to'.substr($obj->type, 5)), $item);
-        }
-        $instance = new $obj->type($items);
-        break;
-
-      case 'GeometryCollection':
-        if ($allowGeometryCollection) {
-          self::checkExists($obj, 'geometries', false, 'array');
-          $geometries = array();
-          foreach ($obj->geometries as $geometry) {
-            $geometries[] = self::toGeomInstance($geometry, false);
-          }
-          $instance = new GeometryCollection($geometries);
-        }
-        else {
-          throw new Exception("Bad geojson: a GeometryCollection should not contain another GeometryCollection");
-        }
-        break;
-
-      default:
-        throw new Exception("Unsupported object type ".$obj->type);
-    }
-    return $instance;
-  }
-  
-  /**
-   * Checks an object for type
-   *
-   * @param object $obj A geometry object
-   * @param string $typeValue Value expected for 'type' property
-   */
-  static private function checkType($obj, $typeValue = null) {
-    if (!is_object($obj) || get_class($obj) != 'stdClass') {
-      throw new Exception("Bad geojson");
-    }
-    
-    if (!isset($obj->type)) {
-      throw new Exception("Bad geojson: Missing 'type' property");
-    }
-    
-    if (!is_null($typeValue) && $obj->type != $typeValue) {
-      throw new Exception("Bad geojson: Unexpected 'type' value");
+      return json_encode($this->getArray($geometry));
     }
   }
   
-  /**
-   * Checks if a property exists inside an object
-   *
-   * @param object $obj An object
-   * @param string $property The property to check
-   * @param boolean $allowNull Whether to allow a null value or not (defaults to false)
-   * @param string $type Check also $property type (object, array ...)
-   */
-  static private function checkExists($obj, $property, $allowNull = false, $type = null) {
-    if (!property_exists($obj, $property)) {
-      throw new Exception("Bad geojson: Missing '$property' property");
-    }
-
-    if (is_null($obj->$property)) {
-      if (!$allowNull) {
-        throw new Exception("Bad geojson: Null value for '$property' property");
+  public function getArray($geometry) {
+    if ($geometry->getGeomType() == 'GeometryCollection') {
+      $component_array = array();
+      foreach ($geometry->components as $component) {
+        $component_array[] = array(
+          'type' => $component->geometryType(),
+          'coordinates' => $component->asArray(),
+        );
       }
+      return array(
+        'type'=> 'GeometryCollection',
+        'geometries'=> $component_array,
+      );
     }
-    else {
-      switch ($type) {
-        case null:
-          break;
-        case 'array':
-          if (!is_array($obj->$property)) {
-            throw new Exception("Bad geojson: Unexpected type for '$property' property");
-          }
-          break;
-        case 'object':
-          if (!is_object($obj->$property)) {
-            throw new Exception("Bad geojson: Unexpected type for '$property' property");
-          }
-          break;
-        default:
-          throw new Exception("Unexpected error");
-      }
-    }
+    else return array(
+      'type'=> $geometry->getGeomType(),
+      'coordinates'=> $geometry->asArray(),
+    );
   }
-  
-  /**
-   * Converts an array of coordinates into a Point Geomtery
-   *
-   * @param array $coordinates The X/Y coordinates
-   *
-   * @return Point A Point object
-   */
-  static private function toPoint(array $coordinates) {
-    if (count($coordinates) == 2 && isset($coordinates[0]) && isset($coordinates[1])) {
-      return new Point($coordinates[0], $coordinates[1]);
-    }
-    throw new Exception("Bad geojson: wrong point coordinates array");
-  }
-  
-  /**
-   * Converts an array of coordinate arrays into a LineString Geometry
-   *
-   * @param array $coordinates The array of coordinates arrays (aka positions)
-   * @return LineString A LineString object
-   */
-  static private function toLineString(array $coordinates) {
-    $positions = array();
-    foreach ($coordinates as $position) {
-      $positions[] = self::toPoint($position);
-    }
-    return new LineString($positions);
-  }
-  
-  /**
-   * Converts an array of linestring coordinates into a Polygon Geometry
-   *
-   * @param array $coordinates The linestring coordinates
-   * @return Polygon A Polygon object
-   */
-  static private function toPolygon(array $coordinates) {
-    $linestrings = array();
-    foreach ($coordinates as $linestring) {
-      $linestrings[] = self::toLineString($linestring);
-    }
-    return new Polygon($linestrings);
-  }
-
 }
 
 

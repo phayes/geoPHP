@@ -1,83 +1,39 @@
 <?php
-/*
- * (c) Camptocamp <info@camptocamp.com>
- * (c) Patrick Hayes
- *
- * This code is open-source and licenced under the Modified BSD License.
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
 
 /**
- * Collection : abstract class which represents a collection of components.
- *
- * @package    sfMapFishPlugin
- * @subpackage GeoJSON
- * @author     Camptocamp <info@camptocamp.com>
- * @version
+ * Collection: Abstract class for compound geometries
+ * 
+ * A geometry is a collection if it is made up of other
+ * component geometries. Therefore everything but a Point
+ * is a Collection. For example a LingString is a collection
+ * of Points. A Polygon is a collection of LineStrings etc.
  */
-abstract class Collection extends Geometry implements Iterator
+abstract class Collection extends Geometry
 {
   public $components = array();
   
   /**
-   * Constructor
+   * Constructor: Checks and sets component geometries
    *
-   * @param array $components The components array
+   * @param array $components array of geometries
    */
   public function __construct(array $components) {
-    if (empty($components)) {
-      throw new Exception("Cannot create empty collection");
+    foreach ($components as $component) {
+      if ($component instanceof Geometry) {
+        $this->components[] = $component;
+      }
+      else {
+        throw new Exception("Cannot create empty collection");
+      }
     }
     
-    foreach ($components as $component)
-    {
-      $this->add($component);
+    if (empty($this->components)) {
+      throw new Exception("Cannot create empty ".get_called_class());
     }
   }
   
-  // Iterator Interface functions
-  // ----------------------------
-  public function rewind() {
-    reset($this->components);
-  }
-  
-  public function current() {
-    return current($this->components);
-  }
-  
-  public function key() {
-    return key($this->components);
-  }
-  
-  public function next() {
-    return next($this->components);
-  }
-  
-  private function add($component) {
-    $this->components[] = $component;
-  }
-  
-  public function valid() {
-    return $this->current() !== false;
-  }
-  
   /**
-   * An accessor method which recursively calls itself to build the coordinates array
-   *
-   * @return array The coordinates array
-   */
-  public function getCoordinates() {
-    $coordinates = array();
-    foreach ($this->components as $component)
-    {
-      $coordinates[] = $component->getCoordinates();
-    }
-    return $coordinates;
-  }
-  
-  /**
-   * Returns Colection components
+   * Returns Collection component geometries
    *
    * @return array
    */
@@ -144,6 +100,14 @@ abstract class Collection extends Geometry implements Iterator
       'maxx' => $maxx,
       'minx' => $minx,
     );
+  }
+  
+  public function asArray() {
+    $array = array();
+    foreach ($this->components as $component) {
+      $array[] = $component->asArray();
+    }
+    return $array;
   }
 
   public function area() {
@@ -228,6 +192,5 @@ abstract class Collection extends Geometry implements Iterator
   public function numInteriorRings() { return NULL; }
   public function interiorRingN($n)  { return NULL; }
   public function pointOnSurface()   { return NULL; }
-  
 }
 

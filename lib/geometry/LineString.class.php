@@ -1,39 +1,25 @@
 <?php
-/*
- * (c) Camptocamp <info@camptocamp.com>
- * (c) Patrick Hayes
- *
- * This code is open-source and licenced under the Modified BSD License.
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 /**
- * LineString : a LineString geometry.
- *
- * @package    sfMapFishPlugin
- * @subpackage GeoJSON
- * @author     Camptocamp <info@camptocamp.com>
- * @version    
+ * LineString. A collection of Points representing a line.
+ * A line can have more than one segment.   
  */
-class LineString extends Collection 
+class LineString extends Collection
 {
   protected $geom_type = 'LineString';
   
   /**
    * Constructor
    *
-   * @param array $positions The Point array
+   * @param array $points An array of at least two points with
+   * which to build the LineString
    */
-  public function __construct(array $positions) {
-    if (count($positions) > 1)
-    {
-      parent::__construct($positions);
+  public function __construct(array $points) {
+    if (count($points) < 2) {
+      throw new Exception("Cannot construct LineString with less than two points");
     }
-    else
-    {
-      throw new Exception("Linestring with less than two points");
-    }
+    
+    // Call the Collection constructor to build the LineString
+    parent::__construct($points);
   }
   
   // The boundary of a linestring is itself

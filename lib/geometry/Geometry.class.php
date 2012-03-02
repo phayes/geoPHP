@@ -1,27 +1,13 @@
 <?php
-/*
- * (c) Camptocamp <info@camptocamp.com>
- * (c) Patrick Hayes
- *
- * This code is open-source and licenced under the Modified BSD License.
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
 
 /**
- * Geometry : abstract class which represents a geometry.
- *
- * @package    sfMapFishPlugin
- * @subpackage GeoJSON
- * @author     Camptocamp <info@camptocamp.com>
- * @version    
+ * Geometry abstract class
  */
-abstract class Geometry 
+abstract class Geometry
 {
   private   $geos = NULL;
   protected $geom_type;
   protected $srid;
-  
   
   // Abtract: Standard
   // -----------------
@@ -47,8 +33,8 @@ abstract class Geometry
   
   // Abtract: Non-Standard
   // ---------------------
-  abstract public function getCoordinates();
   abstract public function getBBox();
+  abstract public function asArray();
   
   
   // Public: Standard -- Common to all geometries
@@ -88,12 +74,6 @@ abstract class Geometry
   
   // Public: Non-Standard -- Common to all geometries
   // ------------------------------------------------
-  public function getGeoInterface() {
-    return array(
-      'type'=> $this->getGeomType(),
-      'coordinates'=> $this->getCoordinates()
-    );
-  }
   
   // $this->out($format, $other_args);
   public function out() {

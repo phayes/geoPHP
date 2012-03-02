@@ -49,8 +49,6 @@ function test_geometry($geometry) {
   $geometry->geometryType();
   $geometry->SRID();
   $geometry->setSRID(4326);
-  $geometry->getCoordinates();
-  $geometry->getGeoInterface();
   
   // Aliases
   $geometry->getCentroid();
@@ -164,7 +162,6 @@ function test_methods($geometry) {
     'isRing',
     'isClosed',
     'numPoints',
-    'getCoordinates', 
   );
   
   foreach ($methods as $method) {

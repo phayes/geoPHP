@@ -25,11 +25,11 @@ class GPX extends GeoAdapter
   }
 
   /**
-   * Serialize geometries into a KML string.
+   * Serialize geometries into a GPX string.
    *
    * @param Geometry $geometry
    *
-   * @return string The KML string representation of the input geometries
+   * @return string The GPX string representation of the input geometries
    */
   public function write(Geometry $geometry) {
     return '<gpx creator="geoPHP" version="1.0">'.$this->geometryToGPX($geometry).'</gpx>';
