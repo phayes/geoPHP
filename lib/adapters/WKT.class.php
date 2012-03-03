@@ -30,13 +30,13 @@ class WKT extends GeoAdapter
    */
   public function read($wkt) {
     $wkt = trim($wkt);
-    $wkt = str_replace(', ', ',', $wkt);
     
     // If geos is installed, then we take a shortcut and let it parse the WKT
     if (geoPHP::geosInstalled()) {
       $reader = new GEOSWKTReader();
       return geoPHP::geosToGeometry($reader->read($wkt));
     }
+    $wkt = str_replace(', ', ',', $wkt);
     
     // For each geometry type, check to see if we have a match at the
     // beggining of the string. If we do, then parse using that type
@@ -123,7 +123,9 @@ class WKT extends GeoAdapter
     preg_match_all($pattern, $data_string, $matches);
     
     foreach ($matches[0] as $item) {
-      $geometries[] = $this->read(trim($item, ','));
+      if ($item) {
+        $geometries[] = $this->read(trim($item, ','));
+      }
     }
     return new GeometryCollection($geometries);
   }
@@ -169,13 +171,9 @@ class WKT extends GeoAdapter
       return $writer->write($geometry->geos());
     }
     
-    $type = strtolower($geometry->geometryType());
-    
-    if (is_null($data = $this->extract($geometry))) {
-      return null;
+    if ($data = $this->extractData($geometry)) {
+      return strtoupper($geometry->geometryType()).' ('.$data.')';
     }
-    
-    return strtoupper($type).' ('.$data.')';
   }
   
   /**
@@ -185,44 +183,29 @@ class WKT extends GeoAdapter
    *
    * @return strin
    */
-  public function extract(Geometry $geometry) {
-    $array = array();
-    switch (strtolower(get_class($geometry))) {
-      case self::POINT:
+  public function extractData($geometry) {
+    $parts = array();
+    switch ($geometry->geometryType()) {
+      case 'Point':
         return $geometry->getX().' '.$geometry->getY();
-      case self::LINESTRING:
-        foreach ($geometry as $geom) {
-          $array[] = $this->extract($geom);
+      case 'LineString':
+        foreach ($geometry->getComponents() as $component) {
+          $parts[] = $this->extractData($component);
         }
-        return implode(', ', $array);
-      case self::MULTIPOINT:
-      case self::MULTILINESTRING:
-      case self::POLYGON:
-      case self::MULTIPOLYGON:
-        foreach ($geometry as $geom) {
-          $array[] = '('.$this->extract($geom).')';
+        return implode(', ', $parts);
+      case 'Polygon':
+      case 'MultiPoint':
+      case 'MultiLineString':
+      case 'MultiPolygon':
+        foreach ($geometry->getComponents() as $component) {
+          $parts[] = '('.$this->extractData($component).')';
         }
-        return implode(', ', $array);
-      case self::GEOMETRYCOLLECTION:
-        foreach ($geometry as $geom) {
-          $array[] = strtoupper(get_class($geom)).' ('.$this->extract($geom).')';
+        return implode(', ', $parts);
+      case 'GeometryCollection':
+        foreach ($geometry->getComponents() as $component) {
+          $parts[] = strtoupper($component->geometryType()).' ('.$this->extractData($component).')';
         }
-        return implode(', ', $array);
-      default:
-        return null;
+        return implode(', ', $parts);
     }
   }
-  
-  /**
-   * Loads a WKT string into a Geometry Object
-   *
-   * @param string $WKT
-   *
-   * @return  Geometry
-   */
-  static public function load($WKT) {
-    $instance = new self;
-    return $instance->read($WKT);
-  }
-
 }
