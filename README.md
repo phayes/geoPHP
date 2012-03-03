@@ -69,4 +69,4 @@ Code From:
  * gisconverter.php by Arnaud Renevier <https://github.com/arenevier/gisconverter.php>
  * Dave Tarc <https://github.com/dtarc>
 
-This library is open-source and dual-licensed uder both the Modified BSD License and GPLv2. Either license may be used at your option.           
+This library is open-source and dual-licensed under both the Modified BSD License and GPLv2. Either license may be used at your option.           
