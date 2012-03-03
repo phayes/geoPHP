@@ -1,4 +1,4 @@
-GeoPHP is a open-source native PHP library for doing geometry operations. It is written entirely in PHP and 
+﻿GeoPHP is a open-source native PHP library for doing geometry operations. It is written entirely in PHP and 
 can therefore run on shared hosts. It can read and write a wide variety of formats (WKT, WKB, GeoJSON, 
 KML, GPX, GeoRSS). It works with all Simple-Feature geometries (Point, LineString, Polygon, GeometryCollection etc.)
 and can be used to get centroids, bounding-boxes, area, and a wide variety of other useful information. 
@@ -57,6 +57,38 @@ $first_wkt = $multipoint_points[0]->out('wkt');
 
 print "This multipolygon has ".$multipoint->numGeometries()." points. The first point has a wkt representation of ".$first_wkt;
 ```
+=======
+	
+More Examples
+-------------------------------------------------
+	
+The Well Known Text (WKT) and Well Known Binary (WKB) support is ideal for integrating with MySQL's or PostGIS's spatial capability. 
+Once you have SELECTed your data with `'AsText('geo_field')'` or `'AsBinary('geo_field')'`, you can put it straight into 
+geoPHP (can be wkt or wkb, but must be the same as how you extracted it from your database):
+
+    $geom = geoPHP::load($dbRow,'wkt');
+
+You can collect multiple geometries into one (note that you must use wkt for this):
+
+    $geom = geoPHP::load("GEOMETRYCOLLECTION(".$dbString1.",".$dbString2.")",'wkt');
+
+Calling get components returns the sub-geometries within a geometry as an array.
+
+    $geom2 = geoPHP::load("GEOMETRYCOLLECTION(LINESTRING(1 1,5 1,5 5,1 5,1 1),LINESTRING(2 2,2 3,3 3,3 2,2 2))");
+    $geomComponents = $geom2->getComponents();    //an array of the two linestring geometries
+    $linestring1 = $geomComponents[0]->getComponents();	//an array of the first linestring's point geometries
+    $linestring2 = $geomComponents[1]->getComponents();
+    echo $linestring1[0]->x() . ", " . $linestring1[0]->y();    //outputs '1, 1'
+
+An alternative is to use the `asArray()` method. Using the above geometry collection of two linestrings, 
+    
+	$geometryArray = $geom2->asArray();
+	echo $geometryArray[0][0][0] . ", " . $geometryArray[0][0][1];    //outputs '1, 1'
+
+Clearly, more complex analysis is possible.
+    
+	echo $geom2->envelope()->area();
+
 
 Credit
 -------------------------------------------------
@@ -68,5 +100,7 @@ Code From:
  * CIS by GeoMemes Research <http://www.geomemes.com>
  * gisconverter.php by Arnaud Renevier <https://github.com/arenevier/gisconverter.php>
  * Dave Tarc <https://github.com/dtarc>
+
+A special thanks to Elliott Hunston <https://github.com/ejh> for helping with documentation.
 
 This library is open-source and dual-licensed under both the Modified BSD License and GPLv2. Either license may be used at your option.           
