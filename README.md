@@ -29,6 +29,7 @@ Example usage
 -------------------------------------------------
 
 ```php
+<?php
 include_once('geoPHP.inc');
 
 // Polygon WKT example
