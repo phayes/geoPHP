@@ -1,22 +1,6 @@
 <?php
-/*
- * (c) Camptocamp <info@camptocamp.com>
- * (c) Patrick Hayes
- *
- * This code is open-source and licenced under the Modified BSD License.
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 /**
- * PHP Geometry/WKT encoder/decoder
- *
- * Mainly inspired/adapted from OpenLayers( http://www.openlayers.org ) 
- *   Openlayers/format/WKT.js
- *
- * @package    sfMapFishPlugin
- * @subpackage GeoJSON
- * @author     Camptocamp <info@camptocamp.com>
+ * WKT (Well Known Text) Adapter
  */
 class WKT extends GeoAdapter
 {
