@@ -149,8 +149,10 @@ class KML extends GeoAdapter
     $geom_types = geoPHP::geometryList();
     foreach ($xml->childNodes as $child) {
       $nodeName = ($child->nodeName == 'linearring') ? 'linestring' : $child->nodeName;
-      $function = 'parse'.$geom_types[$nodeName];
-      $components[] = $this->$function($child);
+      if (array_key_exists($nodeName, $geom_types)) {
+        $function = 'parse'.$geom_types[$nodeName];
+        $components[] = $this->$function($child);
+      }
     }
     return new GeometryCollection($components);
   }
