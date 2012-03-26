@@ -102,14 +102,11 @@ class WKT extends GeoAdapter
     $data_string = $this->trimParens($data_string);
     $geometries = array();
     $matches = array();
-    $data_pattern = "( |,|[0-9]|\.|-|\)|\()+";
-    $pattern = "/[A-Z]+$data_pattern/";
-    preg_match_all($pattern, $data_string, $matches);
+    $str = preg_replace('/,\s*([A-Za-z])/', '|$1', $data_string);
+    $components = explode('|', trim($str));
     
-    foreach ($matches[0] as $item) {
-      if ($item) {
-        $geometries[] = $this->read(trim($item, ','));
-      }
+    foreach ($components as $component) {
+      $geometries[] = $this->read($component);
     }
     return new GeometryCollection($geometries);
   }
