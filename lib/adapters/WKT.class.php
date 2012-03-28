@@ -162,7 +162,7 @@ class WKT extends GeoAdapter
    *
    * @param Geometry $geometry A Geometry object
    *
-   * @return strin
+   * @return string
    */
   public function extractData($geometry) {
     $parts = array();
