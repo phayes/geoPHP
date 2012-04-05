@@ -105,6 +105,7 @@ $user =     'phayes';
 $pass =     'supersecret';
 
 $connection = pg_connect("host=$host dbname=$database user=$user password=$pass");
+
 // Working with PostGIS and WKB
 // ----------------------------
 
