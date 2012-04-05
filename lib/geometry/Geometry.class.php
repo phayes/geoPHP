@@ -6,8 +6,8 @@
 abstract class Geometry
 {
   private   $geos = NULL;
+  protected $srid = NULL;
   protected $geom_type;
-  protected $srid;
   
   // Abtract: Standard
   // -----------------

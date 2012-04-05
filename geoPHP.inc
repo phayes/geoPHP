@@ -11,7 +11,9 @@
 include_once("lib/adapters/GeoAdapter.class.php"); // Abtract class
 include_once("lib/adapters/GeoJSON.class.php");
 include_once("lib/adapters/WKT.class.php");
+include_once("lib/adapters/EWKT.class.php");
 include_once("lib/adapters/WKB.class.php");
+include_once("lib/adapters/EWKB.class.php");
 include_once("lib/adapters/KML.class.php");
 include_once("lib/adapters/GPX.class.php");
 include_once("lib/adapters/GeoRSS.class.php");
@@ -46,6 +48,12 @@ class geoPHP
     $type_map = geoPHP::getAdapterMap();
     
     $processor_type = $type_map[$type];
+    
+    if (!$processor_type) {
+      throw new exception('geoPHP could not find an adapter of type '.htmlentities($type));
+      exit;
+    }
+    
     $processor = new $processor_type();
     
     // Data is not an array, just pass it normally
@@ -66,11 +74,13 @@ class geoPHP
   
   static function getAdapterMap() {
     return array (
-      'wkt' => 'WKT',
-      'wkb' => 'WKB',
+      'wkt' =>  'WKT',
+      'ewkt' => 'EWKT',
+      'wkb' =>  'WKB',
+      'ewkb' => 'EWKB',
       'json' => 'GeoJSON',
-      'kml' => 'KML',
-      'gpx' => 'GPX',
+      'kml' =>  'KML',
+      'gpx' =>  'GPX',
       'georss' => 'GeoRSS',
       'google_geocode' => 'GoogleGeocode',
     );

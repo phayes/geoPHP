@@ -17,9 +17,12 @@ class WKB extends GeoAdapter
   /**
    * Read WKB into geometry objects
    *
-   * @param string $wkb Well-known-binary string
-   * @param bool $is_hex_string If this is a hexedecimal string that is in need of packing
-   * @return Geometry|GeometryCollection
+   * @param string $wkb 
+   *   Well-known-binary string
+   * @param bool $is_hex_string
+   *   If this is a hexedecimal string that is in need of packing
+   * 
+   * @return Geometry
    */
   public function read($wkb, $is_hex_string = FALSE) {
     if ($is_hex_string) {
@@ -36,10 +39,16 @@ class WKB extends GeoAdapter
   }
   
   function getGeometry(&$mem) {
-    $base_info = unpack("corder/Ltype", fread($mem, 5));
+    $base_info = unpack("corder/ctype/cz/cm/cs", fread($mem, 5));
     if ($base_info['order'] !== 1) {
       throw new Exception('Only NDR (little endian) SKB format is supported at the moment');
     }
+    
+    // If there is SRID information, ignore it - use EWKB Adapter to get SRID support
+    if ($base_info['s']) {
+      fread($mem, 4);
+    }
+    
     switch ($base_info['type']) {
       case 1:
         return $this->getPoint($mem);
@@ -69,7 +78,7 @@ class WKB extends GeoAdapter
       
     // Read the nubmer of points x2 (each point is two coords) into decimal-floats
     $line_coords = unpack('d'.$line_length[1]*2, fread($mem,$line_length[1]*16));
-      
+    
     // We have our coords, build up the linestring
     $components = array();
     $i = 1;
