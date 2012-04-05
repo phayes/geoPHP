@@ -92,7 +92,7 @@ Clearly, more complex analysis is possible.
 
 Working with PostGIS
 ---------------------
-geoPHP, through it's WKB adapter, has good integration with postGIS. Here's an example of reading and writing postGIS geometries
+geoPHP, through it's EWKB adapter, has good integration with postGIS. Here's an example of reading and writing postGIS geometries
 
 ```php
 <?php
