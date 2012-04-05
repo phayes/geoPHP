@@ -90,6 +90,50 @@ Clearly, more complex analysis is possible.
 	echo $geom2->envelope()->area();
 
 
+Working with PostGIS
+---------------------
+geoPHP, through it's WKB adapter, has good integration with postGIS. Here's an example of reading and writing postGIS geometries
+
+```php
+<?php
+include_once('geoPHP.inc');
+$host =     'localhost';
+$database = 'phayes';
+$table =    'test';
+$column =   'geom';
+$user =     'phayes';
+$pass =     'supersecret';
+
+$connection = pg_connect("host=$host dbname=$database user=$user password=$pass");
+
+// Working with PostGIS and WKB
+// ----------------------------
+
+// Using asBinary and GeomFromWKB in PostGIS
+$result = pg_fetch_all(pg_query($connection, "SELECT asBinary($column) as geom FROM $table"));
+foreach ($result as $item) {
+  $wkb = pg_unescape_bytea($item['geom']); // Make sure to unescape the hex blob
+  $geom = geoPHP::load($wkb, 'wkb'); // We now a full geoPHP Geometry object
+  
+  // Let's insert it back into the database
+  $insert_string = pg_escape_bytea($geom->out('wkb'));
+  pg_query($connection, "INSERT INTO $table ($column) values (GeomFromWKB('$insert_string'))");
+}
+
+// Using a direct SELECT and INSERTs in PostGIS without using wrapping functions
+$result = pg_fetch_all(pg_query($connection, "SELECT $column as geom FROM $table"));
+foreach ($result as $item) {
+  $wkb = pack('H*',$item['geom']);   // Unpacking the hex blob
+  $geom = geoPHP::load($wkb, 'wkb'); // We now have a geoPHP Geometry
+  
+  // To insert directly into postGIS we need to unpack the WKB
+  $unpacked = unpack('H*', $geom->out('wkb'));
+  $insert_string = $unpacked[1];
+  pg_query($connection, "INSERT INTO $table ($column) values ('$insert_string')");
+}
+```
+
+
 Credit
 -------------------------------------------------
 
