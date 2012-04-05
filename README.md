@@ -95,6 +95,8 @@ Working with PostGIS
 geoPHP, through it's WKB adapter, has good integration with postGIS. Here's an example of reading and writing postGIS geometries
 
 ```php
+<?php
+include_once('geoPHP.inc');
 $host =     'localhost';
 $database = 'phayes';
 $table =    'test';
