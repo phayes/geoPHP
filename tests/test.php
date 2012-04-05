@@ -1,26 +1,33 @@
 <?php
-header("Content-type: text");
 
-include_once('../geoPHP.inc');
+// Uncomment to test
+# run_test();
 
-if (geoPHP::geosInstalled()) {
-  print "GEOS is installed.\n";
-}
-else {
-  print "GEOS is not installed.\n";
-}
-
-foreach (scandir('./input') as $file) {
-  $parts = explode('.',$file);
-  if ($parts[0]) {
-    $format = $parts[1];
-    $value = file_get_contents('./input/'.$file);
-    print '---- Testing '.$file."\n";
-    $geometry = geoPHP::load($value, $format);
-    test_adapters($geometry, $format, $value);
-    test_methods($geometry);
-    test_geometry($geometry);
+function run_test() {
+  header("Content-type: text");
+  
+  include_once('../geoPHP.inc');
+  
+  if (geoPHP::geosInstalled()) {
+    print "GEOS is installed.\n";
   }
+  else {
+    print "GEOS is not installed.\n";
+  }
+  
+  foreach (scandir('./input') as $file) {
+    $parts = explode('.',$file);
+    if ($parts[0]) {
+      $format = $parts[1];
+      $value = file_get_contents('./input/'.$file);
+      print '---- Testing '.$file."\n";
+      $geometry = geoPHP::load($value, $format);
+      test_adapters($geometry, $format, $value);
+      test_methods($geometry);
+      test_geometry($geometry);
+    }
+  }
+  print "Testing Done!";
 }
 
 function test_geometry($geometry) {
@@ -217,5 +224,3 @@ function test_methods($geometry) {
     //@@TODO: centroid function is non-compliant for collections and strings
   }
 } 
-
-print "Testing Done!";
