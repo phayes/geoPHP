@@ -105,11 +105,10 @@ $user =     'phayes';
 $pass =     'supersecret';
 
 $connection = pg_connect("host=$host dbname=$database user=$user password=$pass");
-
 // Working with PostGIS and WKB
-// -------------
+// ----------------------------
 
-// Using asBinary and GeomFromBinary in PostGIS
+// Using asBinary and GeomFromWKB in PostGIS
 $result = pg_fetch_all(pg_query($connection, "SELECT asBinary($column) as geom FROM $table"));
 foreach ($result as $item) {
   $wkb = pg_unescape_bytea($item['geom']); // Make sure to unescape the hex blob
@@ -120,11 +119,11 @@ foreach ($result as $item) {
   pg_query($connection, "INSERT INTO $table ($column) values (GeomFromWKB('$insert_string'))");
 }
 
-// Using direct selects in PostGIS
+// Using a direct SELECT and INSERTs in PostGIS without using wrapping functions
 $result = pg_fetch_all(pg_query($connection, "SELECT $column as geom FROM $table"));
 foreach ($result as $item) {
-  $wkb = pack('H*',$item['geom']); // Unpacking the hex blob
-  $geom = geoPHP::load($wkb,'wkb');
+  $wkb = pack('H*',$item['geom']);   // Unpacking the hex blob
+  $geom = geoPHP::load($wkb, 'wkb'); // We now have a geoPHP Geometry
   
   // To insert directly into postGIS we need to unpack the WKB
   $unpacked = unpack('H*', $geom->out('wkb'));
