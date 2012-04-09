@@ -139,15 +139,13 @@ Credit
 
 Maintainer: Patrick Hayes
 
-This library was written entirely in my free time as a volunteer. If you find it really useful, please consider making a donation by [clicking here] (https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=geomemes%40gmail%2ecom&lc=US&item_name=Patrick%20Hayes%20-%20geoPHP&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHostedGuest)
+This library was written entirely in my free time as a volunteer. If you find it really useful, please consider making a donation by [clicking here] (https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=geomemes%40gmail%2ecom&lc=US&item_name=Patrick%20Hayes%20-%20geoPHP&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHostedGuest).
 
+Additional Contributors:
 
-Code From:
-
- * CIS by GeoMemes Research <http://www.geomemes.com>
- * gisconverter.php by Arnaud Renevier <https://github.com/arenevier/gisconverter.php>
+ * GeoMemes Research <http://www.geomemes.com>
+ * Arnaud Renevier (gisconverter.php) <https://github.com/arenevier/gisconverter.php>
  * Dave Tarc <https://github.com/dtarc>
-
-A special thanks to Elliott Hunston <https://github.com/ejh> for helping with documentation.
+ * Elliott Hunston (documentation) <https://github.com/ejh>
 
 This library is open-source and dual-licensed under both the Modified BSD License and GPLv2. Either license may be used at your option.           
