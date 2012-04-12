@@ -32,6 +32,7 @@ class GPX extends GeoAdapter
    * @return string The GPX string representation of the input geometries
    */
   public function write(Geometry $geometry) {
+    if ($geometry->isEmpty()) return NULL;
     return '<gpx creator="geoPHP" version="1.0">'.$this->geometryToGPX($geometry).'</gpx>';
   }
   

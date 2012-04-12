@@ -110,6 +110,10 @@ class Point extends Geometry
     return 0;
   }
   
+  public function isEmpty() {
+    return FALSE;
+  }
+  
   // Not valid for this geometry type
   public function numGeometries()    { return NULL; }
   public function geometryN($n)      { return NULL; }

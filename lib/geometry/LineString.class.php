@@ -13,9 +13,9 @@ class LineString extends Collection
    * @param array $points An array of at least two points with
    * which to build the LineString
    */
-  public function __construct(array $points) {
-    if (count($points) < 2) {
-      throw new Exception("Cannot construct LineString with less than two points");
+  public function __construct($points = array()) {
+    if (count($points) == 1) {
+      throw new Exception("Cannot construct a LineString with a single point");
     }
     
     // Call the Collection constructor to build the LineString

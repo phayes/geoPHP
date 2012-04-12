@@ -29,7 +29,7 @@ abstract class Geometry
   abstract public function numInteriorRings();
   abstract public function interiorRingN($n);
   abstract public function dimension();
-  
+  abstract public function isEmpty();
   
   // Abtract: Non-Standard
   // ---------------------
@@ -312,11 +312,6 @@ abstract class Geometry
   
   public function isMeasured() {
     // geoPHP does not yet support M values
-    return FALSE;
-  }
-  
-  public function isEmpty() {
-    // geoPHP does not yet support empty geometries
     return FALSE;
   }
   

@@ -17,18 +17,17 @@ abstract class Collection extends Geometry
    *
    * @param array $components array of geometries
    */
-  public function __construct(array $components) {
+  public function __construct($components = array()) {
+    if (!is_array($components)) {
+      throw new Exception("Component geometries must be passed as an array");
+    }
     foreach ($components as $component) {
       if ($component instanceof Geometry) {
         $this->components[] = $component;
       }
       else {
-        throw new Exception("Cannot create empty collection");
+        throw new Exception("Cannot create a collection with non-geometries");
       }
-    }
-    
-    if (empty($this->components)) {
-      throw new Exception("Cannot create empty ".get_called_class());
     }
   }
   
@@ -177,6 +176,18 @@ abstract class Collection extends Geometry
     return $dimension;
   }
   
+  // A collection is empty if it has no components OR all it's components are empty
+  public function isEmpty() {
+    if (!count($this->components)) {
+      return TRUE;
+    }
+    else {
+      foreach ($this->components as $component) {
+        if (!$component->isEmpty()) return FALSE;
+      }
+      return TRUE;
+    }
+  }
   
   // Not valid for this geometry type
   // --------------------------------

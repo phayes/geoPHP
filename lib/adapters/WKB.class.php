@@ -14,6 +14,10 @@
 class WKB extends GeoAdapter
 {
 
+  private $dimension = 2;
+  private $z = FALSE;
+  private $m = FALSE;
+
   /**
    * Read WKB into geometry objects
    *
@@ -44,6 +48,15 @@ class WKB extends GeoAdapter
       throw new Exception('Only NDR (little endian) SKB format is supported at the moment');
     }
     
+    if ($base_info['z']) {
+      $this->dimension++;
+      $this->z = TRUE;
+    }
+    if ($base_info['m']) {
+      $this->dimension++;
+      $this->m = TRUE;
+    }
+    
     // If there is SRID information, ignore it - use EWKB Adapter to get SRID support
     if ($base_info['s']) {
       fread($mem, 4);
@@ -68,7 +81,7 @@ class WKB extends GeoAdapter
   }
   
   function getPoint(&$mem) {
-    $point_coords = unpack("d*", fread($mem,16));
+    $point_coords = unpack("d*", fread($mem,$this->dimension*8));
     return new Point($point_coords[1],$point_coords[2]);
   }
   
@@ -76,8 +89,11 @@ class WKB extends GeoAdapter
     // Get the number of points expected in this string out of the first 4 bytes
     $line_length = unpack('L',fread($mem,4));
       
+    // Return an empty linestring if there is no line-length
+    if (!$line_length[1]) return new LineString();
+    
     // Read the nubmer of points x2 (each point is two coords) into decimal-floats
-    $line_coords = unpack('d'.$line_length[1]*2, fread($mem,$line_length[1]*16));
+    $line_coords = unpack('d*', fread($mem,$line_length[1]*$this->dimension*8));
     
     // We have our coords, build up the linestring
     $components = array();

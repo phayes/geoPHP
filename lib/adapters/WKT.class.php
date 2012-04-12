@@ -69,6 +69,10 @@ class WKT extends GeoAdapter
 
   private function parseLineString($data_string) {
     $data_string = $this->trimParens($data_string);
+
+    // If it's marked as empty, then return an empty line
+    if ($data_string == 'EMPTY') return new LineString();
+    
     $parts = explode(',',$data_string);
     $points = array();
     foreach ($parts as $part) {
@@ -79,6 +83,10 @@ class WKT extends GeoAdapter
 
   private function parsePolygon($data_string) {
     $data_string = $this->trimParens($data_string);
+    
+    // If it's marked as empty, then return an empty polygon
+    if ($data_string == 'EMPTY') return new Polygon();
+    
     $parts = explode('),(',$data_string);
     $lines = array();
     foreach ($parts as $part) {
@@ -91,6 +99,10 @@ class WKT extends GeoAdapter
 
   private function parseMultiPoint($data_string) {
     $data_string = $this->trimParens($data_string);
+    
+    // If it's marked as empty, then return an empty MutiPoint
+    if ($data_string == 'EMPTY') return new MultiPoint();
+    
     $parts = explode(',',$data_string);
     $points = array();
     foreach ($parts as $part) {
@@ -101,6 +113,10 @@ class WKT extends GeoAdapter
   
   private function parseMultiLineString($data_string) {
     $data_string = $this->trimParens($data_string);
+
+    // If it's marked as empty, then return an empty multi-linestring
+    if ($data_string == 'EMPTY') return new MultiLineString();
+    
     $parts = explode('),(',$data_string);
     $lines = array();
     foreach ($parts as $part) {
@@ -114,6 +130,10 @@ class WKT extends GeoAdapter
 
   private function parseMultiPolygon($data_string) {
     $data_string = $this->trimParens($data_string);
+
+    // If it's marked as empty, then return an empty multi-polygon
+    if ($data_string == 'EMPTY') return new MultiPolygon();
+    
     $parts = explode(')),((',$data_string);
     $polys = array();
     foreach ($parts as $part) {
@@ -127,6 +147,10 @@ class WKT extends GeoAdapter
 
   private function parseGeometryCollection($data_string) {
     $data_string = $this->trimParens($data_string);
+
+    // If it's marked as empty, then return an empty geom-collection
+    if ($data_string == 'EMPTY') return new GeometryCollection();
+    
     $geometries = array();
     $matches = array();
     $str = preg_replace('/,\s*([A-Za-z])/', '|$1', $data_string);
@@ -179,7 +203,10 @@ class WKT extends GeoAdapter
       return $writer->write($geometry->geos());
     }
     
-    if ($data = $this->extractData($geometry)) {
+    if ($geometry->isEmpty()) {
+      return strtoupper($geometry->geometryType()).' EMPTY';
+    }
+    else if ($data = $this->extractData($geometry)) {
       return strtoupper($geometry->geometryType()).' ('.$data.')';
     }
   }
