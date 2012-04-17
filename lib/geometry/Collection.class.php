@@ -41,6 +41,8 @@ abstract class Collection extends Geometry
   }
   
   public function centroid() {
+    if ($this->isEmpty()) return NULL;
+    
     if ($this->geos()) {
       $geos_centroid = $this->geos()->centroid();
       if ($geos_centroid->typeName() == 'Point') {
@@ -57,6 +59,8 @@ abstract class Collection extends Geometry
   }
   
   public function getBBox() {
+    if ($this->isEmpty()) return NULL;
+    
     if ($this->geos()) {
       $envelope = $this->geos()->envelope();
       if ($envelope->typeName() == 'Point') {
@@ -123,6 +127,8 @@ abstract class Collection extends Geometry
 
   // By default, the boundary of a collection is the boundary of it's components
   public function boundary() {
+    if ($this->isEmpty()) return new LineString();
+    
     if ($this->geos()) {
       return $this->geos()->boundary();
     }

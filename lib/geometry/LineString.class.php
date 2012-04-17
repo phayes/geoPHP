@@ -55,6 +55,7 @@ class LineString extends Collection
   }
   
   public function dimension() {
+    if ($this->isEmpty()) return 0;
     return 1;
   }
   

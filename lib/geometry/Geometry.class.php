@@ -51,6 +51,8 @@ abstract class Geometry
   }
   
   public function envelope() {
+    if ($this->isEmpty()) return new Polygon();
+    
     if ($this->geos()) {
       return geoPHP::geosToGeometry($this->geos()->envelope());
     }

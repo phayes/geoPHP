@@ -9,6 +9,8 @@ class Polygon extends Collection
   protected $geom_type = 'Polygon';
   
   public function area($exterior_only = FALSE, $signed = FALSE) {
+    if ($this->isEmpty()) return 0;
+    
     if ($this->geos() && $exterior_only == FALSE) {
       return $this->geos()->area();
     }
@@ -40,6 +42,8 @@ class Polygon extends Collection
   }
   
   public function centroid() {
+    if ($this->isEmpty()) return NULL;
+    
     if ($this->geos()) {
       return geoPHP::geosToGeometry($this->geos()->centroid());
     }
@@ -72,18 +76,21 @@ class Polygon extends Collection
   }
 
   public function exteriorRing() {
+    if ($this->isEmpty()) return new LineString();
     return $this->components[0];
   }
   
   public function numInteriorRings() {
+    if ($this->isEmpty()) return 0;
     return $this->numGeometries()-1;
   }
   
   public function interiorRingN($n) {
     return $this->geometryN($n+1);
   }
-
+  
   public function dimension() {
+    if ($this->isEmpty()) return 0;
     return 2;
   }
 
