@@ -113,6 +113,22 @@ class Point extends Geometry
   public function isEmpty() {
     return FALSE;
   }
+
+  public function numPoints() {
+    return 1;
+  }
+    
+  public function getPoints() {
+    return array($this);
+  }
+
+  public function equals($geometry) {
+    return ($this->x() == $geometry->x() && $this->y() == $geometry->y());
+  }
+  
+  public function isSimple() {
+    return TRUE;
+  }
   
   // Not valid for this geometry type
   public function numGeometries()    { return NULL; }
@@ -121,12 +137,11 @@ class Point extends Geometry
   public function endPoint()         { return NULL; }
   public function isRing()           { return NULL; }
   public function isClosed()         { return NULL; }
-  public function numPoints()        { return NULL; }
   public function pointN($n)         { return NULL; }
   public function exteriorRing()     { return NULL; }
   public function numInteriorRings() { return NULL; }
   public function interiorRingN($n)  { return NULL; }
   public function pointOnSurface()   { return NULL; }
-
+  public function explode()          { return NULL; }
 }
 

@@ -37,13 +37,11 @@ class LineString extends Collection
   }
   
   public function isClosed() {
-    //@@TODO: Need to complete equal() first;
-    #return ($this->startPoint->equal($this->endPoint()));
+    return ($this->startPoint()->equals($this->endPoint()));
   }
   
   public function isRing() {
-    //@@TODO: need to complete isSimple first
-    #return ($this->isClosed() && $this->isSimple());
+    return ($this->isClosed() && $this->isSimple());
   }
   
   public function numPoints() {
@@ -62,6 +60,68 @@ class LineString extends Collection
   public function area() {
     return 0;
   }
+  
+  public function explode() {
+    $parts = array();
+    $points = $this->getPoints();
+    
+    foreach ($points as $i => $point) {
+      if (isset($points[$i+1])) {
+        $parts[] = new LineString(array($point, $points[$i+1]));
+      }
+    }
+    return $parts;
+  }
+  
+  public function isSimple() {
+    if ($this->geos()) {
+      return $this->geos()->isSimple();
+    }
+    
+    $segments = $this->explode();
+    
+    foreach ($segments as $i => $segment) {
+      foreach ($segments as $j => $check_segment) {
+        if ($i != $j) {
+          if ($segment->lineSegmentIntersect($check_segment)) {
+            return FALSE;
+          }
+        }
+      }
+    }
+    return TRUE;
+  }
+  
+  // Utility function to check if any line sigments intersect
+  // Derived from http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+  private function lineSegmentIntersect($segment) {  
+    $p0_x = $this->startPoint()->x();
+    $p0_y = $this->startPoint()->y();
+    $p1_x = $this->endPoint()->x();
+    $p1_y = $this->endPoint()->y();
+    $p2_x = $segment->startPoint()->x();
+    $p2_y = $segment->startPoint()->y();
+    $p3_x = $segment->endPoint()->x();
+    $p3_y = $segment->endPoint()->y();
+              
+    $s1_x = $p1_x - $p0_x;     $s1_y = $p1_y - $p0_y;
+    $s2_x = $p3_x - $p2_x;     $s2_y = $p3_y - $p2_y;
+    
+    $fps = (-$s2_x * $s1_y) + ($s1_x * $s2_y);
+    $fpt = (-$s2_x * $s1_y) + ($s1_x * $s2_y);
+    
+    if ($fps == 0 || $fpt == 0) {
+      return FALSE;
+    }
+    
+    $s = (-$s1_y * ($p0_x - $p2_x) + $s1_x * ($p0_y - $p2_y)) / $fps;
+    $t = ( $s2_x * ($p0_y - $p2_y) - $s2_y * ($p0_x - $p2_x)) / $fpt;
 
+    if ($s > 0 && $s < 1 && $t > 0 && $t < 1) {
+      // Collision detected
+      return TRUE;
+    }
+    return FALSE;
+  }
 }
 

@@ -195,6 +195,81 @@ abstract class Collection extends Geometry
     }
   }
   
+  public function numPoints() {
+    $num = 0;
+    foreach ($this->components as $component) {
+      $num += $component->numPoints();
+    }
+    return $num;
+  }
+  
+  public function getPoints() {
+    $points = array();
+    foreach ($this->components as $component) {
+      $points = array_merge($points, $component->getPoints());
+    }
+    return $points;
+  }
+
+  public function equals($geometry) {
+    if ($this->geos()) {
+      return $this->geos()->equals($geometry->geos());
+    }
+    
+    // To test for equality we check to make sure that there is a matching point 
+    // in the other geometry for every point in this geometry. 
+    // This is slightly more strict than the standard, which
+    // uses Within(A,B) = true and Within(B,A) = true
+    // @@TODO: Eventually we could fix this by using some sort of simplification
+    // method that strips redundant vertices (that are all in a row)
+    
+    $this_points = $this->getPoints();
+    $other_points = $geometry->getPoints();
+    
+    // First do a check to make sure they have the same number of vertices
+    if (count($this_points) != count($other_points)) {
+      return FALSE;
+    }
+        
+    foreach ($this_points as $point) {
+      $found_match = FALSE;
+      foreach ($other_points as $key => $test_point) {
+        if ($point->equals($test_point)) {
+          $found_match = TRUE;
+          unset($other_points[$key]);
+          break;
+        }
+      }
+      if (!$found_match) {
+        return FALSE;
+      }
+    }
+    
+    // All points match, return TRUE
+    return TRUE;
+  }
+  
+  public function isSimple() {
+    if ($this->geos()) {
+      return $this->geos()->isSimple();
+    }
+    
+    // A collection is simple if all it's components are simple
+    foreach ($this->components as $component) {
+      if (!$component->isSimple()) return FALSE;
+    }
+    
+    return TRUE;
+  }
+  
+  public function explode() {
+    $parts = array();
+    foreach ($this->components as $component) {
+      $parts = array_merge($parts, $component->explode());
+    }
+    return $parts;
+  }
+  
   // Not valid for this geometry type
   // --------------------------------
   public function x()                { return NULL; }
@@ -203,7 +278,6 @@ abstract class Collection extends Geometry
   public function endPoint()         { return NULL; }
   public function isRing()           { return NULL; }
   public function isClosed()         { return NULL; }
-  public function numPoints()        { return NULL; }
   public function pointN($n)         { return NULL; }
   public function exteriorRing()     { return NULL; }
   public function numInteriorRings() { return NULL; }

@@ -123,9 +123,6 @@ class WKB extends GeoAdapter
     // Get the number of items expected in this multi out of the first 4 bytes
     $multi_length = unpack('L',fread($mem,4));
     
-    //@@TODO: create an EMPTY geometry instead of returning null
-    if (!$multi_length[1]) return NULL;
-    
     $components = array();
     $i = 1;
     while ($i <= $multi_length[1]) {

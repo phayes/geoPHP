@@ -94,6 +94,25 @@ class Polygon extends Collection
     return 2;
   }
 
+  public function isSimple() {
+    if ($this->geos()) {
+      return $this->geos()->isSimple();
+    }
+    
+    $segments = $this->explode();
+    
+    foreach ($segments as $i => $segment) {
+      foreach ($segments as $j => $check_segment) {
+        if ($i != $j) {
+          if ($segment->lineSegmentIntersect($check_segment)) {
+            return FALSE;
+          }
+        }
+      }
+    }
+    return TRUE;
+  }
+
   // Not valid for this geometry type
   // --------------------------------
   public function length() { return NULL; }
