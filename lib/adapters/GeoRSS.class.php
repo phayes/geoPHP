@@ -123,9 +123,15 @@ class GeoRSS extends GeoAdapter
     $polygons = array();
     $poly_elements = $this->xmlobj->getElementsByTagName('polygon');
     foreach ($poly_elements as $poly) {
-      $points = $this->getPointsFromCoords(trim($poly->firstChild->nodeValue));
-      $exterior_ring = new LineString($points);
-      $polygons[] = new Polygon(array($exterior_ring));
+      if ($poly->hasChildNodes()) {
+        $points = $this->getPointsFromCoords(trim($poly->firstChild->nodeValue));
+        $exterior_ring = new LineString($points);
+        $polygons[] = new Polygon(array($exterior_ring));
+      }
+      else {
+        // It's an EMPTY polygon
+        $polygons[] = new Polygon(); 
+      }
     }
     return $polygons;
   }
