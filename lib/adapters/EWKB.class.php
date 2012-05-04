@@ -25,6 +25,9 @@ class EWKB extends WKB
     if ($base_info['s']) {
       $srid = unpack("Lsrid", fread($mem, 4));
     }
+    else {
+      $srid = NULL;
+    }
     fclose($mem);
     
     // Run the wkb through the normal WKB reader to get the geometry
@@ -46,7 +49,7 @@ class EWKB extends WKB
    *
    * @return string The Extended-WKB binary string representation of the input geometries
    */
-  public function write(Geometry $geometry) {
+  public function write(Geometry $geometry, $write_as_hex = FALSE) {
     // We always write into NDR (little endian)
     $wkb = pack('c',1);
     
