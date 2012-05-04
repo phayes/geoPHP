@@ -46,11 +46,10 @@ class GeoRSS extends GeoAdapter
     // Change to lower-case, strip all CDATA, and de-namespace
     $text = strtolower($text);
     $text = preg_replace('/<!\[cdata\[(.*?)\]\]>/s','',$text);
-    $text = str_replace('georss:','',$text);
-    
+        
     // Load into DOMDOcument
     $xmlobj = new DOMDocument();
-    $xmlobj->loadXML($text);
+    @$xmlobj->loadXML($text);
     if ($xmlobj === false) {
       throw new Exception("Invalid GeoRSS: ". $text);
     }
