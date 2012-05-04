@@ -94,7 +94,7 @@ class LineString extends Collection
   
   // Utility function to check if any line sigments intersect
   // Derived from http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
-  private function lineSegmentIntersect($segment) {  
+  public function lineSegmentIntersect($segment) {  
     $p0_x = $this->startPoint()->x();
     $p0_y = $this->startPoint()->y();
     $p1_x = $this->endPoint()->x();
