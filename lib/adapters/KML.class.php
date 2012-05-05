@@ -20,7 +20,9 @@
  */
 class KML extends GeoAdapter
 {
-  
+  private $namespace = FALSE;
+  private $nss = ''; // Name-space string. eg 'georss:'
+
   /**
    * Read KML string into geometry objects
    *
@@ -39,7 +41,11 @@ class KML extends GeoAdapter
    *
    * @return string The KML string representation of the input geometries
    */
-  public function write(Geometry $geometry) {
+  public function write(Geometry $geometry, $namespace = FALSE) {
+    if ($namespace) {
+      $this->namespace = $namespace;
+      $this->nss = $namespace.':';    
+    }
     return $this->geometryToKML($geometry);
   }
   
@@ -199,7 +205,7 @@ class KML extends GeoAdapter
   }
 
   private function pointToKML($geom) {
-    return "<Point><coordinates>".$geom->getX().",".$geom->getY()."</coordinates></Point>";
+    return '<'.$this->nss.'Point><'.$this->nss.'coordinates>'.$geom->getX().",".$geom->getY().'</'.$this->nss.'coordinates></'.$this->nss.'Point>';
   }
 
   private function linestringToKML($geom, $type = FALSE) {
@@ -207,7 +213,7 @@ class KML extends GeoAdapter
       $type = $geom->getGeomType();
     }
     
-    $str = '<'. $type .'><coordinates>';
+    $str = '<'.$this->nss . $type .'><'.$this->nss.'coordinates>';
     $i=0;
     foreach ($geom->getComponents() as $comp) {
       if ($i != 0) $str .= ' ';
@@ -215,28 +221,28 @@ class KML extends GeoAdapter
       $i++;
     }
 
-    return  $str .'</coordinates></'. $type .'>';
+    return  $str .'</'.$this->nss.'coordinates></'. $this->nss . $type .'>';
   }
 
   public function polygonToKML($geom) {
     $components = $geom->getComponents();
-    $str = '<outerBoundaryIs>' . $this->linestringToKML($components[0], 'LinearRing') . '</outerBoundaryIs>';
+    $str = '<'.$this->nss.'outerBoundaryIs>' . $this->linestringToKML($components[0], 'LinearRing') . '</'.$this->nss.'outerBoundaryIs>';
     foreach (array_slice($components, 1) as $comp) {
-      $str .= '<innerBoundaryIs>' . $this->linestringToKML($comp) . '</innerBoundaryIs>';
+      $str .= '<'.$this->nss.'innerBoundaryIs>' . $this->linestringToKML($comp) . '</'.$this->nss.'innerBoundaryIs>';
     }
       
-    return '<Polygon>'. $str .'</Polygon>';
+    return '<'.$this->nss.'Polygon>'. $str .'</'.$this->nss.'Polygon>';
   }
   
   public function collectionToKML($geom) {
     $components = $geom->getComponents();
-    $str = '<MultiGeometry>';
+    $str = '<'.$this->nss.'MultiGeometry>';
     foreach ($geom->getComponents() as $comp) {
       $sub_adapter = new KML();
       $str .= $sub_adapter->write($comp);
     }
 
-    return $str .'</MultiGeometry>';
+    return $str .'</'.$this->nss.'MultiGeometry>';
   }
 
 }
