@@ -12,10 +12,9 @@
  */
 class GeoRSS extends GeoAdapter
 {
-  private $default_namespace = 'georss';
   private $namespace = FALSE;
   private $nss = ''; // Name-space string. eg 'georss:'
-
+  
   /**
    * Read GeoRSS string into geometry objects
    *
