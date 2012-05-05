@@ -12,6 +12,8 @@
  */
 class GPX extends GeoAdapter
 {
+  private $namespace = FALSE;
+  private $nss = ''; // Name-space string. eg 'georss:'
 
   /**
    * Read KML string into geometry objects
@@ -31,9 +33,13 @@ class GPX extends GeoAdapter
    *
    * @return string The GPX string representation of the input geometries
    */
-  public function write(Geometry $geometry) {
+  public function write(Geometry $geometry, $namespace = FALSE) {
     if ($geometry->isEmpty()) return NULL;
-    return '<gpx creator="geoPHP" version="1.0">'.$this->geometryToGPX($geometry).'</gpx>';
+    if ($namespace) {
+      $this->namespace = $namespace;
+      $this->nss = $namespace.':';    
+    }
+    return '<'.$this->nss.'gpx creator="geoPHP" version="1.0">'.$this->geometryToGPX($geometry).'</'.$this->nss.'gpx>';
   }
   
   public function geomFromText($text) {
@@ -146,17 +152,17 @@ class GPX extends GeoAdapter
   }
   
   private function pointToGPX($geom) {
-    return '<wpt lat="'.$geom->getY().'" lon="'.$geom->getX().'"></wpt>';
+    return '<'.$this->nss.'wpt lat="'.$geom->getY().'" lon="'.$geom->getX().'" />';
   }
   
   private function linestringToGPX($geom) {
-    $gpx = '<trk><trkseg>';
+    $gpx = '<'.$this->nss.'trk><'.$this->nss.'trkseg>';
     
     foreach ($geom->getComponents() as $comp) {
-      $gpx .= '<trkpt lat="'.$comp->getY().'" lon="'.$comp->getX().'"></trkpt>';
+      $gpx .= '<'.$this->nss.'trkpt lat="'.$comp->getY().'" lon="'.$comp->getX().'" />';
     }
     
-    $gpx .= '</trkseg></trk>';
+    $gpx .= '</'.$this->nss.'trkseg></'.$this->nss.'trk>';
     
     return $gpx;
   }
