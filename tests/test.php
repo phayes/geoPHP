@@ -112,13 +112,18 @@ function test_adapters($geometry, $format, $input) {
   foreach (geoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
     if ($adapter_key != 'google_geocode') { //Don't test google geocoder regularily. Uncomment to test
       $output = $geometry->out($adapter_key);
-      $adapter_loader = new $adapter_class();
-      $test_geom_1 = $adapter_loader->read($output);
-      $test_geom_2 = $adapter_loader->read($test_geom_1->out($adapter_key));
-      
-      // Check to make sure a round-trip results in the same geometry
-      if ($test_geom_1->out('wkt') != $test_geom_2->out('wkt')) {
-        print "Mismatched adapter output in ".$adapter_class."\n";
+      if ($output) {
+        $adapter_loader = new $adapter_class();
+        $test_geom_1 = $adapter_loader->read($output);
+        $test_geom_2 = $adapter_loader->read($test_geom_1->out($adapter_key));
+        
+        // Check to make sure a round-trip results in the same geometry
+        if ($test_geom_1->out('wkt') != $test_geom_2->out('wkt')) {
+          print "Mismatched adapter output in ".$adapter_class."\n";
+        }
+      }
+      else {
+        print "Empty output on "  . $adapter_key . "\n";
       }
     }
   }
@@ -133,21 +138,23 @@ function test_adapters($geometry, $format, $input) {
       geoPHP::geosInstalled(TRUE);
       
       $output = $geometry->out($adapter_key);
-      $adapter_loader = new $adapter_class();
-  
-      $test_geom_1 = $adapter_loader->read($output);
-      
-      // Turn GEOS off
-      geoPHP::geosInstalled(FALSE);      
-      
-      $test_geom_2 = $adapter_loader->read($output);
-      
-      // Turn GEOS back On
-      geoPHP::geosInstalled(TRUE);
-      
-      // Check to make sure a both are the same with geos and without
-      if ($test_geom_1->out('wkt') != $test_geom_2->out('wkt')) {
-        print "Mismatched adapter output between GEOS and NORM in ".$adapter_class."\n";
+      if ($output) {
+        $adapter_loader = new $adapter_class();
+    
+        $test_geom_1 = $adapter_loader->read($output);
+        
+        // Turn GEOS off
+        geoPHP::geosInstalled(FALSE);      
+        
+        $test_geom_2 = $adapter_loader->read($output);
+        
+        // Turn GEOS back On
+        geoPHP::geosInstalled(TRUE);
+        
+        // Check to make sure a both are the same with geos and without
+        if ($test_geom_1->out('wkt') != $test_geom_2->out('wkt')) {
+          print "Mismatched adapter output between GEOS and NORM in ".$adapter_class."\n";
+        }
       }
     }
   }
