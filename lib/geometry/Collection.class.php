@@ -165,7 +165,7 @@ abstract class Collection extends Geometry
       $next_point = $this->geometryN($delta);
       if ($next_point) {
         // Pythagorean Theorem
-        $distance = sqrt(($next_point->getX() - $point->getX())^2+($next_point->getY()- $point->getY())^2);
+        $distance = sqrt(pow(($next_point->getX() - $point->getX()), 2) + pow(($next_point->getY()- $point->getY()), 2));
         $length += $distance;
       }
     }
