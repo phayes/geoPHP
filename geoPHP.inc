@@ -180,8 +180,13 @@ class geoPHP
     $geom_types = array_unique($geom_types);
     
     if (count($geom_types) == 1) {
-      $class = 'Multi'.$geom_types[0];
-      return new $class($geometries);
+      if (count($geometries) == 1) {
+        return $geometries[0];
+      }
+      else {
+        $class = 'Multi'.$geom_types[0];
+        return new $class($geometries);
+      }
     }
     else {
       return new GeometryCollection($geometries);
