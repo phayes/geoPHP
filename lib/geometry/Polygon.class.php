@@ -75,6 +75,28 @@ class Polygon extends Collection
     return $centroid;
   }
 
+	/**
+	 * Find the outermost point from the centroid
+	 *
+	 * @returns Point The outermost point
+	 */
+  public function outermostPoint() {
+		$centroid = $this->getCentroid();
+
+		$max = array('length' => 0, 'point' => null);
+
+		foreach($this->getPoints() as $point) {
+			$lineString = new LineString(array($centroid, $point));
+
+			if($lineString->length() > $max['length']) {
+				$max['length'] = $lineString->length();
+				$max['point'] = $point;
+			}
+		}
+
+		return $max['point'];
+  }
+
   public function exteriorRing() {
     if ($this->isEmpty()) return new LineString();
     return $this->components[0];

@@ -37,7 +37,7 @@ class GeoJSON extends GeoAdapter
     
     // Check to see if it's a Feature
     if ($input->type == 'Feature') {
-      return $this->read($feature->geometry);
+      return $this->read($input->geometry);
     }
     
     // It's a geometry - process it
