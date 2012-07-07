@@ -2,7 +2,7 @@
 
 /**
  * Collection: Abstract class for compound geometries
- * 
+ *
  * A geometry is a collection if it is made up of other
  * component geometries. Therefore everything but a Point
  * is a Collection. For example a LingString is a collection
@@ -11,7 +11,7 @@
 abstract class Collection extends Geometry
 {
   public $components = array();
-  
+
   /**
    * Constructor: Checks and sets component geometries
    *
@@ -30,7 +30,7 @@ abstract class Collection extends Geometry
       }
     }
   }
-  
+
   /**
    * Returns Collection component geometries
    *
@@ -39,34 +39,34 @@ abstract class Collection extends Geometry
   public function getComponents() {
     return $this->components;
   }
-  
+
   public function centroid() {
     if ($this->isEmpty()) return NULL;
-    
+
     if ($this->geos()) {
       $geos_centroid = $this->geos()->centroid();
       if ($geos_centroid->typeName() == 'Point') {
         return geoPHP::geosToGeometry($this->geos()->centroid());
       }
     }
-    
+
     // As a rough estimate, we say that the centroid of a colletion is the centroid of it's envelope
     // @@TODO: Make this the centroid of the convexHull
     // Note: Outside of polygons, geometryCollections and the trivial case of points, there is no standard on what a "centroid" is
     $centroid = $this->envelope()->centroid();
-    
+
     return $centroid;
   }
-  
+
   public function getBBox() {
     if ($this->isEmpty()) return NULL;
-    
+
     if ($this->geos()) {
       $envelope = $this->geos()->envelope();
       if ($envelope->typeName() == 'Point') {
         return geoPHP::geosToGeometry($envelope)->getBBOX();
       }
-      
+
       $geos_ring = $envelope->exteriorRing();
       return array(
         'maxy' => $geos_ring->pointN(3)->getY(),
@@ -75,12 +75,12 @@ abstract class Collection extends Geometry
         'minx' => $geos_ring->pointN(3)->getX(),
       );
     }
-    
+
     // Go through each component and get the max and min x and y
     $i = 0;
     foreach ($this->components as $component) {
       $component_bbox = $component->getBBox();
-      
+
       // On the first run through, set the bbox to the component bbox
       if ($i == 0) {
         $maxx = $component_bbox['maxx'];
@@ -88,7 +88,7 @@ abstract class Collection extends Geometry
         $minx = $component_bbox['minx'];
         $miny = $component_bbox['miny'];
       }
-      
+
       // Do a check and replace on each boundary, slowly growing the bbox
       $maxx = $component_bbox['maxx'] > $maxx ? $component_bbox['maxx'] : $maxx;
       $maxy = $component_bbox['maxy'] > $maxy ? $component_bbox['maxy'] : $maxy;
@@ -96,7 +96,7 @@ abstract class Collection extends Geometry
       $miny = $component_bbox['miny'] < $miny ? $component_bbox['miny'] : $miny;
       $i++;
     }
-    
+
     return array(
       'maxy' => $maxy,
       'miny' => $miny,
@@ -104,7 +104,7 @@ abstract class Collection extends Geometry
       'minx' => $minx,
     );
   }
-  
+
   public function asArray() {
     $array = array();
     foreach ($this->components as $component) {
@@ -117,7 +117,7 @@ abstract class Collection extends Geometry
     if ($this->geos()) {
       return $this->geos()->area();
     }
-    
+
     $area = 0;
     foreach ($this->components as $component) {
       $area += $component->area();
@@ -128,22 +128,22 @@ abstract class Collection extends Geometry
   // By default, the boundary of a collection is the boundary of it's components
   public function boundary() {
     if ($this->isEmpty()) return new LineString();
-    
+
     if ($this->geos()) {
       return $this->geos()->boundary();
     }
-    
+
     $components_boundaries = array();
     foreach ($this->components as $component) {
       $components_boundaries[] = $component->boundary();
     }
     return geoPHP::geometryReduce($components_boundaries);
   }
-  
+
   public function numGeometries() {
     return count($this->components);
   }
-  
+
   // Note that the standard is 1 based indexing
   public function geometryN($n) {
     $n = intval($n);
@@ -154,24 +154,54 @@ abstract class Collection extends Geometry
       return NULL;
     }
   }
-  
+
   public function length() {
     if ($this->geos()) {
       return $this->geos()->length();
     }
-    
+
+    $radius = 6378137; // From wikipedia
     $length = 0;
     foreach ($this->components as $delta => $point) {
-      $next_point = $this->geometryN($delta);
-      if ($next_point) {
-        // Pythagorean Theorem
-        $distance = sqrt(pow(($next_point->getX() - $point->getX()), 2) + pow(($next_point->getY()- $point->getY()), 2));
+      $previous_point = $this->geometryN($delta);
+      if ($previous_point) {
+
+        // Haversine method
+        /*
+        $sinLatD = sin(deg2rad($point->getY() - $previous_point->getY()));
+        $sinLngD = sin(deg2rad($point->getX() - $previous_point->getX()));
+        $cosLat1 = cos(deg2rad($point->getY()));
+        $cosLat2 = cos(deg2rad($previous_point->getY()));
+        $a = $sinLatD*$sinLatD + $cosLat1*$cosLat2*$sinLngD*$sinLngD*$sinLngD;
+        $a = $a < 0 ? -1*$a : $a;
+        $c = 2*atan2(sqrt($a), sqrt(1-$a));
+        $distance = $radius*$c;
+        */
+
+        // Great circle method
+        $lat1 = deg2rad($point->getY());
+        $lat2 = deg2rad($previous_point->getY());
+        $lon1 = deg2rad($point->getX());
+        $lon2 = deg2rad($previous_point->getX());
+        $dlon = $lon2 - $lon1;
+        $distance =
+          $radius *
+            atan2(
+              sqrt(
+                pow(cos($lat2) * sin($dlon), 2) +
+                  pow(cos($lat1) * sin($lat2) - sin($lat1) * cos($lat2) * cos($dlon), 2)
+              )
+              ,
+              sin($lat1) * sin($lat2) +
+                cos($lat1) * cos($lat2) * cos($dlon)
+            );
         $length += $distance;
+
       }
     }
     return $length;
   }
-  
+
   public function dimension() {
     $dimension = 0;
     foreach ($this->components as $component) {
@@ -181,7 +211,7 @@ abstract class Collection extends Geometry
     }
     return $dimension;
   }
-  
+
   // A collection is empty if it has no components OR all it's components are empty
   public function isEmpty() {
     if (!count($this->components)) {
@@ -194,7 +224,7 @@ abstract class Collection extends Geometry
       return TRUE;
     }
   }
-  
+
   public function numPoints() {
     $num = 0;
     foreach ($this->components as $component) {
@@ -202,7 +232,7 @@ abstract class Collection extends Geometry
     }
     return $num;
   }
-  
+
   public function getPoints() {
     $points = array();
     foreach ($this->components as $component) {
@@ -215,22 +245,22 @@ abstract class Collection extends Geometry
     if ($this->geos()) {
       return $this->geos()->equals($geometry->geos());
     }
-    
-    // To test for equality we check to make sure that there is a matching point 
-    // in the other geometry for every point in this geometry. 
+
+    // To test for equality we check to make sure that there is a matching point
+    // in the other geometry for every point in this geometry.
     // This is slightly more strict than the standard, which
     // uses Within(A,B) = true and Within(B,A) = true
     // @@TODO: Eventually we could fix this by using some sort of simplification
     // method that strips redundant vertices (that are all in a row)
-    
+
     $this_points = $this->getPoints();
     $other_points = $geometry->getPoints();
-    
+
     // First do a check to make sure they have the same number of vertices
     if (count($this_points) != count($other_points)) {
       return FALSE;
     }
-        
+
     foreach ($this_points as $point) {
       $found_match = FALSE;
       foreach ($other_points as $key => $test_point) {
@@ -244,24 +274,24 @@ abstract class Collection extends Geometry
         return FALSE;
       }
     }
-    
+
     // All points match, return TRUE
     return TRUE;
   }
-  
+
   public function isSimple() {
     if ($this->geos()) {
       return $this->geos()->isSimple();
     }
-    
+
     // A collection is simple if all it's components are simple
     foreach ($this->components as $component) {
       if (!$component->isSimple()) return FALSE;
     }
-    
+
     return TRUE;
   }
-  
+
   public function explode() {
     $parts = array();
     foreach ($this->components as $component) {
@@ -269,7 +299,7 @@ abstract class Collection extends Geometry
     }
     return $parts;
   }
-  
+
   // Not valid for this geometry type
   // --------------------------------
   public function x()                { return NULL; }
