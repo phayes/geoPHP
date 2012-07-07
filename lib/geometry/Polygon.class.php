@@ -81,7 +81,7 @@ class Polygon extends Collection
 	 * @returns Point The outermost point
 	 */
   public function outermostPoint() {
-		$centroid = $this->getCentroid();
+		$centroid = $this->centroid();
 
 		$max = array('length' => 0, 'point' => null);
 

@@ -10,6 +10,8 @@
  */
 abstract class Collection extends Geometry
 {
+	const MILE_TO_KILOMETER_RATIO = 1.609344;
+
   public $components = array();
   
   /**
@@ -171,7 +173,44 @@ abstract class Collection extends Geometry
     }
     return $length;
   }
-  
+
+	/**
+	 * Get the length in miles
+	 *
+	 * @return float
+	 */
+  public function lengthMiles() {
+    $lengthMiles = 0;
+    foreach ($this->components as $delta => $point) {
+      $next_point = $this->geometryN($delta);
+      if ($next_point) {
+				// Great Circle distance
+        $lat1 = deg2rad($next_point->getX());
+        $lon1 = deg2rad($next_point->getY());
+        $lat2 = deg2rad($point->getX());
+        $lon2 = deg2rad($point->getY());
+
+        $delta_lat = $lat2 - $lat1;
+        $delta_lon = $lon2 - $lon1;
+
+        $temp = pow(sin($delta_lat/2.0),2) + cos($lat1) * cos($lat2) * pow(sin($delta_lon/2.0),2);
+        $distance = 3956 * 2 * atan2(sqrt($temp),sqrt(1-$temp));
+
+        $lengthMiles += $distance;
+      }
+    }
+    return $lengthMiles;
+  }
+
+	/**
+	 * Get the length in kilometers
+	 *
+	 * @return float
+	 */
+  public function lengthKilometers() {
+	  return $this->lengthMiles() * self::MILE_TO_KILOMETER_RATIO;
+  }
+
   public function dimension() {
     $dimension = 0;
     foreach ($this->components as $component) {
