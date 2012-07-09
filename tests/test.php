@@ -39,7 +39,7 @@ function test_geometry($geometry) {
   $geometry->getBBox();
   $geometry->centroid();
   $geometry->length();
-  $geometry->geodeticLength();
+  $geometry->greatCircleLength();
   $geometry->y();
   $geometry->x();
   $geometry->numGeometries();

@@ -172,8 +172,7 @@ abstract class Collection extends Geometry
     return $length;
   }
 
-  public function geodeticLength() {
-    $radius = 6378137; // From wikipedia
+  public function greatCircleLength($radius = 6378137) {
     $length = 0;
     foreach ($this->components as $delta => $point) {
       $previous_point = $this->geometryN($delta);
