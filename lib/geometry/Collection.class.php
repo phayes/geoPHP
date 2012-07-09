@@ -173,10 +173,6 @@ abstract class Collection extends Geometry
   }
 
   public function geodeticLength() {
-    if ($this->geos()) {
-      return $this->geos()->length();
-    }
-
     $radius = 6378137; // From wikipedia
     $length = 0;
     foreach ($this->components as $delta => $point) {
