@@ -67,8 +67,31 @@ class LineString extends Collection
     }
 
     $length = 0;
-    foreach ($this->components as $line) {
-      $length += $line->greatCircleLength($radius);
+    $points = $this->getPoints();
+
+    foreach ($points as $delta => $point) {
+      $previous_point = $this->geometryN($delta);
+      if ($previous_point) {
+        // Great circle method
+        $lat1 = deg2rad($point->getY());
+        $lat2 = deg2rad($previous_point->getY());
+        $lon1 = deg2rad($point->getX());
+        $lon2 = deg2rad($previous_point->getX());
+        $dlon = $lon2 - $lon1;
+        $distance =
+          $radius *
+            atan2(
+              sqrt(
+                pow(cos($lat2) * sin($dlon), 2) +
+                  pow(cos($lat1) * sin($lat2) - sin($lat1) * cos($lat2) * cos($dlon), 2)
+              )
+              ,
+              sin($lat1) * sin($lat2) +
+                cos($lat1) * cos($lat2) * cos($dlon)
+            );
+        $length += $distance;
+
+      }
     }
     return $length;
   }
