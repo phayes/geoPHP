@@ -160,24 +160,28 @@ abstract class Collection extends Geometry
       return $this->geos()->length();
     }
 
+    $length = 0;
+    foreach ($this->components as $delta => $point) {
+      $next_point = $this->geometryN($delta);
+      if ($next_point) {
+        // Pythagorean Theorem
+        $distance = sqrt(pow(($next_point->getX() - $point->getX()), 2) + pow(($next_point->getY()- $point->getY()), 2));
+        $length += $distance;
+      }
+    }
+    return $length;
+  }
+
+  public function geodeticLength() {
+    if ($this->geos()) {
+      return $this->geos()->length();
+    }
+
     $radius = 6378137; // From wikipedia
     $length = 0;
     foreach ($this->components as $delta => $point) {
       $previous_point = $this->geometryN($delta);
       if ($previous_point) {
-
-        // Haversine method
-        /*
-        $sinLatD = sin(deg2rad($point->getY() - $previous_point->getY()));
-        $sinLngD = sin(deg2rad($point->getX() - $previous_point->getX()));
-        $cosLat1 = cos(deg2rad($point->getY()));
-        $cosLat2 = cos(deg2rad($previous_point->getY()));
-        $a = $sinLatD*$sinLatD + $cosLat1*$cosLat2*$sinLngD*$sinLngD*$sinLngD;
-        $a = $a < 0 ? -1*$a : $a;
-        $c = 2*atan2(sqrt($a), sqrt(1-$a));
-        $distance = $radius*$c;
-        */
-
         // Great circle method
         $lat1 = deg2rad($point->getY());
         $lat2 = deg2rad($previous_point->getY());
