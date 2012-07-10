@@ -133,6 +133,45 @@ class LineString extends Collection
     return TRUE;
   }
 
+  public function duration($type = 'total') {
+
+    if ($type == 'total') {
+      $point_a = $this->startPoint();
+      $point_b = $this->endPoint();
+      if (!is_null($point_a->metadata('time')) && !is_null($point_b->metadata('time'))) {
+        return strtotime($point_b->metadata['time']) - strtotime($point_a->metadata['time']);
+      }
+    }
+
+    if ($type == 'stop') {
+      $duration = 0;
+      foreach ($this->explode() as $LineString) {
+        $point_a = $LineString->startPoint();
+        $point_b = $LineString->endPoint();
+        if (!is_null($point_a->metadata('time')) && !is_null($point_b->metadata('time'))) {
+          $time = strtotime($point_b->metadata['time']) - strtotime($point_a->metadata['time']);
+        } else {
+          $time = 0;
+        }
+
+        $length = $LineString->greatCircleLength();
+
+        if ($length == 0) {
+          $duration += $time;
+        }
+
+      }
+      return $duration;
+    }
+
+    if ($type == 'moving') {
+      return $this->duration('total') - $this->duration('stop');
+    }
+
+    return 0;
+
+  }
+
   // Utility function to check if any line sigments intersect
   // Derived from http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
   public function lineSegmentIntersect($segment) {

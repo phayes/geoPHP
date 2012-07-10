@@ -155,6 +155,14 @@ abstract class Collection extends Geometry
     }
   }
 
+  public function duration($type = 'total') {
+    $duration = 0;
+    foreach ($this->components as $delta => $component) {
+      $duration += $component->duration($type);
+    }
+    return $duration;
+  }
+
   public function length() {
     $length = 0;
     foreach ($this->components as $delta => $component) {

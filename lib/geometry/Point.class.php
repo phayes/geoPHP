@@ -17,7 +17,7 @@ class Point extends Geometry
    * @param numeric $y The y coordinate (or latitude)
    * @param numeric $z The z coordinate (or altitude) - optional
    */
-  public function __construct($x, $y, $z = NULL) {
+  public function __construct($x, $y, $z = NULL, $metadata = array()) {
     // Basic validation on x and y
     if (!is_numeric($x) || !is_numeric($y)) {
       throw new Exception("Cannot construct Point. x and y should be numeric");
@@ -30,6 +30,8 @@ class Point extends Geometry
       }
       $this->dimention = 3;
     }
+
+    $this->metadata = $metadata;
 
     // Convert to floatval in case they are passed in as a string or integer etc.
     $x = floatval($x);
@@ -73,6 +75,17 @@ class Point extends Geometry
       return $this->coords[2];
     }
     else return NULL;
+  }
+
+  public function metadata($key = NULL) {
+    if (!is_null($key)) {
+      if (isset($this->metadata[$key])) {
+        return $this->metadata[$key];
+      } else {
+        return NULL;
+      }
+    }
+    return $this->metadata;
   }
 
   // A point's centroid is itself
@@ -132,6 +145,10 @@ class Point extends Geometry
 
   public function isSimple() {
     return TRUE;
+  }
+
+  public function duration() {
+    return 0;
   }
 
   // Not valid for this geometry type
