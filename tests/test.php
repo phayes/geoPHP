@@ -1,7 +1,7 @@
 <?php
 
 // Uncomment to test
-// run_test();
+# run_test();
 
 function run_test() {
   header("Content-type: text");
@@ -119,8 +119,11 @@ function test_adapters($geometry, $format, $input) {
         $test_geom_2 = $adapter_loader->read($test_geom_1->out($adapter_key));
 
         // Check to make sure a round-trip results in the same geometry
-        if ($test_geom_1->out('wkt') != $test_geom_2->out('wkt')) {
-          print "Mismatched adapter output in ".$adapter_class."\n";
+        // We don't check round-trip accuracy on geohash as it's not a storage format that preserves information
+        if ($adapter_key != 'geohash') {
+          if ($test_geom_1->out('wkt') != $test_geom_2->out('wkt')) {
+            print "Mismatched adapter output in ".$adapter_class."\n";
+          }
         }
       }
       else {
@@ -196,8 +199,6 @@ function test_methods($geometry) {
 
     if ($geos_type != $norm_type) {
       print 'Type mismatch on '.$method."\n";
-      var_dump($geos_type);
-      var_dump($norm_type);
       continue;
     }
 
