@@ -51,14 +51,14 @@ class GeoHash extends GeoAdapter{
         $geohashes[] = $this->encodePoint($point, 0.0000001);
       }
       $i = 0;
-      print var_dump($geohashes);
       while ($i < strlen($geohashes[0])) {
-        $geohash .= $geohashes[0][$i];
+        $char = $geohashes[0][$i];
         foreach ($geohashes as $hash) {
-          if ($hash[$i] != $geohash[$i]) {
-            return substr($geohash, 0, -1);
+          if ($hash[$i] != $char) {
+            return $geohash;
           }
         }
+        $geohash .= $char;
         $i++;
       }
       return $geohash;
