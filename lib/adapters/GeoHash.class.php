@@ -15,9 +15,22 @@ class GeoHash extends GeoAdapter{
    * @param string $hash a geohash
    * @see GeoAdapter::read()
    */
-  public function read($hash) {
+  public function read($hash, $as_point = FALSE) {
     $ll = $this->decode($hash);
-    return new Point($ll['lon'], $ll['lat'], NULL);
+    if ($as_point) {
+      return new Point($ll['medlon'], $ll['medlat']);
+    }
+    else {
+      return new Polygon(array(
+        new LineString(array(
+          new Point($ll['minlon'], $ll['maxlat']),
+          new Point($ll['maxlon'], $ll['maxlat']),
+          new Point($ll['maxlon'], $ll['minlat']),
+          new Point($ll['minlon'], $ll['minlat']),
+          new Point($ll['minlon'], $ll['maxlat']),
+        ))
+      ));
+    }
   }
 
   /**
@@ -26,11 +39,29 @@ class GeoHash extends GeoAdapter{
    * @param Point $geometry
    * @see GeoAdapter::write()
    */
-  public function write(Geometry $geometry){
-    if($geometry->geometryType()==='Point'){
-      return $this->encode($geometry);
+  public function write(Geometry $geometry, $precision = NULL){
+    if($geometry->geometryType() === 'Point'){
+      return $this->encodePoint($geometry, $precision);
     } else {
-      return NULL;
+      // The geohash is the hash grid ID that fits the envelope
+      $envelope = $geometry->envelope();
+      $geohashes = array();
+      $geohash = '';
+      foreach ($envelope->getPoints() as $point) {
+        $geohashes[] = $this->encodePoint($point, 0.0000001);
+      }
+      $i = 0;
+      print var_dump($geohashes);
+      while ($i < strlen($geohashes[0])) {
+        $geohash .= $geohashes[0][$i];
+        foreach ($geohashes as $hash) {
+          if ($hash[$i] != $geohash[$i]) {
+            return substr($geohash, 0, -1);
+          }
+        }
+        $i++;
+      }
+      return $geohash;
     }
   }
 
@@ -40,17 +71,19 @@ class GeoHash extends GeoAdapter{
    * @author algorithm based on code by Alexander Songe <a@songe.me>
    * @see https://github.com/asonge/php-geohash/issues/1
    */
-  private function encode($point){
-    $lap = strlen($point->y())-strpos($point->y(),".");
-    $lop = strlen($point->x())-strpos($point->x(),".");
-    $precision = pow(10,-max($lap-1,$lop-1,0))/2;
+  private function encodePoint($point, $precision = NULL){
+    if ($precision === NULL) {
+      $lap = strlen($point->y())-strpos($point->y(),".");
+      $lop = strlen($point->x())-strpos($point->x(),".");
+      $precision = pow(10,-max($lap-1,$lop-1,0))/2;
+    }
 
     $minlat =  -90;
     $maxlat =   90;
-    $minlng = -180;
-    $maxlng =  180;
+    $minlon = -180;
+    $maxlon =  180;
     $latE   =   90;
-    $lngE   =  180;
+    $lonE   =  180;
     $i = 0;
     $error = 180;
     $hash='';
@@ -58,15 +91,15 @@ class GeoHash extends GeoAdapter{
       $chr = 0;
       for($b=4;$b>=0;--$b) {
         if((1&$b) == (1&$i)) {
-          // even char, even bit OR odd char, odd bit...a lng
-          $next = ($minlng+$maxlng)/2;
+          // even char, even bit OR odd char, odd bit...a lon
+          $next = ($minlon+$maxlon)/2;
           if($point->x()>$next) {
             $chr |= pow(2,$b);
-            $minlng = $next;
+            $minlon = $next;
           } else {
-            $maxlng = $next;
+            $maxlon = $next;
           }
-          $lngE /= 2;
+          $lonE /= 2;
         } else {
           // odd char, even bit OR even char, odd bit...a lat
           $next = ($minlat+$maxlat)/2;
@@ -81,7 +114,7 @@ class GeoHash extends GeoAdapter{
       }
       $hash .= $this->table[$chr];
       $i++;
-      $error = min($latE,$lngE);
+      $error = min($latE,$lonE);
     }
     return $hash;
   }
@@ -92,35 +125,39 @@ class GeoHash extends GeoAdapter{
    * @see https://github.com/asonge/php-geohash/issues/1
    */
   private function decode($hash){
-    $ll = array('lat'=>NULL,'lon'=>NULL);
+    $ll = array();
     $minlat =  -90;
     $maxlat =   90;
-    $minlng = -180;
-    $maxlng =  180;
+    $minlon = -180;
+    $maxlon =  180;
     $latE   =   90;
-    $lngE   =  180;
+    $lonE   =  180;
     for($i=0,$c=strlen($hash);$i<$c;$i++) {
       $v = strpos($this->table,$hash[$i]);
       if(1&$i) {
         if(16&$v)$minlat = ($minlat+$maxlat)/2; else $maxlat = ($minlat+$maxlat)/2;
-        if(8&$v) $minlng = ($minlng+$maxlng)/2; else $maxlng = ($minlng+$maxlng)/2;
+        if(8&$v) $minlon = ($minlon+$maxlon)/2; else $maxlon = ($minlon+$maxlon)/2;
         if(4&$v) $minlat = ($minlat+$maxlat)/2; else $maxlat = ($minlat+$maxlat)/2;
-        if(2&$v) $minlng = ($minlng+$maxlng)/2; else $maxlng = ($minlng+$maxlng)/2;
+        if(2&$v) $minlon = ($minlon+$maxlon)/2; else $maxlon = ($minlon+$maxlon)/2;
         if(1&$v) $minlat = ($minlat+$maxlat)/2; else $maxlat = ($minlat+$maxlat)/2;
         $latE /= 8;
-        $lngE /= 4;
+        $lonE /= 4;
       } else {
-        if(16&$v)$minlng = ($minlng+$maxlng)/2; else $maxlng = ($minlng+$maxlng)/2;
+        if(16&$v)$minlon = ($minlon+$maxlon)/2; else $maxlon = ($minlon+$maxlon)/2;
         if(8&$v) $minlat = ($minlat+$maxlat)/2; else $maxlat = ($minlat+$maxlat)/2;
-        if(4&$v) $minlng = ($minlng+$maxlng)/2; else $maxlng = ($minlng+$maxlng)/2;
+        if(4&$v) $minlon = ($minlon+$maxlon)/2; else $maxlon = ($minlon+$maxlon)/2;
         if(2&$v) $minlat = ($minlat+$maxlat)/2; else $maxlat = ($minlat+$maxlat)/2;
-        if(1&$v) $minlng = ($minlng+$maxlng)/2; else $maxlng = ($minlng+$maxlng)/2;
+        if(1&$v) $minlon = ($minlon+$maxlon)/2; else $maxlon = ($minlon+$maxlon)/2;
         $latE /= 4;
-        $lngE /= 8;
+        $lonE /= 8;
       }
     }
-    $ll['lat'] = round(($minlat+$maxlat)/2, max(1, -round(log10($latE)))-1);
-    $ll['lon'] = round(($minlng+$maxlng)/2, max(1, -round(log10($lngE)))-1);
+    $ll['minlat'] = $minlat;
+    $ll['minlon'] = $minlon;
+    $ll['maxlat'] = $maxlat;
+    $ll['maxlon'] = $maxlon;
+    $ll['medlat'] = round(($minlat+$maxlat)/2, max(1, -round(log10($latE)))-1);
+    $ll['medlon'] = round(($minlon+$maxlon)/2, max(1, -round(log10($lonE)))-1);
     return $ll;
   }
 }
