@@ -1,20 +1,20 @@
 <?php
 
 // Uncomment to test
-# run_test();
+// run_test();
 
 function run_test() {
   header("Content-type: text");
-  
+
   include_once('../geoPHP.inc');
-  
+
   if (geoPHP::geosInstalled()) {
     print "GEOS is installed.\n";
   }
   else {
     print "GEOS is not installed.\n";
   }
-  
+
   foreach (scandir('./input') as $file) {
     $parts = explode('.',$file);
     if ($parts[0]) {
@@ -31,7 +31,7 @@ function run_test() {
 }
 
 function test_geometry($geometry) {
-  
+
   // Test common functions
   $geometry->area();
   $geometry->boundary();
@@ -39,6 +39,7 @@ function test_geometry($geometry) {
   $geometry->getBBox();
   $geometry->centroid();
   $geometry->length();
+  $geometry->greatCircleLength();
   $geometry->y();
   $geometry->x();
   $geometry->numGeometries();
@@ -56,7 +57,7 @@ function test_geometry($geometry) {
   $geometry->geometryType();
   $geometry->SRID();
   $geometry->setSRID(4326);
-  
+
   // Aliases
   $geometry->getCentroid();
   $geometry->getArea();
@@ -67,7 +68,7 @@ function test_geometry($geometry) {
   $geometry->getSRID();
   $geometry->asText();
   $geometry->asBinary();
-  
+
   // GEOS only functions
   $geometry->geos();
   $geometry->setGeos($geometry->geos());
@@ -96,7 +97,7 @@ function test_geometry($geometry) {
   $geometry->distance($geometry);
   $geometry->hausdorffDistance($geometry);
 
-  
+
   // Place holders
   $geometry->hasZ();
   $geometry->is3D();
@@ -116,7 +117,7 @@ function test_adapters($geometry, $format, $input) {
         $adapter_loader = new $adapter_class();
         $test_geom_1 = $adapter_loader->read($output);
         $test_geom_2 = $adapter_loader->read($test_geom_1->out($adapter_key));
-        
+
         // Check to make sure a round-trip results in the same geometry
         if ($test_geom_1->out('wkt') != $test_geom_2->out('wkt')) {
           print "Mismatched adapter output in ".$adapter_class."\n";
@@ -127,30 +128,30 @@ function test_adapters($geometry, $format, $input) {
       }
     }
   }
-  
+
   // Test to make sure adapter work the same wether GEOS is ON or OFF
   // Cannot test methods if GEOS is not intstalled
   if (!geoPHP::geosInstalled()) return;
-  
+
   foreach (geoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
     if ($adapter_key != 'google_geocode') { //Don't test google geocoder regularily. Uncomment to test
       // Turn GEOS on
       geoPHP::geosInstalled(TRUE);
-      
+
       $output = $geometry->out($adapter_key);
       if ($output) {
         $adapter_loader = new $adapter_class();
-    
+
         $test_geom_1 = $adapter_loader->read($output);
-        
+
         // Turn GEOS off
-        geoPHP::geosInstalled(FALSE);      
-        
+        geoPHP::geosInstalled(FALSE);
+
         $test_geom_2 = $adapter_loader->read($output);
-        
+
         // Turn GEOS back On
         geoPHP::geosInstalled(TRUE);
-        
+
         // Check to make sure a both are the same with geos and without
         if ($test_geom_1->out('wkt') != $test_geom_2->out('wkt')) {
           print "Mismatched adapter output between GEOS and NORM in ".$adapter_class."\n";
@@ -163,8 +164,8 @@ function test_adapters($geometry, $format, $input) {
 
 function test_methods($geometry) {
   // Cannot test methods if GEOS is not intstalled
-  if (!geoPHP::geosInstalled()) return;  
-  
+  if (!geoPHP::geosInstalled()) return;
+
   $methods = array(
     //'boundary', //@@TODO: Uncomment this and fix errors
     'envelope',   //@@TODO: Testing reveales errors in this method -- POINT vs. POLYGON
@@ -177,38 +178,38 @@ function test_methods($geometry) {
     'isClosed',
     'numPoints',
   );
-  
+
   foreach ($methods as $method) {
     // Turn GEOS on
     geoPHP::geosInstalled(TRUE);
     $geos_result = $geometry->$method();
-            
+
     // Turn GEOS off
     geoPHP::geosInstalled(FALSE);
     $norm_result = $geometry->$method();
-    
+
     // Turn GEOS back On
     geoPHP::geosInstalled(TRUE);
-    
+
     $geos_type = gettype($geos_result);
     $norm_type = gettype($norm_result);
-    
+
     if ($geos_type != $norm_type) {
       print 'Type mismatch on '.$method."\n";
       var_dump($geos_type);
       var_dump($norm_type);
       continue;
     }
-    
+
     // Now check base on type
     if ($geos_type == 'object') {
       $haus_dist = $geos_result->hausdorffDistance(geoPHP::load($norm_result->out('wkt'),'wkt'));
-      
+
       // Get the length of the diagonal of the bbox - this is used to scale the haustorff distance
       // Using Pythagorean theorem
       $bb = $geos_result->getBBox();
       $scale = sqrt((($bb['maxy'] - $bb['miny'])^2) + (($bb['maxx'] - $bb['minx'])^2));
-      
+
       // The difference in the output of GEOS and native-PHP methods should be less than 0.5 scaled haustorff units
       if ($haus_dist / $scale > 0.5) {
         print 'Output mismatch on '.$method.":\n";
@@ -217,7 +218,7 @@ function test_methods($geometry) {
         continue;
       }
     }
-    
+
     if ($geos_type == 'boolean' || $geos_type == 'string') {
       if ($geos_result !== $norm_result) {
         print 'Output mismatch on '.$method.":\n";
@@ -226,8 +227,8 @@ function test_methods($geometry) {
         continue;
       }
     }
-    
+
     //@@TODO: Run tests for output of types arrays and float
     //@@TODO: centroid function is non-compliant for collections and strings
   }
-} 
+}
