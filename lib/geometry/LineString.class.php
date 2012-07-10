@@ -61,15 +61,26 @@ class LineString extends Collection
     return 0;
   }
 
+  public function length() {
+    if ($this->geos()) {
+      return $this->geos()->length();
+    }
+    $length = 0;
+    foreach ($this->getPoints() as $delta => $point) {
+      $previous_point = $this->geometryN($delta);
+      if ($previous_point) {
+        $length += sqrt(pow(($previous_point->getX() - $point->getX()), 2) + pow(($previous_point->getY()- $point->getY()), 2));
+      }
+    }
+    return $length;
+  }
+
   public function greatCircleLength($radius = 6378137) {
     if ($this->geos()) {
       return $this->geos()->length();
     }
-
     $length = 0;
-    $points = $this->getPoints();
-
-    foreach ($points as $delta => $point) {
+    foreach ($this->getPoints() as $delta => $point) {
       $previous_point = $this->geometryN($delta);
       if ($previous_point) {
         // Great circle method
@@ -78,7 +89,7 @@ class LineString extends Collection
         $lon1 = deg2rad($point->getX());
         $lon2 = deg2rad($previous_point->getX());
         $dlon = $lon2 - $lon1;
-        $distance =
+        $length +=
           $radius *
             atan2(
               sqrt(
@@ -89,8 +100,6 @@ class LineString extends Collection
               sin($lat1) * sin($lat2) +
                 cos($lat1) * cos($lat2) * cos($dlon)
             );
-        $length += $distance;
-
       }
     }
     return $length;
