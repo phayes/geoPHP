@@ -19,19 +19,6 @@ class MultiLineString extends Collection
     return $length;
   }
 
-  // Geodetic length of a MultiLineString is the sum of it's components
-  public function greatCircleLength($radius = 6378137) {
-    if ($this->geos()) {
-      return $this->geos()->length();
-    }
-
-    $length = 0;
-    foreach ($this->components as $line) {
-      $length += $line->greatCircleLength($radius);
-    }
-    return $length;
-  }
-
   // MultiLineString is closed if all it's components are closed
   public function isClosed() {
     foreach ($this->components as $line) {
