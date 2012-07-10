@@ -76,9 +76,6 @@ class LineString extends Collection
   }
 
   public function greatCircleLength($radius = 6378137) {
-    if ($this->geos()) {
-      return $this->geos()->length();
-    }
     $length = 0;
     foreach ($this->getPoints() as $delta => $point) {
       $previous_point = $this->geometryN($delta);
