@@ -156,18 +156,9 @@ abstract class Collection extends Geometry
   }
 
   public function length() {
-    if ($this->geos()) {
-      return $this->geos()->length();
-    }
-
     $length = 0;
-    foreach ($this->components as $delta => $point) {
-      $next_point = $this->geometryN($delta);
-      if ($next_point) {
-        // Pythagorean Theorem
-        $distance = sqrt(pow(($next_point->getX() - $point->getX()), 2) + pow(($next_point->getY()- $point->getY()), 2));
-        $length += $distance;
-      }
+    foreach ($this->components as $delta => $component) {
+      $length += $component->length();
     }
     return $length;
   }
@@ -175,7 +166,7 @@ abstract class Collection extends Geometry
   public function greatCircleLength($radius = 6378137) {
     $length = 0;
     foreach ($this->components as $delta => $component) {
-      $length += $component->greatCircleLength();
+      $length += $component->greatCircleLength($radius);
     }
     return $length;
   }
