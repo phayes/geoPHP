@@ -337,18 +337,26 @@ abstract class Geometry
     return NULL;
   }
 
-  public function hasKey($target, $key) {
-    if (isset($target->_metadata[__CLASS__][$key])) {
+  public function hasMetadataKey($key) {
+    if (isset($this->_metadata[$key])) {
       return TRUE;
     }
     return FALSE;
   }
 
-  public function getKey($target, $key) {
-    return $target->_metadata[__CLASS__][$key];
+  public function getMetadataKey($key) {
+    if ($this->hasMetadataKey($key)) {
+      return $this->_metadata[$key];
+    }
+    return NULL;
   }
 
-  public function setKey($target, $key, $value) {
-    $target->_metadata[__CLASS__][$key] = $value;
+  public function setMetadataKey($key, $value) {
+    $this->_metadata[$key] = $value;
   }
+
+  public function getMetadata() {
+    return $this->_metadata;
+  }
+
 }

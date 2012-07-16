@@ -6,7 +6,7 @@
 class LineString extends Collection
 {
   protected $geom_type = 'LineString';
-  public $_metadata = NULL;
+  protected $_metadata = NULL;
 
   /**
    * Constructor
@@ -139,8 +139,8 @@ class LineString extends Collection
     if ($type == 'total') {
       $point_a = $this->startPoint();
       $point_b = $this->endPoint();
-      if (!is_null($point_a->metadata('time')) && !is_null($point_b->metadata('time'))) {
-        return strtotime($point_b->metadata['time']) - strtotime($point_a->metadata['time']);
+      if (!is_null($point_a->getMetadataKey('time')) && !is_null($point_b->getMetadataKey('time'))) {
+        return strtotime($point_b->getMetadataKey('time')) - strtotime($point_a->getMetadataKey('time'));
       }
     }
 
@@ -149,8 +149,8 @@ class LineString extends Collection
       foreach ($this->explode() as $LineString) {
         $point_a = $LineString->startPoint();
         $point_b = $LineString->endPoint();
-        if (!is_null($point_a->metadata('time')) && !is_null($point_b->metadata('time'))) {
-          $time = strtotime($point_b->metadata['time']) - strtotime($point_a->metadata['time']);
+        if (!is_null($point_a->getMetadataKey('time')) && !is_null($point_b->getMetadataKey('time'))) {
+          $time = strtotime($point_b->getMetadataKey('time')) - strtotime($point_a->getMetadataKey('time'));
         } else {
           $time = 0;
         }

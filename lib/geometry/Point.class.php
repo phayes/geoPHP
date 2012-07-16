@@ -7,7 +7,7 @@
 class Point extends Geometry
 {
   public $coords = array(2);
-  public $_metadata = NULL;
+  protected $_metadata = NULL;
   protected $geom_type = 'Point';
   protected $dimention = 2;
 
@@ -33,7 +33,7 @@ class Point extends Geometry
     }
 
     foreach ($metadata as $key => $value) {
-      $this->setKey($this, $key, $value);
+      $this->setMetadataKey($key, $value);
     }
 
     // Convert to floatval in case they are passed in as a string or integer etc.
