@@ -6,6 +6,7 @@
 class LineString extends Collection
 {
   protected $geom_type = 'LineString';
+  public $_metadata = NULL;
 
   /**
    * Constructor
@@ -133,7 +134,7 @@ class LineString extends Collection
     return TRUE;
   }
 
-  public function duration($type = 'total') {
+  public function duration($type = 'total', $threshold = 0.5) {
 
     if ($type == 'total') {
       $point_a = $this->startPoint();
@@ -156,7 +157,7 @@ class LineString extends Collection
 
         $length = $LineString->greatCircleLength();
 
-        if ($length == 0) {
+        if ($length >= 0 && $length <= $threshold) {
           $duration += $time;
         }
 
@@ -165,7 +166,7 @@ class LineString extends Collection
     }
 
     if ($type == 'moving') {
-      return $this->duration('total') - $this->duration('stop');
+      return $this->duration('total', $threshold) - $this->duration('stop', $threshold);
     }
 
     return 0;

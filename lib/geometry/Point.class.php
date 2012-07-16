@@ -7,6 +7,7 @@
 class Point extends Geometry
 {
   public $coords = array(2);
+  public $_metadata = NULL;
   protected $geom_type = 'Point';
   protected $dimention = 2;
 
@@ -31,7 +32,9 @@ class Point extends Geometry
       $this->dimention = 3;
     }
 
-    $this->metadata = $metadata;
+    foreach ($metadata as $key => $value) {
+      $this->setKey($this, $key, $value);
+    }
 
     // Convert to floatval in case they are passed in as a string or integer etc.
     $x = floatval($x);
@@ -75,17 +78,6 @@ class Point extends Geometry
       return $this->coords[2];
     }
     else return NULL;
-  }
-
-  public function metadata($key = NULL) {
-    if (!is_null($key)) {
-      if (isset($this->metadata[$key])) {
-        return $this->metadata[$key];
-      } else {
-        return NULL;
-      }
-    }
-    return $this->metadata;
   }
 
   // A point's centroid is itself
