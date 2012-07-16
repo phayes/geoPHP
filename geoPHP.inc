@@ -10,6 +10,9 @@
 // Interfaces
 include_once("lib/geometry/MetadataProvider.class.php");
 
+include_once("lib/geometry/TimeMetadataProvider.class.php");
+include_once("lib/geometry/ElevationMetadataProvider.class.php");
+
 // Adapters
 include_once("lib/adapters/GeoAdapter.class.php"); // Abtract class
 include_once("lib/adapters/GeoJSON.class.php");

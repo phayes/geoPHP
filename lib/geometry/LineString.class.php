@@ -3,10 +3,9 @@
  * LineString. A collection of Points representing a line.
  * A line can have more than one segment.
  */
-class LineString extends Collection implements MetadataProvider
+class LineString extends Collection
 {
   protected $geom_type = 'LineString';
-  protected $_metadata = NULL;
 
   /**
    * Constructor
@@ -139,8 +138,8 @@ class LineString extends Collection implements MetadataProvider
     if ($type == 'total') {
       $point_a = $this->startPoint();
       $point_b = $this->endPoint();
-      if (!is_null($point_a->getMetadataKey('time')) && !is_null($point_b->getMetadataKey('time'))) {
-        return strtotime($point_b->getMetadataKey('time')) - strtotime($point_a->getMetadataKey('time'));
+      if (!is_null($point_a->metadata('time')) && !is_null($point_b->metadata('time'))) {
+        return strtotime($point_b->metadata('time')) - strtotime($point_a->metadata('time'));
       }
     }
 
@@ -149,8 +148,8 @@ class LineString extends Collection implements MetadataProvider
       foreach ($this->explode() as $LineString) {
         $point_a = $LineString->startPoint();
         $point_b = $LineString->endPoint();
-        if (!is_null($point_a->getMetadataKey('time')) && !is_null($point_b->getMetadataKey('time'))) {
-          $time = strtotime($point_b->getMetadataKey('time')) - strtotime($point_a->getMetadataKey('time'));
+        if (!is_null($point_a->metadata('time')) && !is_null($point_b->metadata('time'))) {
+          $time = strtotime($point_b->metadata('time')) - strtotime($point_a->metadata('time'));
         } else {
           $time = 0;
         }
@@ -204,5 +203,6 @@ class LineString extends Collection implements MetadataProvider
     }
     return FALSE;
   }
+
 }
 

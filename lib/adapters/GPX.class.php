@@ -103,24 +103,33 @@ class GPX extends GeoAdapter
   protected function parseTracks() {
     $lines = array();
     $trk_elements = $this->xmlobj->getElementsByTagName('trk');
+    $tmd_provider = new TimeMetadataProvider();
+    $ele_provider = new ElevationMetadataProvider();
     foreach ($trk_elements as $trk) {
       $components = array();
       foreach ($this->childElements($trk, 'trkseg') as $trkseg) {
         foreach ($this->childElements($trkseg, 'trkpt') as $trkpt) {
           $lat = $trkpt->attributes->getNamedItem("lat")->nodeValue;
           $lon = $trkpt->attributes->getNamedItem("lon")->nodeValue;
-          $metadata = array();
+          $component = new Point($lon, $lat, NULL);
+          $component->registerMetadataProvider($tmd_provider);
+          $component->registerMetadataProvider($ele_provider);
           foreach ($this->childElements($trkpt, 'time') as $time) {
-            $metadata['time'] = $time->nodeValue;
+            $component->metadata('time', $time->nodeValue);
           }
           foreach ($this->childElements($trkpt, 'ele') as $ele) {
-            $metadata['ele'] = $ele->nodeValue;
+            $component->metadata('ele', $ele->nodeValue);
           }
 
-          $components[] = new Point($lon, $lat, NULL, $metadata);
+          $components[] = $component;
         }
       }
-      if ($components) {$lines[] = new LineString($components);}
+
+      if ($components) {
+        $line = new LineString($components);
+        $line->registerMetadataProvider($tmd_provider);
+        $lines[] = $line;
+      }
     }
     return $lines;
   }

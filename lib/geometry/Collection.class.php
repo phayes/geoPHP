@@ -24,7 +24,6 @@ abstract class Collection extends Geometry
     foreach ($components as $component) {
       if ($component instanceof Geometry) {
         $this->components[] = $component;
-        $this->_metadata[] = $component->getMetadata();
       }
       else {
         throw new Exception("Cannot create a collection with non-geometries");

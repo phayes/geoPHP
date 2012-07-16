@@ -4,10 +4,9 @@
  * Point: The most basic geometry type. All other geometries
  * are built out of Points.
  */
-class Point extends Geometry implements MetadataProvider
+class Point extends Geometry
 {
   public $coords = array(2);
-  protected $_metadata = NULL;
   protected $geom_type = 'Point';
   protected $dimention = 2;
 
@@ -18,7 +17,7 @@ class Point extends Geometry implements MetadataProvider
    * @param numeric $y The y coordinate (or latitude)
    * @param numeric $z The z coordinate (or altitude) - optional
    */
-  public function __construct($x, $y, $z = NULL, $metadata = array()) {
+  public function __construct($x, $y, $z = NULL) {
     // Basic validation on x and y
     if (!is_numeric($x) || !is_numeric($y)) {
       throw new Exception("Cannot construct Point. x and y should be numeric");
@@ -30,10 +29,6 @@ class Point extends Geometry implements MetadataProvider
        throw new Exception("Cannot construct Point. z should be numeric");
       }
       $this->dimention = 3;
-    }
-
-    foreach ($metadata as $key => $value) {
-      $this->setMetadataKey($key, $value);
     }
 
     // Convert to floatval in case they are passed in as a string or integer etc.

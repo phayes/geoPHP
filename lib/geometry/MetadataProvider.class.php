@@ -2,8 +2,8 @@
 
 interface MetadataProvider
 {
-    public function hasMetadataKey($key);
-    public function setMetadataKey($key, $value);
-    public function getMetadataKey($key);
-    public function getMetadata();
+    public function has($target, $key);
+    public function set($target, $key, $value);
+    public function get($target, $key);
+    public function id();
 }

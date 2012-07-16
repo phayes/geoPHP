@@ -15,6 +15,5 @@ class MultiLineString extends Collection
     }
     return TRUE;
   }
-
 }
 
