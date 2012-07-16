@@ -128,6 +128,7 @@ class GPX extends GeoAdapter
       if ($components) {
         $line = new LineString($components);
         $line->registerMetadataProvider($tmd_provider);
+        $line->registerMetadataProvider($ele_provider);
         $lines[] = $line;
       }
     }

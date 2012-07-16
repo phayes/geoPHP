@@ -13,8 +13,11 @@ class ElevationMetadataProvider implements MetadataProvider {
   }
 
   public function set($target, $key, $value) {
-    $target->metadata[__CLASS__][$key] = $value;
-    return TRUE;
+    if ($key === 'ele') {
+      $target->metadata[__CLASS__][$key] = $value;
+      return TRUE;
+    }
+    return FALSE;
   }
 
   public function id() {

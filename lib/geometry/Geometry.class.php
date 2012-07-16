@@ -356,8 +356,8 @@ abstract class Geometry
         if ($metadata_provider->set($this, $key, $value)) {
           return TRUE;
         }
-        return FALSE;
       }
+      return FALSE;
     }
   }
 }

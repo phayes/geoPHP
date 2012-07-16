@@ -13,8 +13,11 @@ class TimeMetadataProvider implements MetadataProvider {
   }
 
   public function set($target, $key, $value) {
-    $target->metadata[__CLASS__][$key] = $value;
-    return TRUE;
+    if ($key === 'time') {
+      $target->metadata[__CLASS__][$key] = $value;
+      return TRUE;
+    }
+    return FALSE;
   }
 
   public function id() {
