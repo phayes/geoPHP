@@ -345,10 +345,10 @@ abstract class Geometry
     if (func_num_args() == 1) {
       // Get value for $key.
       foreach ($this->metadata_providers as $metadata_provider) {
-       if ($metadata_provider->has($this, $key)) {
-         return $metadata_provider->get($this, $key);
-       }
-     }
+        if ($metadata_provider->has($this, $key)) {
+          return $metadata_provider->get($this, $key);
+        }
+      }
     } else {
       // Set value for $key.
       $value = func_get_arg(1);

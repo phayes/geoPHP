@@ -292,11 +292,7 @@ abstract class Collection extends Geometry
   public function pointOnSurface()   { return NULL; }
 
   public function metadata($key) {
-    $metadatas = array();
-    foreach ($this->components as $component) {
-      $metadatas[] = $component->metadata($key);
-    }
-    return $metadatas;
+    return $this->components->metadata($key);
   }
 
 }

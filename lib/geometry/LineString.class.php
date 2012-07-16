@@ -203,6 +203,5 @@ class LineString extends Collection
     }
     return FALSE;
   }
-
 }
 
