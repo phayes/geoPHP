@@ -7,6 +7,9 @@
  * file that was distributed with this source code.
  */
 
+// Interfaces
+include_once("lib/geometry/MetadataProvider.class.php");
+
 // Adapters
 include_once("lib/adapters/GeoAdapter.class.php"); // Abtract class
 include_once("lib/adapters/GeoJSON.class.php");
@@ -30,6 +33,8 @@ include_once("lib/geometry/Polygon.class.php");
 include_once("lib/geometry/MultiLineString.class.php");
 include_once("lib/geometry/MultiPolygon.class.php");
 include_once("lib/geometry/GeometryCollection.class.php");
+
+
 
 class geoPHP
 {

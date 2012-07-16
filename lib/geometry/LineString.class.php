@@ -3,7 +3,7 @@
  * LineString. A collection of Points representing a line.
  * A line can have more than one segment.
  */
-class LineString extends Collection
+class LineString extends Collection implements MetadataProvider
 {
   protected $geom_type = 'LineString';
   protected $_metadata = NULL;

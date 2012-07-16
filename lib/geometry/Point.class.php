@@ -4,7 +4,7 @@
  * Point: The most basic geometry type. All other geometries
  * are built out of Points.
  */
-class Point extends Geometry
+class Point extends Geometry implements MetadataProvider
 {
   public $coords = array(2);
   protected $_metadata = NULL;
