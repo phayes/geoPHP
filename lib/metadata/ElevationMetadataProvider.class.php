@@ -9,12 +9,8 @@ class ElevationMetadataProvider implements MetadataProvider {
     return FALSE;
   }
 
-  public function has($target, $key) {
-    return isset($target->metadata['metadatas'][__CLASS__]) && isset($target->metadata['metadatas'][__CLASS__][$key]) && !is_null($target->metadata['metadatas'][__CLASS__][$key]) && ($key === 'ele') && ($target instanceof Point);
-  }
-
   public function get($target, $key, $options) {
-    if ($this->has($target, $key)) {
+    if ($this->provides($key)) {
       return $target->metadata['metadatas'][__CLASS__][$key];
     }
   }

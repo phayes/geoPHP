@@ -9,23 +9,15 @@ class DurationMetadataProvider implements MetadataProvider {
     return FALSE;
   }
 
-  public function has($target, $key) {
-    return isset($target->metadata['metadatas'][__CLASS__]) && isset($target->metadata['metadatas'][__CLASS__][$key]) && !is_null($target->metadata['metadatas'][__CLASS__][$key]) && (in_array($key, $this->capabilities)) && ($target instanceof Collection);
-  }
-
   public function get($target, $key, $options) {
 
     if ($target instanceof MultiLineString) {
-
-      if ($key == 'duration') {
-        $duration = 0;
-        foreach ($target->components as $component) {
-          $duration += $component->getMetadata('duration');
-        }
-        return $duration;
+      $duration = 0;
+      foreach ($target->components as $component) {
+        $duration += $component->getMetadata($key, $options);
       }
+      return $duration;
     }
-
 
     if ($target instanceof LineString) {
       if ($key == 'duration') {
