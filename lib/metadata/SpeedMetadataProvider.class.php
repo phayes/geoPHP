@@ -13,24 +13,30 @@ class SpeedMetadataProvider implements MetadataProvider {
 
     if ($target instanceof MultiLineString) {
       if ($key === 'maxSpeed') {
-        $max = NULL;
+        $speeds = array();
         foreach ($target->components as $component) {
-          $speed = $component->getMetadata($key, $options);
-          if (is_null($max) || $speed > $max) {
-            $max = $speed;
+          $speeds[] = $component->getMetadata($key, $options);
+        }
+        sort($speeds);
+        foreach($speeds as $speed) {
+          if ($speed != 0) {
+            return $speed;
           }
         }
-        return $max;
       }
       if ($key === 'minSpeed') {
-        $min = NULL;
         foreach ($target->components as $component) {
-          $speed = $component->getMetadata($key, $options);
-          if (is_null($min) || $speed < $min || $speed != 0) {
-            $min = $speed;
+          $speeds = array();
+          foreach ($target->components as $component) {
+            $speeds[] = $component->getMetadata($key, $options);
+          }
+          rsort($speeds);
+          foreach($speeds as $speed) {
+            if ($speed != 0) {
+              return $speed;
+            }
           }
         }
-        return $min;
       }
       if ($key === 'averageSpeed') {
         $speeds = 0;
@@ -40,7 +46,7 @@ class SpeedMetadataProvider implements MetadataProvider {
           if ($speed == 0) {
             $count--;
           } else {
-            $speeds += $component->getMetadata($key, $options);
+            $speeds += $speed;
           }
         }
         $speed = $speeds / $count;
