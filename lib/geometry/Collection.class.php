@@ -291,9 +291,5 @@ abstract class Collection extends Geometry
   public function interiorRingN($n)  { return NULL; }
   public function pointOnSurface()   { return NULL; }
 
-  public function metadata($key) {
-    return $this->components->metadata($key);
-  }
-
 }
 

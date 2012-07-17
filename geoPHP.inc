@@ -7,11 +7,11 @@
  * file that was distributed with this source code.
  */
 
-// Interfaces
-include_once("lib/geometry/MetadataProvider.class.php");
-
-include_once("lib/geometry/TimeMetadataProvider.class.php");
-include_once("lib/geometry/ElevationMetadataProvider.class.php");
+// Metadata
+include_once("lib/metadata/MetadataProvider.class.php");
+include_once("lib/metadata/TimeMetadataProvider.class.php");
+include_once("lib/metadata/ElevationMetadataProvider.class.php");
+include_once("lib/metadata/DurationMetadataProvider.class.php");
 
 // Adapters
 include_once("lib/adapters/GeoAdapter.class.php"); // Abtract class
@@ -195,7 +195,8 @@ class geoPHP
       }
       else {
         $class = 'Multi'.$geom_types[0];
-        return new $class($geometries);
+        $class = new $class($geometries);
+        return $class;
       }
     }
     else {
