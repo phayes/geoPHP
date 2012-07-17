@@ -354,7 +354,7 @@ abstract class Geometry
 
   public function getMetadata($key, $options = array()) {
     foreach ($this->metadata['providers'] as $metadata_provider) {
-      if ($metadata_provider->has($this, $key)) {
+      if ($metadata_provider->provides($key)) {
         return $metadata_provider->get($this, $key, $options);
       }
     }
