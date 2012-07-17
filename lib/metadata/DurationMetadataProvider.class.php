@@ -23,9 +23,10 @@ class DurationMetadataProvider implements MetadataProvider {
       if ($key == 'duration') {
         $point_a = $target->startPoint();
         $point_b = $target->endPoint();
-
         if (!is_null($point_a->getMetadata('time')) && !is_null($point_b->getMetadata('time'))) {
           $time = strtotime($point_b->getMetadata('time')) - strtotime($point_a->getMetadata('time'));
+        } else {
+          $time = 0;
         }
         return $time;
       }

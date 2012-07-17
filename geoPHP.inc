@@ -12,6 +12,7 @@ include_once("lib/metadata/MetadataProvider.class.php");
 include_once("lib/metadata/TimeMetadataProvider.class.php");
 include_once("lib/metadata/ElevationMetadataProvider.class.php");
 include_once("lib/metadata/DurationMetadataProvider.class.php");
+include_once("lib/metadata/SpeedMetadataProvider.class.php");
 
 // Adapters
 include_once("lib/adapters/GeoAdapter.class.php"); // Abtract class
