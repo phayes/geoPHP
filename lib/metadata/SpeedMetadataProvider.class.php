@@ -23,6 +23,7 @@ class SpeedMetadataProvider implements MetadataProvider {
             return $speed;
           }
         }
+        return 0;
       }
       if ($key === 'minSpeed') {
         foreach ($target->components as $component) {
@@ -37,6 +38,7 @@ class SpeedMetadataProvider implements MetadataProvider {
             }
           }
         }
+        return 0;
       }
       if ($key === 'averageSpeed') {
         $speeds = 0;
@@ -73,6 +75,7 @@ class SpeedMetadataProvider implements MetadataProvider {
             return $speed;
           }
         }
+        return 0;
       }
 
       if ($key === 'minSpeed') {
@@ -94,6 +97,7 @@ class SpeedMetadataProvider implements MetadataProvider {
             return $speed;
           }
         }
+        return 0;
       }
 
       if ($key == 'averageSpeed') {
