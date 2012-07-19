@@ -102,6 +102,25 @@ class LineString extends Collection
     return $length;
   }
 
+  public function haversineLength() {
+    $distance = 0;
+    $points = $this->getPoints();
+    foreach ($points as $point) {
+      $next_point = current($points);
+      if (!is_object($next_point)) {continue;}
+      $dist = rad2deg(
+        acos(
+          sin(deg2rad($point->getY())) * sin(deg2rad($next_point->getY())) +
+            cos(deg2rad($point->getY())) * cos(deg2rad($next_point->getY())) *
+              cos(deg2rad(abs($point->getX() - $next_point->getX())))
+        )
+      );
+      $distance += $dist;
+    }
+    // returns degrees
+    return $distance;
+  }
+
   public function explode() {
     $parts = array();
     $points = $this->getPoints();
