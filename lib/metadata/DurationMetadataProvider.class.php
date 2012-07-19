@@ -24,7 +24,7 @@ class DurationMetadataProvider implements MetadataProvider {
         $point_a = $target->startPoint();
         $point_b = $target->endPoint();
         if (!is_null($point_a->getMetadata('time')) && !is_null($point_b->getMetadata('time'))) {
-          $time = strtotime($point_b->getMetadata('time')) - strtotime($point_a->getMetadata('time'));
+          $time = abs(strtotime($point_b->getMetadata('time')) - strtotime($point_a->getMetadata('time')));
         } else {
           $time = 0;
         }
@@ -37,7 +37,7 @@ class DurationMetadataProvider implements MetadataProvider {
           $point_a = $LineString->startPoint();
           $point_b = $LineString->endPoint();
           if (!is_null($point_a->getMetadata('time')) && !is_null($point_b->getMetadata('time'))) {
-            $time = strtotime($point_b->getMetadata('time')) - strtotime($point_a->getMetadata('time'));
+            $time = abs(strtotime($point_b->getMetadata('time')) - strtotime($point_a->getMetadata('time')));
           } else {
             $time = 0;
           }

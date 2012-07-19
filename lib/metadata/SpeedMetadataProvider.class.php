@@ -60,7 +60,7 @@ class SpeedMetadataProvider implements MetadataProvider {
         $speeds = array();
         $points = $target->getPoints();
         foreach($points as $point) {
-          $next_point = current($points);
+          $next_point = next($points);
           if (!is_object($next_point)) {continue;}
           $linestring = new LineString(array($point, $next_point));
           $linestring->registerMetadataProvider(new SpeedMetadataProvider());
@@ -85,7 +85,7 @@ class SpeedMetadataProvider implements MetadataProvider {
         $speeds = array();
         $points = $target->getPoints();
         foreach($points as $point) {
-          $next_point = current($points);
+          $next_point = next($points);
           if (!is_object($next_point)) {continue;}
           $linestring = new LineString(array($point, $next_point));
           $linestring->registerMetadataProvider(new SpeedMetadataProvider());
