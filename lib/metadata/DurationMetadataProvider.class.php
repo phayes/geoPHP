@@ -35,16 +35,22 @@ class DurationMetadataProvider implements MetadataProvider {
 
       if ($key == 'stopDuration') {
         $duration = 0;
-        foreach ($target->explode() as $LineString) {
-          $point_a = $LineString->startPoint();
-          $point_b = $LineString->endPoint();
+        $points = $target->getPoints();
+        foreach ($points as $point) {
+          $point_a = $point;
+          $point_b = current($points);
+
+          $linestring = new LineString(array($point_a, $point_b));
+          $linestring->registerMetadataProvider(new SpeedMetadataProvider());
+          $linestring->registerMetadataProvider(new DurationMetadataProvider());
+
           if (!is_null($point_a->getMetadata('time')) && !is_null($point_b->getMetadata('time'))) {
             $time = abs(strtotime($point_b->getMetadata('time')) - strtotime($point_a->getMetadata('time')));
           } else {
             $time = 0;
           }
 
-          $length = $LineString->greatCircleLength();
+          $length = $linestring->greatCircleLength();
 
           if ($length >= 0 && $length <= $options['threshold']) {
             $duration += $time;

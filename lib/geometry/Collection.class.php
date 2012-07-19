@@ -174,7 +174,9 @@ abstract class Collection extends Geometry
   public function greatCircleLength($radius = 6378137) {
     $length = 0;
     foreach ($this->components as $delta => $component) {
-      $length += $component->greatCircleLength($radius);
+      $tmp = $component->greatCircleLength($radius);
+      dpm($tmp, 'Composant ' . $delta);
+      $length += $tmp;
     }
     return $length;
   }
