@@ -59,9 +59,8 @@ class SpeedMetadataProvider implements MetadataProvider {
       if ($key === 'maxSpeed') {
         $speeds = array();
         $points = $target->getPoints();
-        foreach($points as $idx => $point) {
-          $next_point = next($points);
-
+        foreach($points as $point) {
+          $next_point = current($points);
           if (!is_object($next_point)) {continue;}
           $linestring = new LineString(array($point, $next_point));
           $linestring->registerMetadataProvider(new SpeedMetadataProvider());
@@ -85,11 +84,9 @@ class SpeedMetadataProvider implements MetadataProvider {
       if ($key === 'minSpeed') {
         $speeds = array();
         $points = $target->getPoints();
-        foreach($points as $idx => $point) {
-          $next_point = next($points);
-
+        foreach($points as $point) {
+          $next_point = current($points);
           if (!is_object($next_point)) {continue;}
-
           $linestring = new LineString(array($point, $next_point));
           $linestring->registerMetadataProvider(new SpeedMetadataProvider());
           $linestring->registerMetadataProvider(new DurationMetadataProvider());
