@@ -137,10 +137,6 @@ class Point extends Geometry
     return TRUE;
   }
 
-  public function duration() {
-    return 0;
-  }
-
   // Not valid for this geometry type
   public function numGeometries()    { return NULL; }
   public function geometryN($n)      { return NULL; }
