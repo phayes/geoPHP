@@ -18,6 +18,9 @@ class MultiLineString extends Collection
 
   public function getMetadata($key, $options = array()) {
     foreach ($this->components as $component) {
+
+      if (!isset($component->metadata['providers'])) {continue;}
+
       foreach ($component->metadata['providers'] as $metadata_provider) {
         if ($metadata_provider->provides($key)) {
           return $metadata_provider->get($this, $key, $options);

@@ -57,17 +57,21 @@ class SpeedMetadataProvider implements MetadataProvider {
 
     if ($target instanceof LineString) {
       if ($key === 'maxSpeed') {
-        $numPoints = $target->numPoints();
         $speeds = array();
-        for($i=1; $i<$numPoints; $i++) {
-          $linestring = new LineString(array($target->pointN($i), $target->pointN($i+1)));
+        $points = $target->getPoints();
+        foreach($points as $idx => $point) {
+          $next_point = next($points);
+
+          if (!is_object($next_point)) {continue;}
+          $linestring = new LineString(array($point, $next_point));
           $linestring->registerMetadataProvider(new SpeedMetadataProvider());
           $linestring->registerMetadataProvider(new DurationMetadataProvider());
 
           $duration = $linestring->getMetadata('duration', array('threshold' => 0.5));
           $length = $linestring->greatCircleLength();
-
-          $speeds[] = $length/$duration;
+          if ($duration != 0) {
+            $speeds[] = $length/$duration;
+          }
         }
         rsort($speeds);
         foreach($speeds as $speed) {
@@ -79,17 +83,22 @@ class SpeedMetadataProvider implements MetadataProvider {
       }
 
       if ($key === 'minSpeed') {
-        $numPoints = $target->numPoints();
         $speeds = array();
-        for($i=1; $i<$numPoints; $i++) {
-          $linestring = new LineString(array($target->pointN($i), $target->pointN($i+1)));
+        $points = $target->getPoints();
+        foreach($points as $idx => $point) {
+          $next_point = next($points);
+
+          if (!is_object($next_point)) {continue;}
+
+          $linestring = new LineString(array($point, $next_point));
           $linestring->registerMetadataProvider(new SpeedMetadataProvider());
           $linestring->registerMetadataProvider(new DurationMetadataProvider());
 
           $duration = $linestring->getMetadata('duration', array('threshold' => 0.5));
           $length = $linestring->greatCircleLength();
-
-          $speeds[] = $length/$duration;
+          if ($duration != 0) {
+            $speeds[] = $length/$duration;
+          }
         }
         sort($speeds);
         foreach($speeds as $speed) {
@@ -103,7 +112,10 @@ class SpeedMetadataProvider implements MetadataProvider {
       if ($key == 'averageSpeed') {
         $time = $target->getMetadata('duration', array('threshold' => 0.5));
         $length = $target->greatCircleLength();
-        return $length/$time; // Meter/Sec
+        if ($time != 0) {
+          return $length/$time; // Meter/Sec
+        }
+        return 0;
       }
     }
  }

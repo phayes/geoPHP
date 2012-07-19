@@ -52,7 +52,7 @@ class ElevationMetadataProvider implements MetadataProvider {
             $max = $component->getMetadata('ele');
           }
         }
-        return $max;
+        if (isset($max)) {return $max;} else {return 0;}
       }
       if ($key === 'minEle') {
         $min = NULL;
@@ -61,7 +61,7 @@ class ElevationMetadataProvider implements MetadataProvider {
             $min = $component->getMetadata('ele');
           }
         }
-        return $min;
+        if (isset($min)) {return $min;} else {return 0;}
       }
       if ($key === 'averageEle') {
         $ele_total = 0;
@@ -73,6 +73,7 @@ class ElevationMetadataProvider implements MetadataProvider {
           }
           $ele_total += $ele;
         }
+        if ($count == 0) {return 0;}
         return $ele_total / $count;
       }
     }
