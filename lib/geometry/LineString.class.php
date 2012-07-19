@@ -77,29 +77,51 @@ class LineString extends Collection
 
   public function greatCircleLength($radius = 6378137) {
     $length = 0;
-    foreach ($this->getPoints() as $delta => $point) {
-      $previous_point = $this->geometryN($delta);
-      if ($previous_point) {
-        // Great circle method
-        $lat1 = deg2rad($point->getY());
-        $lat2 = deg2rad($previous_point->getY());
-        $lon1 = deg2rad($point->getX());
-        $lon2 = deg2rad($previous_point->getX());
-        $dlon = $lon2 - $lon1;
-        $length +=
-          $radius *
-            atan2(
-              sqrt(
-                pow(cos($lat2) * sin($dlon), 2) +
-                  pow(cos($lat1) * sin($lat2) - sin($lat1) * cos($lat2) * cos($dlon), 2)
-              )
-              ,
-              sin($lat1) * sin($lat2) +
-                cos($lat1) * cos($lat2) * cos($dlon)
-            );
-      }
+    $points = $this->getPoints();
+    for($i=0; $i<$this->numPoints()-1; $i++) {
+      $point = $points[$i];
+      $next_point = $points[$i+1];
+      if (!is_object($next_point)) {continue;}
+      // Great circle method
+      $lat1 = deg2rad($point->getY());
+      $lat2 = deg2rad($next_point->getY());
+      $lon1 = deg2rad($point->getX());
+      $lon2 = deg2rad($next_point->getX());
+      $dlon = $lon2 - $lon1;
+      $length +=
+        $radius *
+          atan2(
+            sqrt(
+              pow(cos($lat2) * sin($dlon), 2) +
+                pow(cos($lat1) * sin($lat2) - sin($lat1) * cos($lat2) * cos($dlon), 2)
+            )
+            ,
+            sin($lat1) * sin($lat2) +
+              cos($lat1) * cos($lat2) * cos($dlon)
+          );
     }
+    // Returns length in meters.
     return $length;
+  }
+
+  public function haversineLength() {
+    $degrees = 0;
+    $points = $this->getPoints();
+    for($i=0; $i<$this->numPoints()-1; $i++) {
+      $point = $points[$i];
+      $next_point = $points[$i+1];
+      if (!is_object($next_point)) {continue;}
+      $degree = rad2deg(
+        acos(
+          sin(deg2rad($point->getY())) * sin(deg2rad($next_point->getY())) +
+            cos(deg2rad($point->getY())) * cos(deg2rad($next_point->getY())) *
+              cos(deg2rad(abs($point->getX() - $next_point->getX())))
+        )
+      );
+      $degrees += $degree;
+    }
+    // Returns degrees
+    return $degrees;
   }
 
   public function explode() {

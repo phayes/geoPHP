@@ -40,6 +40,7 @@ function test_geometry($geometry) {
   $geometry->centroid();
   $geometry->length();
   $geometry->greatCircleLength();
+  $geometry->haversineLength();
   $geometry->y();
   $geometry->x();
   $geometry->numGeometries();
