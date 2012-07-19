@@ -20,9 +20,11 @@ class SpeedMetadataProvider implements MetadataProvider {
         rsort($speeds);
         foreach($speeds as $speed) {
           if ($speed != 0) {
+            $this->set($target, 'maxSpeed', $speed);
             return $speed;
           }
         }
+        $this->set($target, 'maxSpeed', 0);
         return 0;
       }
       if ($key === 'minSpeed') {
@@ -34,10 +36,12 @@ class SpeedMetadataProvider implements MetadataProvider {
           sort($speeds);
           foreach($speeds as $speed) {
             if ($speed != 0) {
+              $this->set($target, 'minSpeed', $speed);
               return $speed;
             }
           }
         }
+        $this->set($target, 'minSpeed', 0);
         return 0;
       }
       if ($key === 'averageSpeed') {
@@ -52,6 +56,7 @@ class SpeedMetadataProvider implements MetadataProvider {
         }
         $speed = $speeds / $count;
       }
+      $this->set($target, 'averageSpeed', $speed);
       return $speed;
     }
 
@@ -75,9 +80,11 @@ class SpeedMetadataProvider implements MetadataProvider {
         rsort($speeds);
         foreach($speeds as $speed) {
           if ($speed != 0) {
+            $this->set($target, 'maxSpeed', $speed);
             return $speed;
           }
         }
+        $this->set($target, 'maxSpeed', 0);
         return 0;
       }
 
@@ -100,9 +107,11 @@ class SpeedMetadataProvider implements MetadataProvider {
         sort($speeds);
         foreach($speeds as $speed) {
           if ($speed != 0) {
+            $this->set($target, 'minSpeed', $speed);
             return $speed;
           }
         }
+        $this->set($target, 'minSpeed', 0);
         return 0;
       }
 
@@ -110,6 +119,7 @@ class SpeedMetadataProvider implements MetadataProvider {
         $time = $target->getMetadata('duration', array('threshold' => 0.5));
         $length = $target->greatCircleLength();
         if ($time != 0) {
+          $this->set($target, 'averageSpeed', $length/$time);
           return $length/$time; // Meter/Sec
         }
         return 0;
@@ -118,7 +128,7 @@ class SpeedMetadataProvider implements MetadataProvider {
  }
 
   public function set($target, $key, $value) {
-    if ($key === 'averageSpeed') {
+    if ($this->provides($key)) {
       $target->metadata['metadatas'][__CLASS__][$key] = $value;
       return TRUE;
     }

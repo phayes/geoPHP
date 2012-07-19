@@ -16,6 +16,7 @@ class DurationMetadataProvider implements MetadataProvider {
       foreach ($target->components as $component) {
         $duration += $component->getMetadata($key, $options);
       }
+      $this->set($target, $key, $duration);
       return $duration;
     }
 
@@ -28,6 +29,7 @@ class DurationMetadataProvider implements MetadataProvider {
         } else {
           $time = 0;
         }
+        $this->set($target, 'duration', $time);
         return $time;
       }
 
@@ -50,18 +52,21 @@ class DurationMetadataProvider implements MetadataProvider {
 
         }
 
+        $this->set($target, 'stopDuration', $duration);
         return $duration;
       }
 
       if ($key == 'movingDuration') {
-        return $this->get($target, 'duration', $options) - $this->get($target, 'stopDuration', $options);
+        $tmp = $this->get($target, 'duration', $options) - $this->get($target, 'stopDuration', $options);
+        $this->set($target, 'movingDuration', $tmp);
+        return $tmp;
       }
     }
 
   }
 
   public function set($target, $key, $value) {
-    if ($key === 'duration') {
+    if ($this->provides($key)) {
       $target->metadata['metadatas'][__CLASS__][$key] = $value;
       return TRUE;
     }

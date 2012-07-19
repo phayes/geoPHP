@@ -19,7 +19,7 @@ class TimeMetadataProvider implements MetadataProvider {
   }
 
   public function set($target, $key, $value) {
-    if ($key === 'time') {
+    if ($this->provides($key)) {
       $target->metadata['metadatas'][__CLASS__][$key] = $value;
       return TRUE;
     }

@@ -19,6 +19,7 @@ class ElevationMetadataProvider implements MetadataProvider {
             $max = $component->getMetadata($key);
           }
         }
+        $this->set($target, 'maxEle', $max);
         return $max;
       }
       if ($key === 'minEle') {
@@ -28,6 +29,7 @@ class ElevationMetadataProvider implements MetadataProvider {
             $min = $component->getMetadata($key);
           }
         }
+        $this->set($target, 'minEle', $min);
         return $min;
       }
       if ($key === 'averageEle') {
@@ -40,7 +42,13 @@ class ElevationMetadataProvider implements MetadataProvider {
           }
           $ele_total += $ele;
         }
-        return $ele_total / $count;
+
+        if ($count != 0) {
+          $average = $ele_total / $count;
+        }
+
+        $this->set($target, 'averageEle', $average);
+        return $average;
       }
     }
 
@@ -52,7 +60,9 @@ class ElevationMetadataProvider implements MetadataProvider {
             $max = $component->getMetadata('ele');
           }
         }
-        if (isset($max)) {return $max;} else {return 0;}
+        $max = isset($max) ? $max : 0;
+        $this->set($target, 'maxEle', $max);
+        return $max;
       }
       if ($key === 'minEle') {
         $min = NULL;
@@ -61,10 +71,13 @@ class ElevationMetadataProvider implements MetadataProvider {
             $min = $component->getMetadata('ele');
           }
         }
-        if (isset($min)) {return $min;} else {return 0;}
+        $min = isset($min) ? $min : 0;
+        $this->set($target, 'minEle', $min);
+        return $min;
       }
       if ($key === 'averageEle') {
         $ele_total = 0;
+        $average = 0;
         $count = count($target->components);
         foreach ($target->components as $component) {
           $ele = $component->getMetadata('ele', $options);
@@ -73,8 +86,11 @@ class ElevationMetadataProvider implements MetadataProvider {
           }
           $ele_total += $ele;
         }
-        if ($count == 0) {return 0;}
-        return $ele_total / $count;
+        if ($count != 0) {
+          $average = $ele_total / $count;
+        }
+        $this->set($target, 'averageEle', $average);
+        return $average;
       }
     }
 
@@ -85,7 +101,7 @@ class ElevationMetadataProvider implements MetadataProvider {
   }
 
   public function set($target, $key, $value) {
-    if ($key === 'ele') {
+    if ($this->provides($key)) {
       $target->metadata['metadatas'][__CLASS__][$key] = $value;
       return TRUE;
     }
