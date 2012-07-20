@@ -165,8 +165,16 @@ abstract class Collection extends Geometry
 
   public function greatCircleLength($radius = 6378137) {
     $length = 0;
-    foreach ($this->components as $delta => $component) {
+    foreach ($this->components as $component) {
       $length += $component->greatCircleLength($radius);
+    }
+    return $length;
+  }
+
+  public function haversineLength() {
+    $length = 0;
+    foreach ($this->components as $component) {
+      $length += $component->haversineLength();
     }
     return $length;
   }
