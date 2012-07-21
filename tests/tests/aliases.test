@@ -1,0 +1,53 @@
+<?php
+require_once('simpletest/autorun.php');
+require_once('../geoPHP.inc');
+
+class AliasesTests extends UnitTestCase {
+
+  function setUp() {
+    if (geoPHP::geosInstalled()) {
+      print "GEOS is installed.\n";
+    }
+    else {
+      print "GEOS is not installed.\n";
+    }
+  }
+
+  function testAliases() {
+    foreach (scandir('./input') as $file) {
+      $parts = explode('.',$file);
+      if ($parts[0]) {
+        $format = $parts[1];
+        $value = file_get_contents('./input/'.$file);
+        $geometry = geoPHP::load($value, $format);
+
+        $aliases = array(
+          array('name' => 'getCentroid'),
+          array('name' => 'getArea'),
+          array('name' => 'getX'),
+          array('name' => 'getY'),
+          array('name' => 'getGeos'),
+          array('name' => 'getGeomType'),
+          array('name' => 'getSRID'),
+          array('name' => 'asText'),
+          array('name' => 'asBinary'),
+        );
+
+        foreach($aliases as $alias) {
+          $argument = NULL;
+          $alias_name = $alias['name'];
+          if (isset($alias['argument'])) {
+            $argument = $alias['argument'];
+          }
+
+          switch ($alias_name) {
+           default:
+              $this->assertTrue($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
+          }
+        }
+
+      }
+    }
+  }
+
+}

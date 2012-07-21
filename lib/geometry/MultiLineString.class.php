@@ -29,5 +29,26 @@ class MultiLineString extends Collection
       return NULL;
     }
   }
+
+  public function startPoint() {
+    return $this->components[0]->startPoint();
+  }
+
+  public function endPoint() {
+    $count = count($this->components)-1;
+    return $this->components[$count]->endPoint();
+  }
+
+  public function pointN($n) {
+    $points = array();
+    foreach ($this->components as $line) {
+      $points = array_merge($points, $line->getPoints());
+    }
+    if (isset($points[$n])) {
+      return $points[$n];
+    }
+    return NULL;
+  }
+
 }
 

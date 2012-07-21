@@ -52,6 +52,7 @@ abstract class Geometry
       $this->geos()->setSRID($srid);
     }
     $this->srid = $srid;
+    return TRUE;
   }
 
   public function envelope() {
