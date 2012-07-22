@@ -58,8 +58,29 @@ class GeosTests extends UnitTestCase {
           }
 
           switch ($method_name) {
+            case 'isSimple':
+            case 'equals':
+            case 'geos':
+              if ($geometry->geometryType() == 'Point') {
+                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+              }
+              if ($geometry->geometryType() == 'LineString') {
+                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+              }
+              if ($geometry->geometryType() == 'MultiLineString') {
+                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+              }
+              break;
             default:
-              $this->assertTrue($geometry->$method_name($argument), 'Failed on ' . $method_name);
+              if ($geometry->geometryType() == 'Point') {
+                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+              }
+              if ($geometry->geometryType() == 'LineString') {
+                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+              }
+              if ($geometry->geometryType() == 'MultiLineString') {
+                $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+              }
           }
         }
 

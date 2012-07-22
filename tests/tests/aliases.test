@@ -41,7 +41,63 @@ class AliasesTests extends UnitTestCase {
           }
 
           switch ($alias_name) {
-           default:
+            case 'getSRID':
+              if ($geometry->geometryType() == 'Point') {
+                $this->assertNotNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
+              }
+              if ($geometry->geometryType() == 'LineString') {
+                $this->assertNotNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
+              }
+              if ($geometry->geometryType() == 'MultiLineString') {
+                $this->assertNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
+              }
+              break;
+            case 'getGeos':
+              if ($geometry->geometryType() == 'Point') {
+                $this->assertNotNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
+              }
+              if ($geometry->geometryType() == 'LineString') {
+                $this->assertNotNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
+              }
+              if ($geometry->geometryType() == 'MultiLineString') {
+                $this->assertNotNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
+              }
+              break;
+            case 'getX':
+            case 'getY':
+              if ($geometry->geometryType() == 'Point') {
+                $this->assertNotNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
+              }
+              if ($geometry->geometryType() == 'LineString') {
+                $this->assertNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
+              }
+              if ($geometry->geometryType() == 'MultiLineString') {
+                $this->assertNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
+              }
+              break;
+            case 'getArea':
+              if ($geometry->geometryType() == 'Point') {
+                $this->assertNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
+              }
+              if ($geometry->geometryType() == 'LineString') {
+                $this->assertNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
+              }
+              if ($geometry->geometryType() == 'MultiLineString') {
+                $this->assertNotNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
+              }
+              break;
+            case 'getCentroid':
+              if ($geometry->geometryType() == 'Point') {
+                $this->assertNotNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
+              }
+              if ($geometry->geometryType() == 'LineString') {
+                $this->assertNotNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
+              }
+              if ($geometry->geometryType() == 'MultiLineString') {
+                $this->assertNotNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
+              }
+              break;
+            default:
               $this->assertTrue($geometry->$alias_name($argument), 'Failed on ' . $alias_name);
           }
         }
