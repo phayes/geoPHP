@@ -5,13 +5,9 @@ require_once('../geoPHP.inc');
 class AdaptersTests extends UnitTestCase {
 
   function setUp() {
-    if (geoPHP::geosInstalled()) {
-      print "GEOS is installed.\n";
-    }
-    else {
-      print "GEOS is not installed.\n";
-    }
+
   }
+
   function testAdapters() {
     foreach (scandir('./input') as $file) {
       $parts = explode('.',$file);

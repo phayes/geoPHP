@@ -5,12 +5,7 @@ require_once('../geoPHP.inc');
 class AliasesTests extends UnitTestCase {
 
   function setUp() {
-    if (geoPHP::geosInstalled()) {
-      print "GEOS is installed.\n";
-    }
-    else {
-      print "GEOS is not installed.\n";
-    }
+
   }
 
   function testAliases() {
