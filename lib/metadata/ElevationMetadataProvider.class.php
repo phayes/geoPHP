@@ -33,18 +33,16 @@ class ElevationMetadataProvider implements MetadataProvider {
         return $min;
       }
       if ($key === 'averageEle') {
-        $ele_total = 0;
         $count = count($target->components);
         foreach ($target->components as $component) {
           $ele = $component->getMetadata($key, $options);
-          if ($ele == 0) {
-            $count--;
+          if ($ele != 0) {
+            $ele_array[] = $ele;
           }
-          $ele_total += $ele;
         }
 
         if ($count != 0) {
-          $average = $ele_total / $count;
+          $average = array_sum($ele_array) / $count;
         }
 
         $this->set($target, 'averageEle', $average);
@@ -55,40 +53,40 @@ class ElevationMetadataProvider implements MetadataProvider {
     if ($target instanceof LineString) {
       if ($key === 'maxEle') {
         $max = NULL;
+        $maxs = array();
         foreach ($target->components as $component) {
-          if ($component->getMetadata('ele') > $max || is_null($max)) {
-            $max = $component->getMetadata('ele');
-          }
+          $maxs[] = $component->getMetadata('ele');
         }
-        $max = isset($max) ? $max : 0;
+        $maxs = array_filter($maxs);
+        rsort($maxs);
+        $max = $maxs[0];
         $this->set($target, 'maxEle', $max);
         return $max;
       }
       if ($key === 'minEle') {
         $min = NULL;
+        $mins = array();
         foreach ($target->components as $component) {
-          if ($component->getMetadata('ele') < $min || is_null($min)) {
-            $min = $component->getMetadata('ele');
-          }
+          $mins[] = $component->getMetadata('ele');
         }
-        $min = isset($min) ? $min : 0;
+        $mins = array_filter($mins);
+        sort($mins);
+        $min = $mins[0];
         $this->set($target, 'minEle', $min);
         return $min;
       }
       if ($key === 'averageEle') {
-        $ele_total = 0;
-        $average = 0;
-        $count = count($target->components);
         foreach ($target->components as $component) {
-          $ele = $component->getMetadata('ele', $options);
-          if ($ele == 0) {
-            $count--;
-          }
-          $ele_total += $ele;
+          $ele_array[] = $component->getMetadata('ele', $options);
         }
+
+        $ele_array = array_filter($ele_array);
+        $count = count($ele_array);
+
         if ($count != 0) {
-          $average = $ele_total / $count;
+          $average = array_sum($ele_array) / $count;
         }
+
         $this->set($target, 'averageEle', $average);
         return $average;
       }

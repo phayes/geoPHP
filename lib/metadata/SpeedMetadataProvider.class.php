@@ -99,7 +99,6 @@ class SpeedMetadataProvider implements MetadataProvider {
           if (!is_object($next_point)) {continue;}
           if (!is_object($next_point)) {continue;}
           $linestring = new LineString(array($point, $next_point));
-          $linestring->registerMetadataProvider(new SpeedMetadataProvider());
           $linestring->registerMetadataProvider(new DurationMetadataProvider());
 
           $duration = $linestring->getMetadata('duration', array('threshold' => 0.5));
