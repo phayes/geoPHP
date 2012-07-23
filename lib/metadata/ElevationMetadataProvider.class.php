@@ -2,7 +2,7 @@
 
 class ElevationMetadataProvider implements MetadataProvider {
 
-  public $capabilities = array('ele', 'maxEle', 'minEle', 'averageEle');
+  public $capabilities = array('ele', 'maxEle', 'minEle', 'averageEle', 'elevations');
 
   public function provides($key) {
     if (in_array($key, $this->capabilities)) {return TRUE;};
@@ -11,91 +11,46 @@ class ElevationMetadataProvider implements MetadataProvider {
 
   public function get($target, $key, $options) {
 
-    if ($target instanceof MultiLineString) {
-      if ($key === 'maxEle') {
-        $max = NULL;
-        foreach ($target->components as $component) {
-          if ($component->getMetadata($key) > $max || is_null($max)) {
-            $max = $component->getMetadata($key);
-          }
-        }
-        $this->set($target, 'maxEle', $max);
-        return $max;
-      }
-      if ($key === 'minEle') {
-        $min = NULL;
-        foreach ($target->components as $component) {
-          if ($component->getMetadata($key) < $min || is_null($min)) {
-            $min = $component->getMetadata($key);
-          }
-        }
-        $this->set($target, 'minEle', $min);
-        return $min;
-      }
-      if ($key === 'averageEle') {
-        $count = count($target->components);
-        foreach ($target->components as $component) {
-          $ele = $component->getMetadata($key, $options);
-          if ($ele != 0) {
-            $ele_array[] = $ele;
-          }
-        }
+    if (!$this->provides($key)) {return FALSE;}
 
-        if ($count != 0) {
-          $average = array_sum($ele_array) / $count;
+    if ($key == 'elevations') {
+      if (!isset($target->metadata['metadatas'][__CLASS__]['elevations'])) {
+        $points = $target->getPoints();
+        foreach($points as $point) {
+          $elevations[] = $point->getMetadata('ele');
         }
+        $elevations = array_filter($elevations);
+        $this->set($target, 'elevations', $elevations);
+        return $elevations;
+      } else {
+        return $target->metadata['metadatas'][__CLASS__]['elevations'];
+      }
+    }
 
-        $this->set($target, 'averageEle', $average);
+    if ($key == 'averageEle') {
+      $elevations = $target->getMetadata('elevations');
+      $count = count($elevations);
+      if ($count != 0) {
+        $average = array_sum($elevations) / $count;
+        $this->set($target, $key, $average);
         return $average;
       }
+      return 0;
+    }
+    if ($key == 'maxEle') {
+      $elevations = $target->getMetadata('elevations');
+      rsort($elevations);
+      $this->set($target, $key, current($elevations));
+      return current($elevations);
+    }
+    if ($key == 'minEle') {
+      $elevations = $target->getMetadata('elevations');
+      sort($elevations);
+      $this->set($target, $key, current($elevations));
+      return current($elevations);
     }
 
-    if ($target instanceof LineString) {
-      if ($key === 'maxEle') {
-        $max = NULL;
-        $maxs = array();
-        foreach ($target->components as $component) {
-          $maxs[] = $component->getMetadata('ele');
-        }
-        $maxs = array_filter($maxs);
-        rsort($maxs);
-        $max = $maxs[0];
-        $this->set($target, 'maxEle', $max);
-        return $max;
-      }
-      if ($key === 'minEle') {
-        $min = NULL;
-        $mins = array();
-        foreach ($target->components as $component) {
-          $mins[] = $component->getMetadata('ele');
-        }
-        $mins = array_filter($mins);
-        sort($mins);
-        $min = $mins[0];
-        $this->set($target, 'minEle', $min);
-        return $min;
-      }
-      if ($key === 'averageEle') {
-        foreach ($target->components as $component) {
-          $ele_array[] = $component->getMetadata('ele', $options);
-        }
-
-        $ele_array = array_filter($ele_array);
-        $count = count($ele_array);
-
-        if ($count != 0) {
-          $average = array_sum($ele_array) / $count;
-        }
-
-        $this->set($target, 'averageEle', $average);
-        return $average;
-      }
-    }
-
-    if ($this->provides($key)) {
-      return $target->metadata['metadatas'][__CLASS__][$key];
-    }
-
+    return $target->metadata['metadatas'][__CLASS__][$key];
   }
 
   public function set($target, $key, $value) {
