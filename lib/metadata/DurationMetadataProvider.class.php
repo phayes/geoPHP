@@ -2,7 +2,7 @@
 
 class DurationMetadataProvider implements MetadataProvider {
 
-  public $capabilities = array('duration', 'movingDuration', 'stopDuration');
+  public $capabilities = array('duration', 'movingDuration', 'stopDuration', 'durations', 'stopDurations');
 
   public function provides($key) {
     if (in_array($key, $this->capabilities)) {return TRUE;};
@@ -10,62 +10,62 @@ class DurationMetadataProvider implements MetadataProvider {
   }
 
   public function get($target, $key, $options) {
+    if (!$this->provides($key)) {return FALSE;}
 
-    if ($target instanceof MultiLineString) {
-      $duration = 0;
-      foreach ($target->components as $component) {
-        $duration += $component->getMetadata($key, $options);
-      }
-      $this->set($target, $key, $duration);
-      return $duration;
-    }
-
-    if ($target instanceof LineString) {
-      if ($key == 'duration') {
-        $point_a = $target->startPoint();
-        $point_b = $target->endPoint();
-        if (!is_null($point_a->getMetadata('time')) && !is_null($point_b->getMetadata('time'))) {
-          $time = abs(strtotime($point_b->getMetadata('time')) - strtotime($point_a->getMetadata('time')));
-        } else {
-          $time = 0;
-        }
-        $this->set($target, 'duration', $time);
-        return $time;
-      }
-
-      if ($key == 'stopDuration') {
-        $duration = 0;
+    if ($key == 'durations') {
+      if (!isset($target->metadata['metadatas'][__CLASS__]['durations'])) {
         $points = $target->getPoints();
-        for($i=0; $i<$target->numPoints()-1; $i++) {
-          $point_a = $points[$i];
-          $point_b = $points[$i+1];
-
-          $linestring = new LineString(array($point_a, $point_b));
-
-          if (!is_null($point_a->getMetadata('time')) && !is_null($point_b->getMetadata('time'))) {
-            $time = abs(strtotime($point_b->getMetadata('time')) - strtotime($point_a->getMetadata('time')));
-          } else {
-            $time = 0;
-          }
-
-          $length = $linestring->greatCircleLength();
-
-          if ($length > 0 && $length <= $options['threshold']) {
-            $duration += $time;
-          }
+        $count = count($points);
+        for($i=0; $i<$count-1; $i++) {
+          $current = $points[$i];
+          $next = $points[$i+1];
+          if (!($next instanceof Point)) {return 0;}
+          $durations[] = abs(strtotime($current->getMetadata('time')) - strtotime($next->getMetadata('time')));
         }
-
-        $this->set($target, 'stopDuration', $duration);
-        return $duration;
-      }
-
-      if ($key == 'movingDuration') {
-        $tmp = $this->get($target, 'duration', $options) - $this->get($target, 'stopDuration', $options);
-        $this->set($target, 'movingDuration', $tmp);
-        return $tmp;
+        $this->set($target, 'durations', $durations);
+        return $durations;
+      } else {
+        return $target->metadata['metadatas'][__CLASS__]['durations'];
       }
     }
 
+    if ($key == 'stopDurations') {
+      if (!isset($target->metadata['metadatas'][__CLASS__]['stopDurations'])) {
+        $points = $target->getPoints();
+        $count = count($points);
+        for($i=0; $i<$count-1; $i++) {
+          $current = $points[$i];
+          $next = $points[$i+1];
+          if (!($next instanceof Point)) {return 0;}
+          $linestring = new LineString(array($current, $next));
+          $duration = abs(strtotime($current->getMetadata('time')) - strtotime($next->getMetadata('time')));
+          if ($linestring->greatCircleLength() < $options['threshold']) {
+            $durations[] = $duration;
+          }
+        }
+        $this->set($target, 'stopDurations', $durations);
+        return $durations;
+      } else {
+        return $target->metadata['metadatas'][__CLASS__]['stopDurations'];
+      }
+    }
+
+    if ($key == 'duration') {
+      $durations = $target->getMetadata('durations');
+      return array_sum($durations);
+    }
+
+    if ($key == 'stopDuration') {
+      $durations = $target->getMetadata('stopDurations', $options);
+      return array_sum($durations);
+    }
+
+    if ($key == 'movingDuration') {
+      return array_sum($target->getMetadata('durations')) -
+        array_sum($target->getMetadata('stopDurations'));
+    }
+
+    return $target->metadata['metadatas'][__CLASS__][$key];
   }
 
   public function set($target, $key, $value) {
