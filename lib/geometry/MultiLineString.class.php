@@ -29,5 +29,13 @@ class MultiLineString extends Collection
       return NULL;
     }
   }
+
+  public function startPoint() {
+    return $this->components[0]->components[0];
+  }
+
+  public function endPoint() {
+    return end(end($this->components)->components);
+  }
 }
 

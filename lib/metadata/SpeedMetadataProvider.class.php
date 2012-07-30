@@ -10,20 +10,24 @@ class SpeedMetadataProvider implements MetadataProvider {
   }
 
   public function get($target, $key, $options) {
+    if ($this->isAvailable($target, $key)) {
+      return $target->metadata['metadatas'][__CLASS__][$key];
+    }
+
     if (!$this->provides($key)) {return FALSE;}
 
     if ($key == 'speeds') {
-      if (!isset($target->metadata['metadatas'][__CLASS__]['speeds'])) {
+      if ($target instanceof LineString) {
         $points = $target->getPoints();
-        $count = count($points);
-        for($i=0; $i<$count-1; $i++) {
+        $count = count($points) - 1;
+        $speeds = array();
+        for($i=0; $i<$count; $i++) {
           $current = $points[$i];
           $next = $points[$i+1];
 
           if (!($next instanceof Point)) {return 0;}
 
           $linestring = new LineString(array($current, $next));
-          $linestring->registerMetadataProvider(new SpeedMetadataProvider());
           $linestring->registerMetadataProvider(new DurationMetadataProvider());
 
           $duration = $linestring->getMetadata('duration', $options);
@@ -33,9 +37,13 @@ class SpeedMetadataProvider implements MetadataProvider {
           }
         }
         $this->set($target, 'speeds', $speeds);
-        return $speeds;
-      } else {
-        return $target->metadata['metadatas'][__CLASS__]['speeds'];
+      }
+      if ($target instanceof MultiLineString) {
+        $speeds = array();
+        foreach ($target->components as $component) {
+          $speeds = array_merge($speeds, $this->get($component, 'speeds', $options));
+        }
+        $this->set($target, 'speeds', $speeds);
       }
     }
 
@@ -71,6 +79,18 @@ class SpeedMetadataProvider implements MetadataProvider {
       return TRUE;
     }
     return FALSE;
+  }
+
+  public function isAvailable($target, $keys) {
+    if (!is_array($keys)) {
+      $keys = (array) $keys;
+    }
+    foreach ($keys as $key) {
+      if (!isset($target->metadata['metadatas'][__CLASS__][$key])) {
+        return FALSE;
+      }
+    }
+    return TRUE;
   }
 
   public function id() {

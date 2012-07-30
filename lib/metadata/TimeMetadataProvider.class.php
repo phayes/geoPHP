@@ -10,12 +10,13 @@ class TimeMetadataProvider implements MetadataProvider {
   }
 
   public function get($target, $key, $options) {
-    if ($target instanceof Point) {
-      if ($this->provides($key)) {
-        return $target->metadata['metadatas'][__CLASS__][$key];
-      }
-      return 0;
+    if ($this->isAvailable($target, $key)) {
+      return $target->metadata['metadatas'][__CLASS__][$key];
     }
+
+    if (!$this->provides($key)) {return FALSE;}
+
+    return $target->metadata['metadatas'][__CLASS__][$key];
   }
 
   public function set($target, $key, $value) {
@@ -24,6 +25,18 @@ class TimeMetadataProvider implements MetadataProvider {
       return TRUE;
     }
     return FALSE;
+  }
+
+  public function isAvailable($target, $keys) {
+    if (!is_array($keys)) {
+      $keys = (array) $keys;
+    }
+    foreach ($keys as $key) {
+      if (!isset($target->metadata['metadatas'][__CLASS__][$key])) {
+        return FALSE;
+      }
+    }
+    return TRUE;
   }
 
   public function id() {
