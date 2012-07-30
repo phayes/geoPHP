@@ -155,14 +155,6 @@ abstract class Collection extends Geometry
     }
   }
 
-  public function duration($type = 'total') {
-    $duration = 0;
-    foreach ($this->components as $delta => $component) {
-      $duration += $component->duration($type);
-    }
-    return $duration;
-  }
-
   public function length() {
     $length = 0;
     foreach ($this->components as $delta => $component) {
@@ -173,9 +165,16 @@ abstract class Collection extends Geometry
 
   public function greatCircleLength($radius = 6378137) {
     $length = 0;
-    foreach ($this->components as $delta => $component) {
-      $tmp = $component->greatCircleLength($radius);
-      $length += $tmp;
+    foreach ($this->components as $component) {
+      $length += $component->greatCircleLength($radius);
+    }
+    return $length;
+  }
+
+  public function haversineLength() {
+    $length = 0;
+    foreach ($this->components as $component) {
+      $length += $component->haversineLength();
     }
     return $length;
   }
@@ -291,6 +290,5 @@ abstract class Collection extends Geometry
   public function numInteriorRings() { return NULL; }
   public function interiorRingN($n)  { return NULL; }
   public function pointOnSurface()   { return NULL; }
-
 }
 

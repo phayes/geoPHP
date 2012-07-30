@@ -100,7 +100,28 @@ class LineString extends Collection
               cos($lat1) * cos($lat2) * cos($dlon)
           );
     }
+    // Returns length in meters.
     return $length;
+  }
+
+  public function haversineLength() {
+    $degrees = 0;
+    $points = $this->getPoints();
+    for($i=0; $i<$this->numPoints()-1; $i++) {
+      $point = $points[$i];
+      $next_point = $points[$i+1];
+      if (!is_object($next_point)) {continue;}
+      $degree = rad2deg(
+        acos(
+          sin(deg2rad($point->getY())) * sin(deg2rad($next_point->getY())) +
+            cos(deg2rad($point->getY())) * cos(deg2rad($next_point->getY())) *
+              cos(deg2rad(abs($point->getX() - $next_point->getX())))
+        )
+      );
+      $degrees += $degree;
+    }
+    // Returns degrees
+    return $degrees;
   }
 
   public function explode() {

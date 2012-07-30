@@ -108,6 +108,10 @@ class Point extends Geometry
     return 0;
   }
 
+  public function haversineLength() {
+    return 0;
+  }
+
   // The boundary of a point is itself
   public function boundary() {
     return $this;
