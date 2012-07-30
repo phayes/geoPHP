@@ -9,6 +9,7 @@ class Point extends Geometry
   public $coords = array(2);
   protected $geom_type = 'Point';
   protected $dimention = 2;
+  public $metadata = array();
 
   /**
    * Constructor
@@ -30,6 +31,8 @@ class Point extends Geometry
       }
       $this->dimention = 3;
     }
+
+    $this->metadata['metadatas'] = array();
 
     // Convert to floatval in case they are passed in as a string or integer etc.
     $x = floatval($x);

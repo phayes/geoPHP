@@ -1,7 +1,7 @@
 <?php
 
 // Uncomment to test
-// run_test();
+run_test();
 
 function run_test() {
   header("Content-type: text");

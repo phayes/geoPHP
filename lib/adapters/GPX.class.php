@@ -37,23 +37,23 @@ class GPX extends GeoAdapter
     if ($geometry->isEmpty()) return NULL;
     if ($namespace) {
       $this->namespace = $namespace;
-      $this->nss = $namespace.':';    
+      $this->nss = $namespace.':';
     }
     return '<'.$this->nss.'gpx creator="geoPHP" version="1.0">'.$this->geometryToGPX($geometry).'</'.$this->nss.'gpx>';
   }
-  
+
   public function geomFromText($text) {
     // Change to lower-case and strip all CDATA
     $text = strtolower($text);
     $text = preg_replace('/<!\[cdata\[(.*?)\]\]>/s','',$text);
-    
+
     // Load into DOMDocument
     $xmlobj = new DOMDocument();
     @$xmlobj->loadXML($text);
     if ($xmlobj === false) {
       throw new Exception("Invalid GPX: ". $text);
     }
-    
+
     $this->xmlobj = $xmlobj;
     try {
       $geom = $this->geomFromXML();
@@ -65,20 +65,20 @@ class GPX extends GeoAdapter
 
     return $geom;
   }
-  
+
   protected function geomFromXML() {
     $geometries = array();
     $geometries = array_merge($geometries, $this->parseWaypoints());
     $geometries = array_merge($geometries, $this->parseTracks());
     $geometries = array_merge($geometries, $this->parseRoutes());
-    
+
     if (empty($geometries)) {
       throw new Exception("Invalid / Empty GPX");
     }
-    
-    return geoPHP::geometryReduce($geometries); 
+
+    return geoPHP::geometryReduce($geometries);
   }
-  
+
   protected function childElements($xml, $nodename = '') {
     $children = array();
     foreach ($xml->childNodes as $child) {
@@ -88,7 +88,7 @@ class GPX extends GeoAdapter
     }
     return $children;
   }
-  
+
   protected function parseWaypoints() {
     $points = array();
     $wpt_elements = $this->xmlobj->getElementsByTagName('wpt');
@@ -99,24 +99,46 @@ class GPX extends GeoAdapter
     }
     return $points;
   }
-  
+
   protected function parseTracks() {
     $lines = array();
     $trk_elements = $this->xmlobj->getElementsByTagName('trk');
+    $ele_provider = new ElevationMetadataProvider();
+    $tmd_provider = new TimeMetadataProvider();
     foreach ($trk_elements as $trk) {
       $components = array();
       foreach ($this->childElements($trk, 'trkseg') as $trkseg) {
         foreach ($this->childElements($trkseg, 'trkpt') as $trkpt) {
           $lat = $trkpt->attributes->getNamedItem("lat")->nodeValue;
           $lon = $trkpt->attributes->getNamedItem("lon")->nodeValue;
-          $components[] = new Point($lon, $lat);
+          $component = new Point($lon, $lat, NULL);
+          foreach ($this->childElements($trkpt, 'time') as $time) {
+            $component->registerMetadataProvider($tmd_provider);
+            $component->setMetadata('time', $time->nodeValue);
+          }
+          foreach ($this->childElements($trkpt, 'ele') as $ele) {
+            $component->registerMetadataProvider($ele_provider);
+            $component->setMetadata('ele', $ele->nodeValue);
+          }
+
+          $components[] = $component;
         }
       }
-      if ($components) {$lines[] = new LineString($components);}
+
+      if ($components) {
+        $duration_provider = new DurationMetadataProvider();
+        $speed_provider = new SpeedMetadataProvider();
+
+        $line = new LineString($components);
+        $line->registerMetadataProvider($duration_provider);
+        $line->registerMetadataProvider($ele_provider);
+        $line->registerMetadataProvider($speed_provider);
+        $lines[] = $line;
+      }
     }
     return $lines;
   }
-  
+
   protected function parseRoutes() {
     $lines = array();
     $rte_elements = $this->xmlobj->getElementsByTagName('rte');
@@ -131,7 +153,7 @@ class GPX extends GeoAdapter
     }
     return $lines;
   }
-  
+
   protected function geometryToGPX($geom) {
     $type = strtolower($geom->getGeomType());
     switch ($type) {
@@ -150,30 +172,30 @@ class GPX extends GeoAdapter
         break;
     }
   }
-  
+
   private function pointToGPX($geom) {
     return '<'.$this->nss.'wpt lat="'.$geom->getY().'" lon="'.$geom->getX().'" />';
   }
-  
+
   private function linestringToGPX($geom) {
     $gpx = '<'.$this->nss.'trk><'.$this->nss.'trkseg>';
-    
+
     foreach ($geom->getComponents() as $comp) {
       $gpx .= '<'.$this->nss.'trkpt lat="'.$comp->getY().'" lon="'.$comp->getX().'" />';
     }
-    
+
     $gpx .= '</'.$this->nss.'trkseg></'.$this->nss.'trk>';
-    
+
     return $gpx;
   }
-  
+
   public function collectionToGPX($geom) {
     $gpx = '';
     $components = $geom->getComponents();
     foreach ($geom->getComponents() as $comp) {
       $gpx .= $this->geometryToGPX($comp);
     }
-    
+
     return $gpx;
   }
 

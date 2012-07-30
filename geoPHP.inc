@@ -7,6 +7,13 @@
  * file that was distributed with this source code.
  */
 
+// Metadata
+include_once("lib/metadata/MetadataProvider.class.php");
+include_once("lib/metadata/TimeMetadataProvider.class.php");
+include_once("lib/metadata/ElevationMetadataProvider.class.php");
+include_once("lib/metadata/DurationMetadataProvider.class.php");
+include_once("lib/metadata/SpeedMetadataProvider.class.php");
+
 // Adapters
 include_once("lib/adapters/GeoAdapter.class.php"); // Abtract class
 include_once("lib/adapters/GeoJSON.class.php");
@@ -30,6 +37,8 @@ include_once("lib/geometry/Polygon.class.php");
 include_once("lib/geometry/MultiLineString.class.php");
 include_once("lib/geometry/MultiPolygon.class.php");
 include_once("lib/geometry/GeometryCollection.class.php");
+
+
 
 class geoPHP
 {
@@ -187,7 +196,8 @@ class geoPHP
       }
       else {
         $class = 'Multi'.$geom_types[0];
-        return new $class($geometries);
+        $class = new $class($geometries);
+        return $class;
       }
     }
     else {
