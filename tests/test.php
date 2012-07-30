@@ -58,6 +58,7 @@ function test_geometry($geometry) {
   $geometry->geometryType();
   $geometry->SRID();
   $geometry->setSRID(4326);
+  $geometry->simplify(0.001);
 
   // Aliases
   $geometry->getCentroid();

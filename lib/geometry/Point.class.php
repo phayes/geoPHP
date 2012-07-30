@@ -151,5 +151,19 @@ class Point extends Geometry
   public function interiorRingN($n)  { return NULL; }
   public function pointOnSurface()   { return NULL; }
   public function explode()          { return NULL; }
+
+  public function dotProduct(Point $v) {
+    return ($this->x() * $v->x() + $this->y() * $v->y());
+  }
+
+  public function magnitude() {
+    return sqrt($this->x()*$this->x() + $this->y()*$this->y());
+  }
+
+  public function unitVector() {
+    if ($this->magnitude()==0) return new Point(0,0);
+    return new Point($this->x()/$this->magnitude(),$this->y()/$this->magnitude());
+  }
+
 }
 

@@ -186,5 +186,77 @@ class LineString extends Collection
     }
     return FALSE;
   }
+
+  public function simplify($tolerance = 0.5, $preserveTopology = TRUE) {
+    $tolerance_squared = $tolerance*$tolerance;
+    $this->douglasPeucker(0,count($this->components)-1, $tolerance_squared);
+    foreach ($this->components as $id => $point) {
+      if (isset($point->include)) {
+        $out[] = $this->components[$id];
+      }
+    }
+    return new LineString($out);
+  }
+
+  /**
+   * Douglas-Peuker polyline simplification algorithm. First draws single line
+   * from start to end. Then finds largest deviation from this straight line, and if
+   * greater than tolerance, includes that point, splitting the original line into
+   * two new lines. Repeats recursively for each new line created.
+   *
+   * @param int $start_vertex_index
+   * @param int $end_vertex_index
+   */
+  private function douglasPeucker($start_vertex_index, $end_vertex_index, $tolerance_squared) {
+    if ($end_vertex_index <= $start_vertex_index + 1) // there is nothing to simplify
+      return;
+
+    // Make line from start to end
+    $line = new LineString(array($this->components[$start_vertex_index],$this->components[$end_vertex_index]));
+
+    // Find largest distance from intermediate points to this line
+    $max_dist_to_line_squared = 0;
+    for ($index = $start_vertex_index+1; $index < $end_vertex_index; $index++) {
+      $dist_to_line_squared = $line->distanceToPointSquared($this->components[$index]);
+      if ($dist_to_line_squared>$max_dist_to_line_squared) {
+        $max_dist_to_line_squared = $dist_to_line_squared;
+        $max_dist_index = $index;
+      }
+    }
+
+    // Check max distance with tolerance
+    // error is worse than the tolerance
+    if ($max_dist_to_line_squared > $tolerance_squared) {
+      // split the polyline at the farthest vertex from S
+      $this->components[$max_dist_index]->include = true;
+      // recursively simplify the two subpolylines
+      $this->douglasPeucker($start_vertex_index,$max_dist_index, $tolerance_squared);
+      $this->douglasPeucker($max_dist_index,$end_vertex_index, $tolerance_squared);
+    }
+    // else the approximation is OK, so ignore intermediate vertices
+  }
+
+  public function distanceToPointSquared(Point $point) {
+    $startPoint = $this->startPoint(); // p1
+    $endPoint = $this->endPoint(); // p2
+
+    $v = new Point($point->x() - $startPoint->x(), $point->y() - $startPoint->y());
+    $l = new Point($endPoint->x() - $startPoint->x(), $endPoint->y() - $startPoint->y());
+    $dot = $v->dotProduct($l->unitVector());
+
+    if ($dot<=0) {
+      $dl = new LineString(array($startPoint,$point));
+      return pow($dl->length(), 2);
+    }
+    if ( ($dot*$dot) >= pow($this->length() ,2) ) {
+      $dl = new LineString(array($endPoint,$point));
+      return pow($dl->length(), 2);
+    }
+    else // Point within line
+    {
+      $v2 = new LineString(array($startPoint,$point));
+      return pow($v2->length(), 2) - $dot*$dot;
+    }
+  }
 }
 
