@@ -157,7 +157,7 @@ class Point extends Geometry
   }
 
   public function magnitude() {
-    return sqrt($this->x()*$this->x() + $this->y()*$this->y());
+    return sqrt($this->dotProduct($this));
   }
 
   public function unitVector() {
