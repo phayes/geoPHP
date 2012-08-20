@@ -9,7 +9,7 @@ class Point extends Geometry
   public $coords = array(2);
   protected $geom_type = 'Point';
   protected $dimention = 2;
-  
+
   /**
    * Constructor
    *
@@ -22,7 +22,7 @@ class Point extends Geometry
     if (!is_numeric($x) || !is_numeric($y)) {
       throw new Exception("Cannot construct Point. x and y should be numeric");
     }
-    
+
     // Check to see if this is a 3D point
     if ($z !== NULL) {
       if (!is_numeric($z)) {
@@ -30,12 +30,12 @@ class Point extends Geometry
       }
       $this->dimention = 3;
     }
-    
+
     // Convert to floatval in case they are passed in as a string or integer etc.
     $x = floatval($x);
     $y = floatval($y);
     $z = floatval($z);
-    
+
     // Add poitional elements
     if ($this->dimention == 2) {
       $this->coords = array($x, $y);
@@ -44,7 +44,7 @@ class Point extends Geometry
       $this->coords = array($x, $y, $z);
     }
   }
-  
+
   /**
    * Get X (longitude) coordinate
    *
@@ -62,7 +62,7 @@ class Point extends Geometry
   public function y() {
     return $this->coords[1];
   }
-  
+
   /**
    * Returns Z (altitude) coordinate
    *
@@ -74,12 +74,12 @@ class Point extends Geometry
     }
     else return NULL;
   }
-  
+
   // A point's centroid is itself
   public function centroid() {
-    return $this; 
+    return $this;
   }
-  
+
   public function getBBox() {
     return array(
       'maxy' => $this->getY(),
@@ -88,28 +88,36 @@ class Point extends Geometry
       'minx' => $this->getX(),
     );
   }
-  
+
   public function asArray($assoc = FALSE) {
     return $this->coords;
   }
-  
+
   public function area() {
     return 0;
   }
-  
+
   public function length() {
     return 0;
   }
-  
-  // The bounadry of a point is itself
+
+  public function greatCircleLength() {
+    return 0;
+  }
+
+  public function haversineLength() {
+    return 0;
+  }
+
+  // The boundary of a point is itself
   public function boundary() {
     return $this;
   }
-  
+
   public function dimension() {
     return 0;
   }
-  
+
   public function isEmpty() {
     return FALSE;
   }
@@ -117,7 +125,7 @@ class Point extends Geometry
   public function numPoints() {
     return 1;
   }
-    
+
   public function getPoints() {
     return array($this);
   }
@@ -125,11 +133,11 @@ class Point extends Geometry
   public function equals($geometry) {
     return ($this->x() == $geometry->x() && $this->y() == $geometry->y());
   }
-  
+
   public function isSimple() {
     return TRUE;
   }
-  
+
   // Not valid for this geometry type
   public function numGeometries()    { return NULL; }
   public function geometryN($n)      { return NULL; }
