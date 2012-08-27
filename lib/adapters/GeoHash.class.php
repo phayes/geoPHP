@@ -15,9 +15,9 @@ class GeoHash extends GeoAdapter{
    * @param string $hash a geohash
    * @see GeoAdapter::read()
    */
-  public function read($hash, $as_point = FALSE) {
+  public function read($hash, $as_grid = FALSE) {
     $ll = $this->decode($hash);
-    if ($as_point) {
+    if (!$as_grid) {
       return new Point($ll['medlon'], $ll['medlat']);
     }
     else {
