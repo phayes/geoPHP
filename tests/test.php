@@ -4,6 +4,8 @@
 # run_test();
 
 function run_test() {
+  set_time_limit(0);
+
   header("Content-type: text");
 
   include_once('../geoPHP.inc');
@@ -119,12 +121,8 @@ function test_adapters($geometry, $format, $input) {
         $test_geom_1 = $adapter_loader->read($output);
         $test_geom_2 = $adapter_loader->read($test_geom_1->out($adapter_key));
 
-        // Check to make sure a round-trip results in the same geometry
-        // We don't check round-trip accuracy on geohash as it's not a storage format that preserves information
-        if ($adapter_key != 'geohash') {
-          if ($test_geom_1->out('wkt') != $test_geom_2->out('wkt')) {
-            print "Mismatched adapter output in ".$adapter_class."\n";
-          }
+        if ($test_geom_1->out('wkt') != $test_geom_2->out('wkt')) {
+          print "Mismatched adapter output in ".$adapter_class."\n";
         }
       }
       else {
