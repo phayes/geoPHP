@@ -1,7 +1,7 @@
 <?php
 /**
  * GeoJSON class : a geojson reader/writer.
- * 
+ *
  * Note that it will always return a GeoJSON geometry. This
  * means that if you pass it a feature, it will return the
  * geometry of that feature strip everything else.
@@ -25,7 +25,7 @@ class GeoJSON extends GeoAdapter
     if (!is_string($input->type)) {
       throw new Exception('Invalid JSON');
     }
-    
+
     // Check to see if it's a FeatureCollection
     if ($input->type == 'FeatureCollection') {
       $geoms = array();
@@ -34,31 +34,26 @@ class GeoJSON extends GeoAdapter
       }
       return geoPHP::geometryReduce($geoms);
     }
-    
+
     // Check to see if it's a Feature
     if ($input->type == 'Feature') {
       return $this->read($input->geometry);
     }
-    
+
     // It's a geometry - process it
     return $this->objToGeom($input);
   }
-  
+
   private function objToGeom($obj) {
     $type = $obj->type;
-    
+
     if ($type == 'GeometryCollection') {
       return $this->objToGeometryCollection($obj);
     }
-    else {
-      if (empty($obj->coordinates)) {
-        throw new Exception ('Invalid GeoJSON: missing coordinates');
-      }
-      $method = 'arrayTo' . $type;
-      return $this->$method($obj->coordinates);
-    }
+    $method = 'arrayTo' . $type;
+    return $this->$method($obj->coordinates);
   }
-  
+
   private function arrayToPoint($array) {
     return new Point($array[0], $array[1]);
   }
@@ -102,7 +97,7 @@ class GeoJSON extends GeoAdapter
     }
     return new MultiPolygon($polys);
   }
-  
+
   private function objToGeometryCollection($obj) {
     $geoms = array();
     if (empty($obj->geometries)) {
@@ -113,7 +108,7 @@ class GeoJSON extends GeoAdapter
     }
     return new GeometryCollection($geoms);
   }
-  
+
   /**
    * Serializes an object into a geojson string
    *
@@ -130,7 +125,7 @@ class GeoJSON extends GeoAdapter
       return json_encode($this->getArray($geometry));
     }
   }
-  
+
   public function getArray($geometry) {
     if ($geometry->getGeomType() == 'GeometryCollection') {
       $component_array = array();

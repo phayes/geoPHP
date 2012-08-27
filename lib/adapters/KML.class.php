@@ -11,7 +11,7 @@
 /**
  * PHP Geometry/KML encoder/decoder
  *
- * Mainly inspired/adapted from OpenLayers( http://www.openlayers.org ) 
+ * Mainly inspired/adapted from OpenLayers( http://www.openlayers.org )
  *   Openlayers/format/WKT.js
  *
  * @package    sfMapFishPlugin
@@ -33,7 +33,7 @@ class KML extends GeoAdapter
   public function read($kml) {
     return $this->geomFromText($kml);
   }
-  
+
   /**
    * Serialize geometries into a KML string.
    *
@@ -44,24 +44,24 @@ class KML extends GeoAdapter
   public function write(Geometry $geometry, $namespace = FALSE) {
     if ($namespace) {
       $this->namespace = $namespace;
-      $this->nss = $namespace.':';    
+      $this->nss = $namespace.':';
     }
     return $this->geometryToKML($geometry);
   }
-  
+
   public function geomFromText($text) {
-    
+
     // Change to lower-case and strip all CDATA
     $text = mb_strtolower($text, mb_detect_encoding($text));
     $text = preg_replace('/<!\[cdata\[(.*?)\]\]>/s','',$text);
-    
+
     // Load into DOMDOcument
     $xmlobj = new DOMDocument();
     @$xmlobj->loadXML($text);
     if ($xmlobj === false) {
       throw new Exception("Invalid KML: ". $text);
     }
-    
+
     $this->xmlobj = $xmlobj;
     try {
       $geom = $this->geomFromXML();
@@ -73,7 +73,7 @@ class KML extends GeoAdapter
 
     return $geom;
   }
-  
+
   protected function geomFromXML() {
     $geometries = array();
     $geom_types = geoPHP::geometryList();
@@ -98,24 +98,26 @@ class KML extends GeoAdapter
         $geometries[] = $this->$function($this->xmlobj->documentElement);
       }
     }
-    return geoPHP::geometryReduce($geometries); 
+    return geoPHP::geometryReduce($geometries);
   }
-  
+
   protected function childElements($xml, $nodename = '') {
     $children = array();
-    foreach ($xml->childNodes as $child) {
-      if ($child->nodeName == $nodename) {
-        $children[] = $child;
+    if ($xml->childNodes) {
+      foreach ($xml->childNodes as $child) {
+        if ($child->nodeName == $nodename) {
+          $children[] = $child;
+        }
       }
     }
     return $children;
   }
-  
+
   protected function parsePoint($xml) {
     $coordinates = $this->_extractCoordinates($xml);
     return new Point($coordinates[0][0],$coordinates[0][1]);
   }
-  
+
   protected function parseLineString($xml) {
     $coordinates = $this->_extractCoordinates($xml);
     $point_array = array();
@@ -124,20 +126,20 @@ class KML extends GeoAdapter
     }
     return new LineString($point_array);
   }
-  
+
   protected function parsePolygon($xml) {
     $components = array();
-    
+
     $outer_boundary_element_a = $this->childElements($xml, 'outerboundaryis');
     $outer_boundary_element = $outer_boundary_element_a[0];
     $outer_ring_element_a = $this->childElements($outer_boundary_element, 'linearring');
     $outer_ring_element = $outer_ring_element_a[0];
     $components[] = $this->parseLineString($outer_ring_element);
-    
+
     if (count($components) != 1) {
       throw new Exception("Invalid KML");
     }
-    
+
     $inner_boundary_element_a = $this->childElements($xml, 'innerboundaryis');
     if (count($inner_boundary_element_a)) {
       foreach ($inner_boundary_element_a as $inner_boundary_element) {
@@ -146,10 +148,10 @@ class KML extends GeoAdapter
         }
       }
     }
-    
+
     return new Polygon($components);
   }
-  
+
   protected function parseGeometryCollection($xml) {
     $components = array();
     $geom_types = geoPHP::geometryList();
@@ -162,14 +164,11 @@ class KML extends GeoAdapter
     }
     return new GeometryCollection($components);
   }
-  
+
   protected function _extractCoordinates($xml) {
     $coord_elements = $this->childElements($xml, 'coordinates');
-    if (!count($coord_elements)) {
-      throw new Exception('Bad KML: Missing coordinate element');
-    }
     $coordinates = array();
-    $coord_sets = explode(' ',$coord_elements[0]->nodeValue);
+    $coord_sets = explode(' ', $coord_elements[0]->nodeValue);
     foreach ($coord_sets as $set_string) {
       $set_string = trim($set_string);
       if ($set_string) {
@@ -179,10 +178,10 @@ class KML extends GeoAdapter
         }
       }
     }
-    
+
     return $coordinates;
   }
-  
+
   private function geometryToKML($geom) {
     $type = strtolower($geom->getGeomType());
     switch ($type) {
@@ -212,28 +211,38 @@ class KML extends GeoAdapter
     if (!$type) {
       $type = $geom->getGeomType();
     }
-    
-    $str = '<'.$this->nss . $type .'><'.$this->nss.'coordinates>';
-    $i=0;
-    foreach ($geom->getComponents() as $comp) {
-      if ($i != 0) $str .= ' ';
-      $str .= $comp->getX() .','. $comp->getY();
-      $i++;
+
+    $str = '<'.$this->nss . $type .'>';
+
+    if (!$geom->isEmpty()) {
+      $str .= '<'.$this->nss.'coordinates>';
+      $i=0;
+      foreach ($geom->getComponents() as $comp) {
+        if ($i != 0) $str .= ' ';
+        $str .= $comp->getX() .','. $comp->getY();
+        $i++;
+      }
+
+      $str .= '</'.$this->nss.'coordinates>';
     }
 
-    return  $str .'</'.$this->nss.'coordinates></'. $this->nss . $type .'>';
+    $str .= '</'. $this->nss . $type .'>';
+
+    return $str;
   }
 
   public function polygonToKML($geom) {
     $components = $geom->getComponents();
-    $str = '<'.$this->nss.'outerBoundaryIs>' . $this->linestringToKML($components[0], 'LinearRing') . '</'.$this->nss.'outerBoundaryIs>';
-    foreach (array_slice($components, 1) as $comp) {
-      $str .= '<'.$this->nss.'innerBoundaryIs>' . $this->linestringToKML($comp) . '</'.$this->nss.'innerBoundaryIs>';
+    if (!empty($components)) {
+      $str = '<'.$this->nss.'outerBoundaryIs>' . $this->linestringToKML($components[0], 'LinearRing') . '</'.$this->nss.'outerBoundaryIs>';
+      foreach (array_slice($components, 1) as $comp) {
+        $str .= '<'.$this->nss.'innerBoundaryIs>' . $this->linestringToKML($comp) . '</'.$this->nss.'innerBoundaryIs>';
+      }
     }
-      
+
     return '<'.$this->nss.'Polygon>'. $str .'</'.$this->nss.'Polygon>';
   }
-  
+
   public function collectionToKML($geom) {
     $components = $geom->getComponents();
     $str = '<'.$this->nss.'MultiGeometry>';
