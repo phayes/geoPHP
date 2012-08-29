@@ -48,6 +48,11 @@ class geoPHP
 
     $type_map = geoPHP::getAdapterMap();
 
+    // Auto-detect type if needed
+    if (!$type) {
+      $type = geoPHP::detectFormat($data);
+    }
+
     $processor_type = $type_map[$type];
 
     if (!$processor_type) {
@@ -194,4 +199,63 @@ class geoPHP
       return new GeometryCollection($geometries);
     }
   }
+
+  // Detect a format given a value. This function is meant to be SPEEDY.
+  // It could make a mistake in XML detection if you are mixing or using namespaces in weird ways (ie, KML inside an RSS feed)
+  static function detectFormat(&$input) {
+    $mem = fopen('php://memory', 'r+');
+    fwrite($mem, $input, 8); // Write 8 bytes - we can detect the vast majority of formats in the first 8 bytes
+    fseek($mem, 0);
+
+    $first_byte = array_pop(unpack("c", fread($mem, 1)));
+
+    // Detect WKB or EWKB -- first byte is 1 (little endian indicator)
+    if ($first_byte == 1) {
+      $wkb_info = unpack("ctype/cz/cm/cs", fread($mem, 4));
+      if ($wkb_info['s']) return 'ewkb';
+      else return 'wkb';
+    }
+
+    // Detect GeoJSON - first char starts with {
+    if ($first_byte == 123) {
+      return 'json';
+    }
+
+    // Detect EWKT - first char is S
+    if ($first_byte == 83) {
+      return 'ewkt';
+    }
+
+    // Detect WKT - first char starts with P (80), L (76), M (77), or G (71)
+    $wkt_chars = array(80, 76, 77, 71);
+    if (in_array($first_byte, $wkt_chars)) {
+      return 'wkt';
+    }
+
+    // Detect XML -- first char is <
+    if ($first_byte == 60) {
+      // grab the first 256 characters
+      $string = substr($input, 0, 256);
+      if (strpos($string, '<kml') !== FALSE)     return 'kml';
+      if (strpos($string, '<gpx') !== FALSE)     return 'gpx';
+      if (strpos($string, '<georss') !== FALSE)  return 'georss';
+      if (strpos($string, '<rss') !== FALSE)     return 'georss';
+      if (strpos($string, '<feed') !== FALSE)    return 'georss';
+    }
+
+    // We need an 8 byte string for geohash and EWKT
+    fseek($mem, 0);
+    $string = trim(fread($mem, 8));
+
+    // Detect geohash - geohash ONLY contains lowercase chars and numerics
+    preg_match('/[a-z0-9]+/', $string, $matches);
+    if ($matches[0] == $string) {
+      return 'geohash';
+    }
+
+    // What do you get when you cross an elephant with a rhino?
+    // http://youtu.be/RCBn5J83Poc
+    return FALSE;
+  }
+
 }

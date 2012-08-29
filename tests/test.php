@@ -27,6 +27,7 @@ function run_test() {
       test_adapters($geometry, $format, $value);
       test_methods($geometry);
       test_geometry($geometry);
+      test_detection($value, $format, $file);
     }
   }
   print "Testing Done!";
@@ -231,4 +232,14 @@ function test_methods($geometry) {
     //@@TODO: Run tests for output of types arrays and float
     //@@TODO: centroid function is non-compliant for collections and strings
   }
+}
+
+function test_detection($value, $format, $file) {
+  $detected = geoPHP::detectFormat($value);
+  if ($detected != $format) {
+    if ($detected) print 'detected as ' . $detected . "\n";
+    else print "not detected\n";
+  }
+  // Make sure it loads using auto-detect
+  geoPHP::load($value);
 }
