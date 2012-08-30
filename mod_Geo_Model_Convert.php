@@ -104,5 +104,6 @@ class mod_Geo_Model_Convert {
 	
 	public function toGeoHash() {
 		return $this->geometry->out('geohash');
-	}		
+	}	
+
 }
