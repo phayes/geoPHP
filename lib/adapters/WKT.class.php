@@ -64,10 +64,17 @@ class WKT extends GeoAdapter
     */
   }
   
-  private function parsePoint($data_string) {
+  private function parsePoint($data_string, $hasZ=null, $hasM=null) {
     $data_string = $this->trimParens($data_string);
     $parts = explode(' ',$data_string);
-    return new Point($parts[0], $parts[1]);
+    $z = $m = null;
+    if ( $hasZ ) {
+    	$z = $parts[2];
+    }
+    if ( $hasM ) {
+    	$m = ($hasZ) ? $parts[3] :  $parts[2];
+    }
+    return new Point($parts[0], $parts[1], $z, $m);
   }
 
   private function parseLineString($data_string) {
@@ -120,12 +127,13 @@ class WKT extends GeoAdapter
     // If it's marked as empty, then return an empty multi-linestring
     if ($data_string == 'EMPTY') return new MultiLineString();
     
-    $parts = explode('),(',$data_string);
+    $parts = explode('),',$data_string);
     $lines = array();
     foreach ($parts as $part) {
+      //var_dump($part);
       // Repair the string if the explode broke it
-      if (!$this->beginsWith($part,'(')) $part = '(' . $part;
-      if (!$this->endsWith($part,')'))   $part = $part . ')';
+      //if (!$this->beginsWith($part,'(')) $part = '(' . $part;
+      // if (!$this->endsWith($part,')'))   $part = $part . ')';
       $lines[] = $this->parseLineString($part);
     }
     return new MultiLineString($lines);
@@ -167,7 +175,7 @@ class WKT extends GeoAdapter
 
   protected function getDataString($wkt, $type) {
     // data is between () or is empty
-    if ( preg_match('#(z?)(m?)[\s]+(\([0-9,\s]*\))#i', $wkt, $m) ) {
+    if ( preg_match('#(z{0,1})(m{0,1})[\s]*(\([0-9\.,\s)(]*\))#i', $wkt, $m) ) {
   		return array($m[1], $m[2], $m[3]);
   	}
   	else return 'EMPTY';

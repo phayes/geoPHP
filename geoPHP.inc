@@ -202,12 +202,16 @@ class geoPHP
 
   // Detect a format given a value. This function is meant to be SPEEDY.
   // It could make a mistake in XML detection if you are mixing or using namespaces in weird ways (ie, KML inside an RSS feed)
-  static function detectFormat(&$input) {
+  static function detectFormat($input) {
     $mem = fopen('php://memory', 'r+');
     fwrite($mem, $input, 8); // Write 8 bytes - we can detect the vast majority of formats in the first 8 bytes
     fseek($mem, 0);
-
-    $first_byte = array_pop(unpack("c", fread($mem, 1)));
+    
+    if ( !$mem ) return false; // duh ? 
+    
+    $u = fread($mem, 1);
+    $u = unpack("c", $u);
+    $first_byte = array_pop($u);
 
     // Detect WKB or EWKB -- first byte is 1 (little endian indicator)
     if ($first_byte == 1) {

@@ -33,8 +33,8 @@ class Point extends Geometry
     }
     
     // Check to see if this is a measure
-    if ($m !== NULL) {
-    	if (!is_numeric($z)) {
+    if ( $m !== NULL) {
+    	if (!is_numeric($m)) {    		
     		throw new Exception("Cannot construct Point. m should be numeric");
     	}
     	$this->measure = $m;
