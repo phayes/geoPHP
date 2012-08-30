@@ -13,33 +13,41 @@ class WKT extends GeoAdapter
    * @return Geometry
    */
   public function read($wkt) {
-    $wkt = trim($wkt);
-    
+    $wkt = trim($wkt);    
     // If it contains a ';', then it contains additional SRID data
     if (strpos($wkt,';')) {
       $parts = explode(';', $wkt);
-      $wkt = $parts[1];
-      $eparts = explode('=',$parts[0]);
-      $srid = $eparts[1];
-    }
-    else {
-      $srid = NULL;
+    	$wkt = $parts[1];
+    	$eparts = explode('=',$parts[0]);
+    	$srid = $eparts[1];
+    } else {
+    	$srid = NULL;
     }
     
     // If geos is installed, then we take a shortcut and let it parse the WKT
     if (geoPHP::geosInstalled()) {
-      $reader = new GEOSWKTReader();
-      if ($srid) {
-        $geom = geoPHP::geosToGeometry($reader->read($wkt));
-        $geom->setSRID($srid);
-        return $geom;
-      }
-      else { 
-        return geoPHP::geosToGeometry($reader->read($wkt));
-      }
+      $reader = new GEOSWKTReader();      
+      $geom = geoPHP::geosToGeometry($reader->read($wkt));
+      if ($srid) $geom->setSRID($srid);
+      return $geom;      
     }
-    $wkt = str_replace(', ', ',', $wkt);
+
+    //$wkt = str_replace(', ', ',', $wkt);    why ?
     
+    $geoTypeList = geoPHP::geometryList();
+    // geometry type is the first word    
+    if ( preg_match('#^([a-z]*)#i', $wkt, $m) ) {
+    	$geotype = strtolower($m[1]);
+    	if( array_key_exists($geotype, $geoTypeList) ) {
+    		$data_string = $this->getDataString($wkt, $geotype);
+    		$method = 'parse'.$geotype;     		     				
+    		$geom = $this->$method($data_string[2], $data_string[0], $data_string[1]);
+    		if ($srid) $geom->setSRID($srid);
+    		return $geom;
+    	}
+    } 
+    		
+    /*		
     // For each geometry type, check to see if we have a match at the
     // beggining of the string. If we do, then parse using that type
     foreach (geoPHP::geometryList() as $geom_type) {
@@ -48,17 +56,12 @@ class WKT extends GeoAdapter
         $data_string = $this->getDataString($wkt, $wkt_geom);
         $method = 'parse'.$geom_type;
         
-        if ($srid) {
-          $geom = $this->$method($data_string);
-          $geom->setSRID($srid);
-          return $geom;
-        }
-        else { 
-          return $this->$method($data_string);
-        }
-        
+        $geom = $this->$method($data_string);
+        if ($srid)       $geom->setSRID($srid);
+        return $geom;        
       }
     }
+    */
   }
   
   private function parsePoint($data_string) {
@@ -163,7 +166,12 @@ class WKT extends GeoAdapter
   }
 
   protected function getDataString($wkt, $type) {
-    return substr($wkt, strlen($type));
+    // data is between () or is empty
+    if ( preg_match('#(z?)(m?)[\s]+(\([0-9,\s]*\))#i', $wkt, $m) ) {
+  		return array($m[1], $m[2], $m[3]);
+  	}
+  	else return 'EMPTY';
+    //return substr($wkt, strlen($type));
   }
   
   /**

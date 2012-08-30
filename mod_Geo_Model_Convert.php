@@ -1,6 +1,6 @@
 <?php 
 // handy wrapper for geoPhp
-require_once 'geoPHP/geoPHP.inc';
+require_once 'geoPHP.inc';
 class mod_Geo_Model_Convert {	
 	/**
 	 * @var Geometry
