@@ -83,11 +83,13 @@ class WKT extends GeoAdapter
   private function parseMultiPoint($data_string) {
     // If it's marked as empty, then return an empty MutiPoint
     if ($data_string == 'EMPTY') return new MultiPoint();
-    
-    $parts = explode(',',$data_string);
+
     $points = array();
-    foreach ($parts as $part) {
-      $points[] = $this->parsePoint($part);
+    if (  preg_match_all('/\((.*?)\)/', $data_string, $m) ) {
+    	$parts = $m[1];
+    	foreach ($parts as $part) {
+    		$points[] =  $this->parsePoint($part);
+    	}
     }
     return new MultiPoint($points);
   }
@@ -119,7 +121,7 @@ class WKT extends GeoAdapter
     }
     return new MultiPolygon($polygons);
   }
-
+ 
   private function parseGeometryCollection($data_string) {
      // If it's marked as empty, then return an empty geom-collection
     if ($data_string == 'EMPTY') return new GeometryCollection();
@@ -151,7 +153,7 @@ class WKT extends GeoAdapter
    *
    * @return string The WKT string representation of the input geometries
    */
-  public function write(Geometry $geometry) {
+ public function write(Geometry $geometry) {
     // If geos is installed, then we take a shortcut and let it write the WKT
     if (geoPHP::geosInstalled()) {
       $writer = new GEOSWKTWriter();
@@ -163,7 +165,14 @@ class WKT extends GeoAdapter
       return strtoupper($geometry->geometryType()).' EMPTY';
     }
     else if ($data = $this->extractData($geometry)) {
-      return strtoupper($geometry->geometryType()).' ('.$data.')';
+      $p='';
+      if(  $geometry->hasZ() ) {
+    		$p .= 'Z';
+      }
+      if ( $geometry->isMeasured() ) {
+    		$p .= 'M';
+      }
+      return strtoupper($geometry->geometryType()).' '.$p.' ('.$data.')';
     }
   }
   
@@ -174,11 +183,18 @@ class WKT extends GeoAdapter
    *
    * @return string
    */
-  public function extractData($geometry) {
+   public function extractData($geometry) {
     $parts = array();
     switch ($geometry->geometryType()) {
       case 'Point':
-        return $geometry->getX().' '.$geometry->getY();
+        $p = $geometry->getX().' '.$geometry->getY();
+        if(  $geometry->hasZ() ) {
+        	$p .= ' '.$geometry->z();
+        }
+        if ( $geometry->isMeasured() ) {
+        	$p .= ' '.$geometry->m();
+        }
+        return $p;
       case 'LineString':
         foreach ($geometry->getComponents() as $component) {
           $parts[] = $this->extractData($component);
