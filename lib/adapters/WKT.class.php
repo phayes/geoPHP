@@ -90,16 +90,18 @@ class WKT extends GeoAdapter
       $points[] = $this->parsePoint($part);
     }
     return new MultiPoint($points);
-  } 
+  }
   
   private function parseMultiLineString($data_string) {
     // If it's marked as empty, then return an empty multi-linestring
-    if ($data_string == 'EMPTY') return new MultiLineString();
+    if ($data_string == 'EMPTY') return new MultiLineString();    
     
-    $parts = explode('),',$data_string);
     $lines = array();
-    foreach ($parts as $part) {     
-      $lines[] = $this->parseLineString(trim($part,')( '));
+    if (  preg_match_all('/\(([^\(].*?)\)/', $data_string, $m) ) {
+    	$parts = $m[1];
+    	foreach ($parts as $part) {
+    		$lines[] =  $this->parseLineString($part);
+    	}
     }
     return new MultiLineString($lines);
   }
@@ -161,14 +163,7 @@ class WKT extends GeoAdapter
       return strtoupper($geometry->geometryType()).' EMPTY';
     }
     else if ($data = $this->extractData($geometry)) {
-      $p='';
-      if(  $geometry->hasZ() ) {
-    		$p .= 'Z';
-      }
-      if ( $geometry->isMeasured() ) {
-    		$p .= 'M';
-      }
-      return strtoupper($geometry->geometryType()).' '.$p.' ('.$data.')';
+      return strtoupper($geometry->geometryType()).' ('.$data.')';
     }
   }
   
@@ -183,15 +178,7 @@ class WKT extends GeoAdapter
     $parts = array();
     switch ($geometry->geometryType()) {
       case 'Point':
-       // return $geometry->getX().' '.$geometry->getY();
-        $p = $geometry->getX().' '.$geometry->getY();
-        if(  $geometry->hasZ() ) {
-        	$p .= ' '.$geometry->z();
-        }
-        if ( $geometry->isMeasured() ) {
-        	$p .= ' '.$geometry->m();
-        }
-        return $p;
+        return $geometry->getX().' '.$geometry->getY();
       case 'LineString':
         foreach ($geometry->getComponents() as $component) {
           $parts[] = $this->extractData($component);
