@@ -8,6 +8,7 @@ abstract class Geometry
   private   $geos = NULL;
   protected $srid = NULL;
   protected $geom_type;
+  protected $dimention = 2;
 
   // Abtract: Standard
   // -----------------
@@ -17,6 +18,7 @@ abstract class Geometry
   abstract public function length();
   abstract public function y();
   abstract public function x();
+  abstract public function z();
   abstract public function numGeometries();
   abstract public function geometryN($n);
   abstract public function startPoint();
@@ -80,6 +82,16 @@ abstract class Geometry
     return $this->geom_type;
   }
 
+  public function hasZ() {
+    if ($this->dimention == 3) {
+      return TRUE;
+    }
+  }
+
+  public function coordinateDimension() {
+    return $this->dimention;
+  }
+
   // Public: Non-Standard -- Common to all geometries
   // ------------------------------------------------
 
@@ -135,6 +147,10 @@ abstract class Geometry
 
   public function asBinary() {
     return $this->out('wkb');
+  }
+
+  public function is3D() {
+    return $this->hasZ();
   }
 
   // Public: GEOS Only Functions
@@ -314,33 +330,13 @@ abstract class Geometry
 
   // Public - Placeholders
   // ---------------------
-  public function hasZ() {
-    // geoPHP does not support Z values at the moment
-    return FALSE;
-  }
-
-  public function is3D() {
-    // geoPHP does not support 3D geometries at the moment
-    return FALSE;
-  }
-
   public function isMeasured() {
     // geoPHP does not yet support M values
     return FALSE;
   }
 
-  public function coordinateDimension() {
-    // geoPHP only supports 2-dimentional space
-    return 2;
-  }
-
-  public function z() {
-    // geoPHP only supports 2-dimentional space
-    return NULL;
-  }
-
   public function m() {
-    // geoPHP only supports 2-dimentional space
+    // geoPHP does not yet support M values
     return NULL;
   }
 

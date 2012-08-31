@@ -24,6 +24,9 @@ abstract class Collection extends Geometry
     foreach ($components as $component) {
       if ($component instanceof Geometry) {
         $this->components[] = $component;
+        if ($component->coordinateDimension() > $this->dimention) {
+          $this->dimention = $component->coordinateDimension();
+        }
       }
       else {
         throw new Exception("Cannot create a collection with non-geometries");
@@ -281,6 +284,7 @@ abstract class Collection extends Geometry
   // --------------------------------
   public function x()                { return NULL; }
   public function y()                { return NULL; }
+  public function z()                { return NULL; }
   public function startPoint()       { return NULL; }
   public function endPoint()         { return NULL; }
   public function isRing()           { return NULL; }
