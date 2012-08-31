@@ -233,6 +233,7 @@ class KML extends GeoAdapter
 
   public function polygonToKML($geom) {
     $components = $geom->getComponents();
+    $str = '';
     if (!empty($components)) {
       $str = '<'.$this->nss.'outerBoundaryIs>' . $this->linestringToKML($components[0], 'LinearRing') . '</'.$this->nss.'outerBoundaryIs>';
       foreach (array_slice($components, 1) as $comp) {

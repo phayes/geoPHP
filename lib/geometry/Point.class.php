@@ -91,7 +91,7 @@ class Point extends Geometry
    * @return true or NULL if is not a 3D point
    */
   public function hasZ() {
-  	if ( $this->dimension == 3 ) return true;
+  	if ( $this->dimention == 3 ) return true;
   }
   
   /**
