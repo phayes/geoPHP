@@ -90,7 +90,7 @@ class WKT extends GeoAdapter
       $points[] = $this->parsePoint($part);
     }
     return new MultiPoint($points);
-  }
+  } 
   
   private function parseMultiLineString($data_string) {
     // If it's marked as empty, then return an empty multi-linestring
