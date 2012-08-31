@@ -11,6 +11,7 @@
  * PHP Geometry/WKB encoder/decoder
  *
  */
+// this class is not usable 
 class WKB extends GeoAdapter
 {
 
@@ -47,26 +48,51 @@ class WKB extends GeoAdapter
   }
 
   function getGeometry(&$mem) {
-  	// according to the spec order is 32bit 
+  	// according to the spec order is 32bit length
   	// http://edndoc.esri.com/arcsde/9.0/general_topics/wkb_representation.htm
     $base_info = unpack("corder/Ltype/cz/cm/cs", fread($mem, 8));
+    var_dump($base_info);
     if ($base_info['order'] !== 1) {
       throw new Exception('Only NDR (little endian) SKB format is supported at the moment');
     }
 
-    if ($base_info['z']) {
-      $this->dimension++;
-      $this->z = TRUE;
-    }
-    if ($base_info['m']) {   
-      $this->dimension++;
-      $this->m = TRUE;
+    /*
+     * @TODO follow the spec ...
+      http://svn.osgeo.org/postgis/trunk/doc/ZMSgeoms.txt
+        Document 99-402r2 introduces a Z-presence flag (wkbZ) which OR'ed
+		to the type specifies the presence of Z coordinate:
+		wkbZ = 0x80000000
+		
+		This proposal suggest the use of an M-presence flag (wkbM) to
+		allow for XY, XYM, XYZ and XYZM geometries, and SRID-presence
+		flag to allow for embedded SRID:
+		wkbM = 0x40000000
+		wkbSRID = 0x20000000
+    */
+    // has Ewkb byte 
+  
+	    if ($base_info['z'] == 0x80000000) {
+	      $this->dimension++;
+	      $this->z = TRUE;
+	    }    
+	    else fseek($mem, ftell($mem)-1); // no 7 & m rewind ..
+	    
+	    if ($base_info['m'] == 0x20000000 ) {   
+	      $this->dimension++;
+	      $this->m = TRUE;
+	    }
+	    else fseek($mem, ftell($mem)-1); // no m & m rewind ..
+    
+    
+    if (  $this->dimension < 3 ) {
+    	fseek($mem, ftell($mem)-2); // no z & m rewind ..
     }
 
     // If there is SRID information, ignore it - use EWKB Adapter to get SRID support
     if ($base_info['s']) {
-      //fread($mem, 4); why we already read it ?
+      fread($mem, 4); 
     }
+    else fseek($mem, ftell($mem)-1); // no s rewind ...
 
     switch ($base_info['type']) {
       case 1:
@@ -88,15 +114,17 @@ class WKB extends GeoAdapter
 
   function getPoint(&$mem) {
   	// format 64 bits IEEE ? 
-    $point_coords = unpack("d*", fread($mem,32));
+    $point_coords = unpack("d*", fread($mem, $this->dimension*8));
     $z = $m = null;
-    var_dump($point_coords);
+
     if( $this->z ) {
     	$z= $point_coords[3];
     }
+    else fseek($mem, ftell($mem)-8); // no z rewind ...
     if ( $this->m ) {
     	$m= $point_coords[4];
-    }    
+    }  
+    else fseek($mem, ftell($mem)-8); // no m rewind ...
     return new Point($point_coords[1],$point_coords[2], $z, $m);
   }
 
@@ -173,9 +201,11 @@ class WKB extends GeoAdapter
     switch ($geometry->getGeomType()) {
       case 'Point';
         $wkb .= pack('L',1);
-        $wkb .= pack('c', $geometry->hasZ());
-        $wkb .= pack('c', $geometry->isMeasured());
-        $wkb .= pack('c', false);
+        if( $geometry->isMeasured() || $geometry->hasZ() ) {
+        	$wkb .= pack('c', 0x80000000 );
+        	$wkb .= pack('c', 0x20000000);
+        }
+        //$wkb .= pack('c', false);
         $wkb .= $this->writePoint($geometry);
         break;
       case 'LineString';
@@ -214,19 +244,15 @@ class WKB extends GeoAdapter
   }
 
   function writePoint($point) {
-  	if( $point->hasZ() ) {
-  		if ( $point->isMeasured() ) {
-  			$wkb = pack('dddd',$point->x(), $point->y(), $point->z(), $point->m());
-  		}
-  		else $wkb = pack('dddd',$point->x(), $point->y(), $point->z(), false);
+  	$wkb = pack('dd',$point->x(), $point->y());
+  	
+  	if( $point->hasZ() ) {  		
+  		$wkb .= pack('d', $point->z());
   	}
-  	else if ($point->isMeasured() ) { 
-  		$wkb = pack('dddd',$point->x(), $point->y(), false,$point->m());
+  	if ($point->isMeasured() ) { 
+  		$wkb .= pack('d', $point->m());
   	}  	
-    else {
-      // Set the coords
-   	  $wkb = pack('dd',$point->x(), $point->y());
-    }
+    
     return $wkb;
   }
 
