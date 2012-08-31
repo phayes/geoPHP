@@ -50,7 +50,7 @@ class WKB extends GeoAdapter
   function getGeometry(&$mem) {
   	// according to the spec order is 32bit length
   	// http://edndoc.esri.com/arcsde/9.0/general_topics/wkb_representation.htm
-    $base_info = unpack("corder/Ltype/cz/cm/cs", fread($mem, 8));
+    $base_info = unpack("corder/Ltype/cz/cm/cs", fread($mem, 8)); //8
     var_dump($base_info);
     if ($base_info['order'] !== 1) {
       throw new Exception('Only NDR (little endian) SKB format is supported at the moment');
@@ -70,14 +70,14 @@ class WKB extends GeoAdapter
 		wkbSRID = 0x20000000
     */
     // has Ewkb byte 
-  
-	    if ($base_info['z'] == 0x80000000) {
+  /*
+	    if ($base_info['z'] ) {
 	      $this->dimension++;
 	      $this->z = TRUE;
 	    }    
 	    else fseek($mem, ftell($mem)-1); // no 7 & m rewind ..
 	    
-	    if ($base_info['m'] == 0x20000000 ) {   
+	    if ($base_info['m'] ) {   
 	      $this->dimension++;
 	      $this->m = TRUE;
 	    }
@@ -86,7 +86,8 @@ class WKB extends GeoAdapter
     
     if (  $this->dimension < 3 ) {
     	fseek($mem, ftell($mem)-2); // no z & m rewind ..
-    }
+    }*/
+    fseek($mem, ftell($mem)-2); // fix temporary
 
     // If there is SRID information, ignore it - use EWKB Adapter to get SRID support
     if ($base_info['s']) {
@@ -202,8 +203,8 @@ class WKB extends GeoAdapter
       case 'Point';
         $wkb .= pack('L',1);
         if( $geometry->isMeasured() || $geometry->hasZ() ) {
-        	$wkb .= pack('c', 0x80000000 );
-        	$wkb .= pack('c', 0x20000000);
+        	//$wkb .= pack('c', 1 );
+        	//$wkb .= pack('c', 1);
         }
         //$wkb .= pack('c', false);
         $wkb .= $this->writePoint($geometry);
@@ -247,10 +248,10 @@ class WKB extends GeoAdapter
   	$wkb = pack('dd',$point->x(), $point->y());
   	
   	if( $point->hasZ() ) {  		
-  		$wkb .= pack('d', $point->z());
+  		//$wkb .= pack('d', $point->z());
   	}
   	if ($point->isMeasured() ) { 
-  		$wkb .= pack('d', $point->m());
+  		//$wkb .= pack('d', $point->m());
   	}  	
     
     return $wkb;
