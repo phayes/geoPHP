@@ -47,7 +47,9 @@ class WKB extends GeoAdapter
   }
 
   function getGeometry(&$mem) {
-    $base_info = unpack("corder/ctype/cz/cm/cs", fread($mem, 5));
+  	// according to the spec order is 32bit 
+  	// http://edndoc.esri.com/arcsde/9.0/general_topics/wkb_representation.htm
+    $base_info = unpack("corder/Ltype/cz/cm/cs", fread($mem, 8));
     if ($base_info['order'] !== 1) {
       throw new Exception('Only NDR (little endian) SKB format is supported at the moment');
     }
@@ -56,14 +58,14 @@ class WKB extends GeoAdapter
       $this->dimension++;
       $this->z = TRUE;
     }
-    if ($base_info['m']) {
+    if ($base_info['m']) {   
       $this->dimension++;
       $this->m = TRUE;
     }
 
     // If there is SRID information, ignore it - use EWKB Adapter to get SRID support
     if ($base_info['s']) {
-      fread($mem, 4);
+      //fread($mem, 4); why we already read it ?
     }
 
     switch ($base_info['type']) {
@@ -85,8 +87,17 @@ class WKB extends GeoAdapter
   }
 
   function getPoint(&$mem) {
-    $point_coords = unpack("d*", fread($mem,$this->dimension*8));
-    return new Point($point_coords[1],$point_coords[2]);
+  	// format 64 bits IEEE ? 
+    $point_coords = unpack("d*", fread($mem,32));
+    $z = $m = null;
+    var_dump($point_coords);
+    if( $this->z ) {
+    	$z= $point_coords[3];
+    }
+    if ( $this->m ) {
+    	$m= $point_coords[4];
+    }    
+    return new Point($point_coords[1],$point_coords[2], $z, $m);
   }
 
   function getLinstring(&$mem) {
@@ -155,10 +166,16 @@ class WKB extends GeoAdapter
   public function write(Geometry $geometry, $write_as_hex = FALSE) {
     // We always write into NDR (little endian)
     $wkb = pack('c',1);
+    //"corder/ctype/cz/cm/cs"
 
+
+       
     switch ($geometry->getGeomType()) {
       case 'Point';
         $wkb .= pack('L',1);
+        $wkb .= pack('c', $geometry->hasZ());
+        $wkb .= pack('c', $geometry->isMeasured());
+        $wkb .= pack('c', false);
         $wkb .= $this->writePoint($geometry);
         break;
       case 'LineString';
@@ -197,9 +214,19 @@ class WKB extends GeoAdapter
   }
 
   function writePoint($point) {
-    // Set the coords
-    $wkb = pack('dd',$point->x(), $point->y());
-
+  	if( $point->hasZ() ) {
+  		if ( $point->isMeasured() ) {
+  			$wkb = pack('dddd',$point->x(), $point->y(), $point->z(), $point->m());
+  		}
+  		else $wkb = pack('dddd',$point->x(), $point->y(), $point->z(), false);
+  	}
+  	else if ($point->isMeasured() ) { 
+  		$wkb = pack('dddd',$point->x(), $point->y(), false,$point->m());
+  	}  	
+    else {
+      // Set the coords
+   	  $wkb = pack('dd',$point->x(), $point->y());
+    }
     return $wkb;
   }
 

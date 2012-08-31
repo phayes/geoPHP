@@ -161,7 +161,14 @@ class WKT extends GeoAdapter
       return strtoupper($geometry->geometryType()).' EMPTY';
     }
     else if ($data = $this->extractData($geometry)) {
-      return strtoupper($geometry->geometryType()).' ('.$data.')';
+      $p='';
+      if(  $geometry->hasZ() ) {
+    		$p .= 'Z';
+      }
+      if ( $geometry->isMeasured() ) {
+    		$p .= 'M';
+      }
+      return strtoupper($geometry->geometryType()).' '.$p.' ('.$data.')';
     }
   }
   
@@ -176,7 +183,15 @@ class WKT extends GeoAdapter
     $parts = array();
     switch ($geometry->geometryType()) {
       case 'Point':
-        return $geometry->getX().' '.$geometry->getY();
+       // return $geometry->getX().' '.$geometry->getY();
+        $p = $geometry->getX().' '.$geometry->getY();
+        if(  $geometry->hasZ() ) {
+        	$p .= ' '.$geometry->z();
+        }
+        if ( $geometry->isMeasured() ) {
+        	$p .= ' '.$geometry->m();
+        }
+        return $p;
       case 'LineString':
         foreach ($geometry->getComponents() as $component) {
           $parts[] = $this->extractData($component);
