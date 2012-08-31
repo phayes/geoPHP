@@ -168,13 +168,15 @@ class KML extends GeoAdapter
   protected function _extractCoordinates($xml) {
     $coord_elements = $this->childElements($xml, 'coordinates');
     $coordinates = array();
-    $coord_sets = explode(' ', $coord_elements[0]->nodeValue);
-    foreach ($coord_sets as $set_string) {
-      $set_string = trim($set_string);
-      if ($set_string) {
-        $set_array = explode(',',$set_string);
-        if (count($set_array) >= 2) {
-          $coordinates[] = $set_array;
+    if (count($coord_elements)) {
+      $coord_sets = explode(' ', $coord_elements[0]->nodeValue);
+      foreach ($coord_sets as $set_string) {
+        $set_string = trim($set_string);
+        if ($set_string) {
+          $set_array = explode(',',$set_string);
+          if (count($set_array) >= 2) {
+            $coordinates[] = $set_array;
+          }
         }
       }
     }

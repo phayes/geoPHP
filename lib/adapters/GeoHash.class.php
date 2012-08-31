@@ -40,9 +40,12 @@ class GeoHash extends GeoAdapter{
    * @see GeoAdapter::write()
    */
   public function write(Geometry $geometry, $precision = NULL){
+    if ($geometry->isEmpty()) return '';
+
     if($geometry->geometryType() === 'Point'){
       return $this->encodePoint($geometry, $precision);
-    } else {
+    }
+    else {
       // The geohash is the hash grid ID that fits the envelope
       $envelope = $geometry->envelope();
       $geohashes = array();
