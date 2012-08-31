@@ -105,14 +105,13 @@ class geoPHP
     );
   }
 
-  static function geosInstalled($force = NULL) {
-    static $geos_installed = NULL;
-    if ($force !== NULL) $geos_installed = $force;
-    if ($geos_installed !== NULL) {
-      return $geos_installed;
+  static $geos_installed;
+  static function geosInstalled($force = NULL) {    
+    if ( $force !== NULL ) self::$geos_installed = $force;
+    if ( !isset(self::$geos_installed) ) {
+   		self::$geos_installed = class_exists('GEOSGeometry');
     }
-    $geos_installed = class_exists('GEOSGeometry');
-    return $geos_installed;
+    return self::$geos_installed;
   }
 
   static function geosToGeometry($geos) {
@@ -206,8 +205,6 @@ class geoPHP
     $mem = fopen('php://memory', 'r+');
     fwrite($mem, $input, 8); // Write 8 bytes - we can detect the vast majority of formats in the first 8 bytes
     fseek($mem, 0);
-    
-    if ( !$mem ) return false; // duh ? 
     
     $u = fread($mem, 1);
     $u = unpack("c", $u);

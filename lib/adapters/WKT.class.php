@@ -70,8 +70,6 @@ class WKT extends GeoAdapter
     // If it's marked as empty, then return an empty polygon
     if ($data_string == 'EMPTY') return new Polygon();
     
-    //$parts = explode('),',$data_string);
-    // avoid mistake with blank space
     $lines = array();
     if (  preg_match_all('/\(([^)(]*)\)/', $data_string, $m) ) {
     	$parts = $m[1];    	
@@ -110,13 +108,14 @@ class WKT extends GeoAdapter
     // If it's marked as empty, then return an empty multi-polygon
     if ($data_string == 'EMPTY') return new MultiPolygon();
     
-    $parts = explode(')),',$data_string);
-    $polys = array();
-    foreach ($parts as $part) {     
-      $parts = '(('.trim($part,')( ').'))';	
-      $polys[] = $this->parsePolygon($part);
+    $polygons = array();
+    if (  preg_match_all('/\(\(.*?\)\)/', $data_string, $m) ) {
+    	$parts = $m[0];
+    	foreach ($parts as $part) {
+    		$polygons[] =  $this->parsePolygon($part);
+    	}
     }
-    return new MultiPolygon($polys);
+    return new MultiPolygon($polygons);
   }
 
   private function parseGeometryCollection($data_string) {
@@ -125,10 +124,10 @@ class WKT extends GeoAdapter
     
     $geometries = array();
     // do not cut ZM 
-    $str = preg_replace('/([a-z]{3,})/i', '|$1', $data_string);
-    $components = explode('|', substr($str,1,-1) );
+    $str = preg_replace('/([a-z]{3,})/i', '|$1', $data_string);    
+    $components = explode('|', substr($str,1) );
 
-    foreach ($components as $component) {
+    foreach ($components as $component) {   
       $geometries[] = $this->read(trim($component,', '));
     }
     return new GeometryCollection($geometries);
