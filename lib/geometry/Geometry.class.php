@@ -40,9 +40,10 @@ abstract class Geometry
   abstract public function getBBox();
   abstract public function asArray();
   abstract public function getPoints();
-  abstract public function explode();
+  abstract public function explode(); // Get all line segments
   abstract public function greatCircleLength(); //meters
   abstract public function haversineLength(); //degrees
+  abstract public function flatten(); // 3D to 2D
 
 
   // Public: Standard -- Common to all geometries

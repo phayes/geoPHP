@@ -137,6 +137,77 @@ class Point extends Geometry
     return TRUE;
   }
 
+  public function flatten() {
+    if ($this->dimention == 3) {
+      return new Point($this->x(), $this->y());
+    }
+    return $this;
+  }
+
+  public function distance($geometry) {
+    if ($this->geos()) {
+      return $this->geos()->distance($geometry->geos());
+    }
+
+    if ($geometry->isEmpty()) return NULL;
+
+    if ($geometry->geometryType() == 'Point') {
+      if ($this->equals($geometry)) return 0;
+      return sqrt((($this->x() - $geometry->x())^2) + (($this->y() - $geometry->y())^2));
+    }
+    if ($geometry->geometryType() == 'MultiPoint' || $geometry->geometryType() == 'GeometryCollection') {
+      $distance = NULL;
+      foreach ($geometry->getComponents() as $component) {
+        $check_distance = $this->distance($component);
+        if ($check_distance === 0) return 0;
+        if ($check_distance === NULL) return NULL;
+        if ($distance === NULL) $distance = $check_distance;
+        if ($check_distance < $distance) $distance = $check_distance;
+      }
+      return $distance;
+    }
+    else {
+      // For LineString, Polygons, MultiLineString and MultiPolygon. the nearest point might be a vertex,
+      // but it could also be somewhere along a line-segment that makes up the geometry (between vertices).
+      // Here we brute force check all line segments that make up these geometries
+      $distance = NULL;
+      $segments = $geometry->explode();
+      foreach ($segments as $seg) {
+        // As per http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+        // and http://paulbourke.net/geometry/pointline/
+
+        $x1 = $seg->pointN(1)->x();
+        $y1 = $seg->pointN(1)->y();
+        $x2 = $seg->pointN(2)->x();
+        $y2 = $seg->pointN(2)->y();
+        $x3 = $this->x();
+        $y3 = $this->y();
+
+        $px = $x2 - $x1;
+        $py = $y2 - $y1;
+
+        $d = ($px*$px) + ($py*$py);
+
+        $u =  ((($x3 - $x1) * $px) + (($y3 - $y1) * $py)) / $d;
+
+        if ($u > 1) $u = 1;
+        if ($u < 0) $u = 0;
+
+        $x = $x1 + ($u * $px);
+        $y = $y1 + ($u * $py);
+
+        $dx = $x - $x3;
+        $dy = $y - $y3;
+
+        $check_distance = sqrt(($dx * $dx) + ($dy * $dy));
+
+        if ($distance === NULL) $distance = $check_distance;
+        if ($check_distance < $distance) $distance = $check_distance;
+      }
+      return $distance;
+    }
+  }
+
   // Not valid for this geometry type
   public function numGeometries()    { return NULL; }
   public function geometryN($n)      { return NULL; }
