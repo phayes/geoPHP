@@ -9,6 +9,7 @@ class Point extends Geometry
   public $coords = array(2);
   protected $geom_type = 'Point';
   protected $dimention = 2;
+  protected $measure = NULL;
 
   /**
    * Constructor
@@ -17,7 +18,7 @@ class Point extends Geometry
    * @param numeric $y The y coordinate (or latitude)
    * @param numeric $z The z coordinate (or altitude) - optional
    */
-  public function __construct($x, $y, $z = NULL) {
+  public function __construct($x, $y, $z = NULL, $m = NULL) {
     // Basic validation on x and y
     if (!is_numeric($x) || !is_numeric($y)) {
       throw new Exception("Cannot construct Point. x and y should be numeric");
@@ -30,11 +31,20 @@ class Point extends Geometry
       }
       $this->dimention = 3;
     }
+    
+    // Check to see if this is a measure
+    if ( $m !== NULL) {
+    	if (!is_numeric($m)) {    		
+    		throw new Exception("Cannot construct Point. m should be numeric");
+    	}
+    	$this->measure = $m;
+    }
 
     // Convert to floatval in case they are passed in as a string or integer etc.
     $x = floatval($x);
     $y = floatval($y);
     $z = floatval($z);
+    $m = floatval($m);
 
     // Add poitional elements
     if ($this->dimention == 2) {
@@ -73,6 +83,33 @@ class Point extends Geometry
       return $this->coords[2];
     }
     else return NULL;
+  }
+  
+  /**
+   * check if is a 3D point
+   * 
+   * @return true or NULL if is not a 3D point
+   */
+  public function hasZ() {
+  	if ( $this->dimention == 3 ) return true;
+  }
+  
+  /**
+   * check if is a measured value
+   *
+   * @return true or NULL if is a measured value
+   */
+  public function isMeasured() {
+  	if ( $this->measure ) return true;
+  }
+  
+  /**
+   * Return a measured value
+   *
+   * @return a measured value
+   */
+  public function m() {
+  	return $this->measure;
   }
 
   // A point's centroid is itself
