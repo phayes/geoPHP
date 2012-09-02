@@ -153,7 +153,7 @@ class Point extends Geometry
 
     if ($geometry->geometryType() == 'Point') {
       if ($this->equals($geometry)) return 0;
-      return sqrt((($this->x() - $geometry->x())^2) + (($this->y() - $geometry->y())^2));
+      return sqrt(pow(($this->x() - $geometry->x()), 2) + pow(($this->y() - $geometry->y()), 2));
     }
     if ($geometry->geometryType() == 'MultiPoint' || $geometry->geometryType() == 'GeometryCollection') {
       $distance = NULL;
@@ -188,18 +188,24 @@ class Point extends Geometry
 
         $d = ($px*$px) + ($py*$py);
 
-        $u =  ((($x3 - $x1) * $px) + (($y3 - $y1) * $py)) / $d;
+        if ($d == 0) {
+          // Line-sigment's endpoints are identical. This is merely a point masquerading as a line-sigment.
+          $check_distance = $this->distance($seg->pointN(1));
+        }
+        else {
+          $u =  ((($x3 - $x1) * $px) + (($y3 - $y1) * $py)) / $d;
 
-        if ($u > 1) $u = 1;
-        if ($u < 0) $u = 0;
+          if ($u > 1) $u = 1;
+          if ($u < 0) $u = 0;
 
-        $x = $x1 + ($u * $px);
-        $y = $y1 + ($u * $py);
+          $x = $x1 + ($u * $px);
+          $y = $y1 + ($u * $py);
 
-        $dx = $x - $x3;
-        $dy = $y - $y3;
+          $dx = $x - $x3;
+          $dy = $y - $y3;
 
-        $check_distance = sqrt(($dx * $dx) + ($dy * $dy));
+          $check_distance = sqrt(($dx * $dx) + ($dy * $dy));
+        }
 
         if ($distance === NULL) $distance = $check_distance;
         if ($check_distance < $distance) $distance = $check_distance;
