@@ -216,15 +216,8 @@ class LineString extends Collection
       return $distance;
     }
     else {
-      $distance = NULL;
-      foreach ($geometry->getComponents() as $component) {
-        $check_distance = $component->distance($this);
-        if ($check_distance === 0) return 0;
-        if ($check_distance === NULL) return NULL;
-        if ($distance === NULL) $distance = $check_distance;
-        if ($check_distance < $distance) $distance = $check_distance;
-      }
-      return $distance;
+      // It can be treated as collection
+      return parent::distance($geometry);
     }
   }
 }
