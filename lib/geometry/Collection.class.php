@@ -11,6 +11,7 @@
 abstract class Collection extends Geometry
 {
   public $components = array();
+  protected $dimention = 2;
 
   /**
    * Constructor: Checks and sets component geometries
@@ -162,6 +163,14 @@ abstract class Collection extends Geometry
     $length = 0;
     foreach ($this->components as $delta => $component) {
       $length += $component->length();
+    }
+    return $length;
+  }
+
+  public function length3D() {
+    $length = 0;
+    foreach ($this->components as $delta => $component) {
+      $length += $component->length3D();
     }
     return $length;
   }

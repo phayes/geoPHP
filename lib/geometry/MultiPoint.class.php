@@ -5,6 +5,7 @@
 class MultiPoint extends Collection
 {
   protected $geom_type = 'MultiPoint';
+  protected $dimention = 2;
 
   public function numPoints() {
     return $this->numGeometries();

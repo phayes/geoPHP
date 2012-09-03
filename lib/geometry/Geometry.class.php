@@ -16,6 +16,7 @@ abstract class Geometry
   abstract public function boundary();
   abstract public function centroid();
   abstract public function length();
+  abstract public function length3D();
   abstract public function y();
   abstract public function x();
   abstract public function z();
@@ -31,6 +32,7 @@ abstract class Geometry
   abstract public function numInteriorRings();
   abstract public function interiorRingN($n);
   abstract public function dimension();
+  abstract public function distance($geom);
   abstract public function equals($geom);
   abstract public function isEmpty();
   abstract public function isSimple();
@@ -308,12 +310,6 @@ abstract class Geometry
   public function coveredBy(Geometry $geometry) {
     if ($this->geos()) {
       return $this->geos()->coveredBy($geometry->geos());
-    }
-  }
-
-  public function distance(Geometry $geometry) {
-    if ($this->geos()) {
-      return $this->geos()->distance($geometry->geos());
     }
   }
 

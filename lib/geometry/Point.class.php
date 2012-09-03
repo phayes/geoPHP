@@ -8,6 +8,7 @@ class Point extends Geometry
 {
   public $coords = array(2);
   protected $geom_type = 'Point';
+  protected $dimention = 2;
 
   /**
    * Constructor
@@ -97,6 +98,10 @@ class Point extends Geometry
   }
 
   public function length() {
+    return 0;
+  }
+
+  public function length3D() {
     return 0;
   }
 

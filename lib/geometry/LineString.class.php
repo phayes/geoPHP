@@ -6,6 +6,7 @@
 class LineString extends Collection
 {
   protected $geom_type = 'LineString';
+  protected $dimention = 2;
 
   /**
    * Constructor
@@ -70,6 +71,17 @@ class LineString extends Collection
       $previous_point = $this->geometryN($delta);
       if ($previous_point) {
         $length += sqrt(pow(($previous_point->getX() - $point->getX()), 2) + pow(($previous_point->getY()- $point->getY()), 2));
+      }
+    }
+    return $length;
+  }
+
+  public function length3D() {
+    $length = 0;
+    foreach ($this->getPoints() as $delta => $point) {
+      $previous_point = $this->geometryN($delta);
+      if ($previous_point) {
+        $length += sqrt(pow(($previous_point->x() - $point->x()), 2) + pow(($previous_point->y() - $point->y()), 2) + pow(($previous_point->z() - $point->z()), 2));
       }
     }
     return $length;
