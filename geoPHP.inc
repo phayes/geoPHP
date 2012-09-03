@@ -50,6 +50,10 @@ class geoPHP
 
     // Auto-detect type if needed
     if (!$type) {
+      if (is_a($data, 'Geometry')) {
+        // User is trying to load a Geometry from a Geometry... Just pass it back
+        return $data;
+      }
       $type = geoPHP::detectFormat($data);
     }
 
