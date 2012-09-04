@@ -54,7 +54,9 @@ class geoPHP
       if (is_object($data)) {
         if ($data instanceOf Geometry) return $data;
       }
-      $type = geoPHP::detectFormat($data);
+      $format = explode(':', geoPHP::detectFormat($data));
+      $type = array_shift($format);
+      $args = $format;
     }
 
     $processor_type = $type_map[$type];
@@ -220,6 +222,12 @@ class geoPHP
       else return 'wkb';
     }
 
+    // Detect HEX encoded WKB or EWKB -- first byte is 43 (hex-encoded first-byte = 1, second-byte = ???)
+    // @@TODO: This needs to be refined
+    if ($first_byte == 48) {
+      return 'ewkb:1';
+    }
+
     // Detect GeoJSON - first char starts with {
     if ($first_byte == 123) {
       return 'json';
@@ -247,7 +255,7 @@ class geoPHP
       if (strpos($string, '<feed') !== FALSE)    return 'georss';
     }
 
-    // We need an 8 byte string for geohash and EWKT
+    // We need an 8 byte string for geohash and unpacked WKB / WKT
     fseek($mem, 0);
     $string = trim(fread($mem, 8));
 
