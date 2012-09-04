@@ -210,49 +210,53 @@ class geoPHP
   // It could make a mistake in XML detection if you are mixing or using namespaces in weird ways (ie, KML inside an RSS feed)
   static function detectFormat(&$input) {
     $mem = fopen('php://memory', 'r+');
-    fwrite($mem, $input, 8); // Write 8 bytes - we can detect the vast majority of formats in the first 8 bytes
+    fwrite($mem, $input, 11); // Write 11 bytes - we can detect the vast majority of formats in the first 11 bytes
     fseek($mem, 0);
 
-    $first_byte = array_pop(unpack("c", fread($mem, 1)));
+    $bytes = unpack("c*", fread($mem, 11));
 
     // Detect WKB or EWKB -- first byte is 1 (little endian indicator)
-    if ($first_byte == 1) {
-      $wkb_info = unpack("ctype/cz/cm/cs", fread($mem, 4));
-      if ($wkb_info['s']) return 'ewkb';
+    if ($bytes[1] == 1) {
+      // If SRID byte is TRUE (1), it's EWKB
+      if ($bytes[5]) return 'ewkb';
       else return 'wkb';
     }
 
-    // Detect HEX encoded WKB or EWKB -- first byte is 43 (hex-encoded first-byte = 1, second-byte = ???)
-    // @@TODO: This needs to be refined
-    if ($first_byte == 48) {
-      return 'ewkb:1';
+    // Detect HEX encoded WKB or EWKB -- first byte is 48, second byte is 49 (hex '01' => first-byte = 1)
+    if ($bytes[1] == 48 && $bytes[2] == 49) {
+      // The shortest possible WKB string (LINESTRING EMPTY) is 9 bytes long (18 hex chars)
+      if (strlen($input) >= 18) {
+        //@@TODO: Differentiate between EWKB and WKB -- check bytes 10 or 11 (SRID bool indicator)
+        return 'ewkb:1';
+      }
     }
 
     // Detect GeoJSON - first char starts with {
-    if ($first_byte == 123) {
+    if ($bytes[1] == 123) {
       return 'json';
     }
 
     // Detect EWKT - first char is S
-    if ($first_byte == 83) {
+    if ($bytes[1] == 83) {
       return 'ewkt';
     }
 
     // Detect WKT - first char starts with P (80), L (76), M (77), or G (71)
     $wkt_chars = array(80, 76, 77, 71);
-    if (in_array($first_byte, $wkt_chars)) {
+    if (in_array($bytes[1], $wkt_chars)) {
       return 'wkt';
     }
 
     // Detect XML -- first char is <
-    if ($first_byte == 60) {
+    if ($bytes[1] == 60) {
       // grab the first 256 characters
       $string = substr($input, 0, 256);
-      if (strpos($string, '<kml') !== FALSE)     return 'kml';
-      if (strpos($string, '<gpx') !== FALSE)     return 'gpx';
-      if (strpos($string, '<georss') !== FALSE)  return 'georss';
-      if (strpos($string, '<rss') !== FALSE)     return 'georss';
-      if (strpos($string, '<feed') !== FALSE)    return 'georss';
+      if (strpos($string, '<kml') !== FALSE)        return 'kml';
+      if (strpos($string, '<coordinate') !== FALSE) return 'kml';
+      if (strpos($string, '<gpx') !== FALSE)        return 'gpx';
+      if (strpos($string, '<georss') !== FALSE)     return 'georss';
+      if (strpos($string, '<rss') !== FALSE)        return 'georss';
+      if (strpos($string, '<feed') !== FALSE)       return 'georss';
     }
 
     // We need an 8 byte string for geohash and unpacked WKB / WKT
