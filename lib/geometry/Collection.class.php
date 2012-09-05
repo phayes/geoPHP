@@ -301,36 +301,7 @@ abstract class Collection extends Geometry
     else return $this;
   }
 
-
   public function distance(Geometry $geometry) {
-    if ($this->geos()) {
-      return $this->geos()->distance($geometry->geos());
-    }
-
-    $distance = NULL;
-    foreach ($this->components as $component) {
-      $check_distance = $component->distance($geometry);
-      if ($check_distance === 0) return 0;
-      if ($check_distance === NULL) return NULL;
-      if ($distance === NULL) $distance = $check_distance;
-      if ($check_distance < $distance) $distance = $check_distance;
-    }
-    return $distance;
-  }
-
-  public function flatten() {
-    if ($this->dimension == 3) {
-      $new_components = array();
-      foreach ($this->components as $component) {
-        $new_components[] = $component->flatten();
-      }
-      $type = $this->geometryType();
-      return new $type($new_components);
-    }
-    else return $this;
-  }
-
-  public function distance($geometry) {
     if ($this->geos()) {
       return $this->geos()->distance($geometry->geos());
     }

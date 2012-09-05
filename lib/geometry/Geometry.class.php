@@ -93,19 +93,10 @@ abstract class Geometry
     return $this->geom_type;
   }
 
-  public function hasZ() {
-    if ($this->dimention == 3) {
-      return TRUE;
-    }
-  }
-
   public function coordinateDimension() {
     return $this->dimention;
   }
-
-  public function coordinateDimension() {
-    return $this->dimention;
-  }
+ 
 
   /**
    * check if is a 3D point

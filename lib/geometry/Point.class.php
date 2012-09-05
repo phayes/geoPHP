@@ -119,10 +119,6 @@ class Point extends Geometry
     return 0;
   }
 
-  public function length3D() {
-    return 0;
-  }
-
   public function greatCircleLength() {
     return 0;
   }
