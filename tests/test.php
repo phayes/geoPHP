@@ -1,7 +1,9 @@
 <?php
-
+ini_set('error_reporting', -1);
+ini_set('display_errors', 1);
+ini_set('html_errors',1);
 // Uncomment to test
-# run_test();
+#run_test();
 
 function run_test() {
   set_time_limit(0);
@@ -43,9 +45,7 @@ function test_geometry($geometry) {
   $geometry->centroid();
   $geometry->length();
   $geometry->greatCircleLength();
-  $geometry->haversineLength();
-  $geometry->y();
-  $geometry->x();
+  $geometry->haversineLength();  
   $geometry->numGeometries();
   $geometry->geometryN(1);
   $geometry->startPoint();
@@ -64,9 +64,7 @@ function test_geometry($geometry) {
 
   // Aliases
   $geometry->getCentroid();
-  $geometry->getArea();
-  $geometry->getX();
-  $geometry->getY();
+  $geometry->getArea(); 
   $geometry->getGeos();
   $geometry->getGeomType();
   $geometry->getSRID();
@@ -108,6 +106,12 @@ function test_geometry($geometry) {
   $geometry->isMeasured();
   $geometry->isEmpty();
   $geometry->coordinateDimension();
+  
+  // will be moved to Point Class
+  $geometry->y();
+  $geometry->x();
+  $geometry->getX();
+  $geometry->getY();
   $geometry->z();
   $geometry->m();
 }
@@ -116,8 +120,10 @@ function test_adapters($geometry, $format, $input) {
   // Test adapter output and input. Do a round-trip and re-test
   foreach (geoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
     if ($adapter_key != 'google_geocode') { //Don't test google geocoder regularily. Uncomment to test
+      print '------ '.$format.' to '.$adapter_key."\n";
       $output = $geometry->out($adapter_key);
       if ($output) {
+      	
         $adapter_loader = new $adapter_class();
         $test_geom_1 = $adapter_loader->read($output);
         $test_geom_2 = $adapter_loader->read($test_geom_1->out($adapter_key));

@@ -8,7 +8,7 @@ class Point extends Geometry
 {
   public $coords = array(2);
   protected $geom_type = 'Point';
-  protected $dimention = 2;
+  protected $measure;
 
   /**
    * Constructor
@@ -16,33 +16,40 @@ class Point extends Geometry
    * @param numeric $x The x coordinate (or longitude)
    * @param numeric $y The y coordinate (or latitude)
    * @param numeric $z The z coordinate (or altitude) - optional
+   * @param numeric $m measure - optional
    */
-  public function __construct($x, $y, $z = NULL) {
+  public function __construct($x, $y, $z = NULL, $m = NULL) {
     // Basic validation on x and y
     if (!is_numeric($x) || !is_numeric($y)) {
       throw new Exception("Cannot construct Point. x and y should be numeric");
     }
 
     // Check to see if this is a 3D point
-    if ($z !== NULL) {
+    if ( $z !== NULL) {
       if (!is_numeric($z)) {
        throw new Exception("Cannot construct Point. z should be numeric");
       }
-      $this->dimention = 3;
+      $this->set3d(true);
+    }
+    
+    // Check to see if this is a measure
+    if ( $m !== NULL) {
+    	if (!is_numeric($m)) {    		
+    		throw new Exception("Cannot construct Point. m should be numeric");
+    	}    	
+    	$this->setMeasured(true);
     }
 
     // Convert to floatval in case they are passed in as a string or integer etc.
     $x = floatval($x);
     $y = floatval($y);
     $z = floatval($z);
+    $m = floatval($m);
 
-    // Add poitional elements
-    if ($this->dimention == 2) {
-      $this->coords = array($x, $y);
-    }
-    if ($this->dimention == 3) {
-      $this->coords = array($x, $y, $z);
-    }
+    // Add positional elements
+    if ( !$this->hasZ() )  $this->coords = array($x, $y);
+    else $this->coords = array($x, $y, $z);
+    if ( $this->isMeasured() ) $this->measure = $m;
   }
 
   /**
@@ -69,11 +76,18 @@ class Point extends Geometry
    * @return float The Z coordinate or NULL is not a 3D point
    */
   public function z() {
-    if ($this->dimention == 3) {
-      return $this->coords[2];
-    }
-    else return NULL;
+    if ( $this->hasZ() ) return $this->coords[2];
   }
+  
+  /**
+   * Return a measured value
+   *
+   * @return a measured value
+   */
+  public function m() {
+  	if ( $this->isMeasured() ) return $this->measure;
+  }
+  
 
   // A point's centroid is itself
   public function centroid() {
@@ -143,13 +157,11 @@ class Point extends Geometry
   }
 
   public function flatten() {
-    if ($this->dimention == 3) {
-      return new Point($this->x(), $this->y());
-    }
+    if ( $this->hasZ() ) return new Point($this->x(), $this->y());
     return $this;
   }
 
-  public function distance($geometry) {
+  public function distance(Geometry $geometry) {   
     if ($this->geos()) {
       return $this->geos()->distance($geometry->geos());
     }
@@ -232,5 +244,15 @@ class Point extends Geometry
   public function interiorRingN($n)  { return NULL; }
   public function pointOnSurface()   { return NULL; }
   public function explode()          { return NULL; }
+  
+  // Public: Aliases
+  // ---------------
+  public function getX() {
+  	return $this->x();
+  }
+  
+  public function getY() {
+  	return $this->y();
+  }
 }
 
