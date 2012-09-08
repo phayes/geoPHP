@@ -7,8 +7,7 @@
 class Polygon extends Collection
 {
   protected $geom_type = 'Polygon';
-  protected $dimention = 2;
-
+  
   public function area($exterior_only = FALSE, $signed = FALSE) {
     if ($this->isEmpty()) return 0;
 
@@ -142,4 +141,3 @@ class Polygon extends Collection
   public function length3D() { return NULL; }
 
 }
-

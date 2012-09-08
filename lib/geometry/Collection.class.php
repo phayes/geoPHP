@@ -301,7 +301,7 @@ abstract class Collection extends Geometry
     else return $this;
   }
 
-  public function distance($geometry) {
+  public function distance(Geometry $geometry) {
     if ($this->geos()) {
       return $this->geos()->distance($geometry->geos());
     }
