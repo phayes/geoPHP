@@ -42,45 +42,28 @@ class GeoRSS extends GeoAdapter
   }
   
   public function geomFromText($xml) {
-    // Change to lower-case, strip all CDATA
-    $xml = mb_strtolower($xml, mb_detect_encoding($xml)); // why ?
-    $xml = preg_replace('/<!\[cdata\[(.*?)\]\]>/s', '', $xml); // why ?   
-    
-    // Load into DOMDOcument   
-    libxml_use_internal_errors(true);
-	$xmlobj = new DOMDocument('1.0', 'UTF-8');
-	@$xmlobj->loadXML($xml);
-	// we need namespace, always
-	if ( !$xmlobj->hasChildNodes() || !$xmlobj->firstChild->getAttributeNode('xmlns:georss') ) {
-		$element = $xmlobj->createElement('feed');
-		$element->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:georss', "http://www.georss.org/georss");
-		    	   
-	 	    $xmlobj->appendChild($element);
-	
-		    foreach ( $xmlobj->childNodes as $child ) {
-		        if ( $element->isSameNode($child) ) continue;
-		    	$element->appendChild($child);
-		    }
-		    
-		    $xml = $xmlobj->saveXml($xmlobj);
-		    $xmlobj->loadXML($xml);
-	}
-	
-	$xmlobj = new DOMXPath($xmlobj);
-	$xmlobj->registerNamespace('georss', "http://www.georss.org/georss");    
-	$pt_elements = $xmlobj->evaluate('//georss:point');
-    
-    $this->xmlobj = $xmlobj;
-
-    try {
-     	$geom = $this->geomFromXML();
-    } catch(InvalidText $e) {
-        throw new Exception("Cannot Read Geometry From GeoRSS: ". $text);
-    } catch(Exception $e) {
-        throw $e;
-    }
-
-    return $geom;
+  	// Change to lower-case, strip all CDATA
+  	$xml = mb_strtolower($xml, mb_detect_encoding($xml)); // why ?
+  	$xml = preg_replace('/<!\[cdata\[(.*?)\]\]>/s', '', $xml); // why ?
+  	// if it's a fragment without ns declaration
+  	if ( !preg_match('#xmlns=#', $xml) ) {
+  		$xml = '<feed xmlns="http://www.w3.org/2005/Atom"	xmlns:georss="http://www.georss.org/georss">'.$xml.'</feed>';
+  	}
+  	// Load into DOMDOcument
+  	libxml_use_internal_errors(true);
+  	$this->xmlobj = new DOMDocument('1.0', 'UTF-8');
+  	@$this->xmlobj->loadXML($xml);  	
+  	
+  	$this->xpath = new DOMXPath($this->xmlobj);
+  	$this->xpath->registerNamespace('georss', "http://www.georss.org/georss");
+  	try {
+  		$geom = $this->geomFromXML();
+  	} catch(InvalidText $e) {
+  		throw new Exception("Cannot Read Geometry From GeoRSS: ". $text);
+  	} catch(Exception $e) {
+  		throw $e;
+  	}  	
+  	return $geom;
   }
   
   protected function geomFromXML() {
@@ -117,7 +100,7 @@ class GeoRSS extends GeoAdapter
   
   protected function parsePoints() {
     $points = array();
-    $pt_elements = $this->xmlobj->evaluate('//georss:point');
+    $pt_elements = $this->xpath->evaluate('//georss:point');
     foreach ($pt_elements as $pt) {
       $point_array = $this->getPointsFromCoords(trim($pt->firstChild->nodeValue));
       $points[] = $point_array[0];
@@ -127,7 +110,7 @@ class GeoRSS extends GeoAdapter
   
   protected function parseLines() {
     $lines = array();
-    $line_elements = $this->xmlobj->evaluate('//georss:line');
+    $line_elements = $this->xpath->evaluate('//georss:line');
     foreach ($line_elements as $line) {
       $components = $this->getPointsFromCoords(trim($line->firstChild->nodeValue));
       $lines[] = new LineString($components);
@@ -137,7 +120,7 @@ class GeoRSS extends GeoAdapter
   
   protected function parsePolygons() {
     $polygons = array();
-    $poly_elements = $this->xmlobj->evaluate('//georss:polygon');
+    $poly_elements = $this->xpath->evaluate('//georss:polygon');
     foreach ($poly_elements as $poly) {
       if ($poly->hasChildNodes()) {
         $points = $this->getPointsFromCoords(trim($poly->firstChild->nodeValue));
@@ -155,7 +138,7 @@ class GeoRSS extends GeoAdapter
   // Boxes are rendered into polygons
   protected function parseBoxes() {
     $polygons = array();
-    $box_elements = $this->xmlobj->evaluate('//georss:box');
+    $box_elements = $this->xpath->evaluate('//georss:box');
     foreach ($box_elements as $box) {
       $parts = explode(' ',trim($box->firstChild->nodeValue));
       $components = array(
@@ -175,7 +158,7 @@ class GeoRSS extends GeoAdapter
   // @@TODO: Add good support once we have circular-string geometry support
   protected function parseCircles() {
     $points = array();    
-    $circle_elements = $this->xmlobj->evaluate('//georss:circle');
+    $circle_elements = $this->xpath->evaluate('//georss:circle');
     foreach ($circle_elements as $circle) {
       $parts = explode(' ',trim($circle->firstChild->nodeValue));
       $points[] = new Point($parts[1], $parts[0]);
