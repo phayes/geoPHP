@@ -1,242 +1,356 @@
 <?php
 /*
  * (c) Patrick Hayes
- *
- * This code is open-source and licenced under the Modified BSD License.
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+*
+* This code is open-source and licenced under the Modified BSD License.
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
+*/
 
 /**
  * PHP Geometry/WKB encoder/decoder
  *
+ * Mickael Desgranges mickael.desgranges@bcbgeo.com
+ * wkb spec can be found here:
+ * http://www.opengeospatial.org/standards/sfa
+ * Simple Feature Access  1.2.1
+ * some test case here: http://svn.osgeo.org/geos/trunk/tests/unit/capi/GEOSGeomFromWKBTest.cpp
  */
-class WKB extends GeoAdapter
-{
+class WKB extends GeoAdapter {
+	private $dimension = 2;	
+	protected $hasZ      = false;
+	protected $measured  = false;
 
-  private $dimension = 2;
-  private $z = FALSE;
-  private $m = FALSE;
+	const NDR = 1;
+	const XDR = 0;
 
-  /**
-   * Read WKB into geometry objects
-   *
-   * @param string $wkb
-   *   Well-known-binary string
-   * @param bool $is_hex_string
-   *   If this is a hexedecimal string that is in need of packing
-   *
-   * @return Geometry
-   */
-  public function read($wkb, $is_hex_string = FALSE) {
-    if ($is_hex_string) {
-      $wkb = pack('H*',$wkb);
-    }
+	private $wkb;
+	private $unpackerPosition 	= 0;
+	private $packerPosition   	= 0;
+	private $packerWkb			= '';
 
-    if (empty($wkb)) {
-      throw new Exception('Cannot read empty WKB geometry. Found ' . gettype($wkb));
-    }
+	private $uint_marker;
+	private $double_marker;
 
-    $mem = fopen('php://memory', 'r+');
-    fwrite($mem, $wkb);
-    fseek($mem, 0);
+	/**
+	 * Read WKB into geometry objects
+	 *
+	 * @param string $wkb
+	 *   Well-known-binary string
+	 * @param bool $is_hex_string
+	 *   If this is a hexedecimal string that is in need of packing
+	 *
+	 * @return Geometry
+	 */
+	public function read($wkb, $is_hex_string = FALSE) {		
+		if ($is_hex_string) $wkb = pack('H*',$wkb);
+		if (empty($wkb)) throw new Exception('Cannot read empty WKB geometry. Found ' . gettype($wkb));
+		$this->dimension = 2;
+		$this->hasZ      = false;
+		$this->measured  = false;
+		$this->unpackerPosition = 0;
+		$this->wkb = $wkb;
+		
+		$this->set_endianness($this->read_byte());
+		return $this->getGeometry();
+	}
 
-    $geometry = $this->getGeometry($mem);
-    fclose($mem);
-    return $geometry;
-  }
+	protected function read_double() {						
+		$packed_double = substr($this->wkb, $this->unpackerPosition, 8);
+		$this->unpackerPosition += 8;
+		if (!$packed_double || strlen($packed_double) < 8 ) throw new Exception("Truncated data");
+		return current(unpack($this->double_marker, $packed_double));
+	}
 
-  function getGeometry(&$mem) {
-    $base_info = unpack("corder/ctype/cz/cm/cs", fread($mem, 5));
-    if ($base_info['order'] !== 1) {
-      throw new Exception('Only NDR (little endian) SKB format is supported at the moment');
-    }
+	protected function read_uint() {			
+		$packed_uint = substr($this->wkb, $this->unpackerPosition, 4);
+		$this->unpackerPosition += 4;
+		if (!$packed_uint || strlen($packed_uint) < 4) throw new Exception("Truncated data");
+		return current(unpack($this->uint_marker, $packed_uint));
+	}
 
-    if ($base_info['z']) {
-      $this->dimension++;
-      $this->z = TRUE;
-    }
-    if ($base_info['m']) {
-      $this->dimension++;
-      $this->m = TRUE;
-    }
+	protected function read_byte() {
+		$packed_byte = substr($this->wkb, $this->unpackerPosition, 1);
+		$this->unpackerPosition += 1;
+		if ($packed_byte === null || strlen($packed_byte) < 1) throw new Exception("Truncated data");
+		return current(unpack("C", $packed_byte));
+	}
 
-    // If there is SRID information, ignore it - use EWKB Adapter to get SRID support
-    if ($base_info['s']) {
-      fread($mem, 4);
-    }
+	protected function write_double($double) {
+		$this->packerPosition += 8;
+		$this->packerWkb .= pack($this->double_marker, (float) $double);
+		return $this;
+	}
 
-    switch ($base_info['type']) {
-      case 1:
-        return $this->getPoint($mem);
-      case 2:
-        return $this->getLinstring($mem);
-      case 3:
-        return $this->getPolygon($mem);
-      case 4:
-        return $this->getMulti($mem,'point');
-      case 5:
-        return $this->getMulti($mem,'line');
-      case 6:
-        return $this->getMulti($mem,'polygon');
-      case 7:
-        return $this->getMulti($mem,'geometry');
-    }
-  }
+	protected function write_uint($uint) {
+		$this->packerPosition += 4;
+		$this->packerWkb .= pack($this->uint_marker, (int) $uint);
+		return $this;
+	}
 
-  function getPoint(&$mem) {
-    $point_coords = unpack("d*", fread($mem,$this->dimension*8));
-    return new Point($point_coords[1],$point_coords[2]);
-  }
+	protected function write_byte($byte) {
+		$this->packerPosition += 1;
+		$this->packerWkb .= pack("C", $byte);
+		return $this;
+	}
 
-  function getLinstring(&$mem) {
-    // Get the number of points expected in this string out of the first 4 bytes
-    $line_length = unpack('L',fread($mem,4));
+	protected function set_endianness($eness) {
+		if ($eness == self::NDR) {
+			$this->uint_marker = 'V';
+			$this->double_marker = 'd'; // should be E
+		}
+		elseif ($eness == self::XDR) {
+			$this->uint_marker = 'N';
+			$this->double_marker = 'd'; // should be G
+		}
+	}
 
-    // Return an empty linestring if there is no line-length
-    if (!$line_length[1]) return new LineString();
+	protected function getGeometry() {
+		$base_info =  $this->read_uint();
+		$this->measured = $this->hasZ = false; // reset for mixed geometry collection
+		if ( $base_info > 3000 ) {
+			$this->dimension += 2;
+			$this->measured = $this->hasZ = TRUE;
+			$type = $base_info - 3000;
+		}
+		else if ( $base_info > 2000 ) {
+			$this->dimension++;
+			$this->measured = TRUE;
+			$type = $base_info - 2000;
+		}
+		else if ( $base_info > 1000 ) {
+			$this->dimension++;
+			$this->hasZ = TRUE;
+			$type = $base_info - 1000;
+		}
+		else {
+			$type = $base_info;
+		}
+		
+		switch ($type) {
+			case 1:
+				$geom = $this->getPoint();
+				break;
+			case 2:
+				$geom = $this->getLineString();
+				break;
+			case 3:
+				$geom = $this->getPolygon();
+				break;
+			case 4:
+				$geom = $this->getMulti('point');
+				break;
+			case 5:
+				$geom = $this->getMulti('line');
+				break;
+			case 6:
+				$geom = $this->getMulti('polygon');
+				break;
+			case 7:
+				$geom = $this->getMulti('geometry');
+				break;
+			default:
+				throw new Exception('geometry type unknow: '.$type);
+		}
+		$geom->set3d($this->hasZ);
+		$geom->setMeasured($this->measured);
+		return $geom;
+	}
 
-    // Read the nubmer of points x2 (each point is two coords) into decimal-floats
-    $line_coords = unpack('d*', fread($mem,$line_length[1]*$this->dimension*8));
+	protected function getPoint() {
+		$z = $m = null;
+		$x = $this->read_double();
+		$y = $this->read_double();
+		if ( $this->hasZ ) 		$z= $this->read_double();
+		if ( $this->measured )  $m= $this->read_double();		
+		return new Point($x, $y, $z, $m);
+	}
 
-    // We have our coords, build up the linestring
-    $components = array();
-    $i = 1;
-    $num_coords = count($line_coords);
-    while ($i <= $num_coords) {
-      $components[] = new Point($line_coords[$i],$line_coords[$i+1]);
-      $i += 2;
-    }
-    return new LineString($components);
-  }
+	protected function getLineString() {
+		// Get the number of points expected in this string out of the first 4 bytes
+		$line_length = $this->read_uint();
 
-  function getPolygon(&$mem) {
-    // Get the number of linestring expected in this poly out of the first 4 bytes
-    $poly_length = unpack('L',fread($mem,4));
+		// Return an empty linestring if there is no line-length
+		if (!$line_length) return new LineString();
+		
+		// We have our coords, build up the linestring
+		$components = array();
+		for ($i=0; $i<$line_length; $i++) {
+			$components[] = $this->getPoint();
+		}
+		return new LineString($components);
+	}
 
-    $components = array();
-    $i = 1;
-    while ($i <= $poly_length[1]) {
-      $components[] = $this->getLinstring($mem);
-      $i++;
-    }
-    return new Polygon($components);
-  }
+	protected function getPolygon() {
+		// Get the number of linestring expected in this poly out of the first 4 bytes
+		$poly_length = $this->read_uint();
+		
+		$components = array();
+		for ($i=0; $i<$poly_length; $i++) {
+			$components[] = $this->getLineString();
+		}
+		return new Polygon($components);
+	}
 
-  function getMulti(&$mem, $type) {
-    // Get the number of items expected in this multi out of the first 4 bytes
-    $multi_length = unpack('L',fread($mem,4));
+	protected function getMulti($type) {
+		// Get the number of items expected in this multi out of the first 4 bytes
+		$multi_length = $this->read_uint();
+		$components = array();
+		for ($i=0; $i<$multi_length; $i++) {			
+			switch ($type) {
+				case 'point':
+					$components[] = $this->getPoint();
+					break;
+				case 'line':
+					$components[] = $this->getLineString();
+					break;
+				case 'polygon':
+					$components[] = $this->getPolygon();
+					break;
+				case 'geometry':
+					$components[] = $this->getGeometry();
+					break;
+			}
+		}		
+		
+		switch ($type) {
+			case 'point':
+				return new MultiPoint($components);
+			case 'line':
+				return new MultiLineString($components);
+			case 'polygon':
+				return new MultiPolygon($components);
+			case 'geometry':
+				return new GeometryCollection($components);
+		}
+		
+	}
 
-    $components = array();
-    $i = 1;
-    while ($i <= $multi_length[1]) {
-      $components[] = $this->getGeometry($mem);
-      $i++;
-    }
-    switch ($type) {
-      case 'point':
-        return new MultiPoint($components);
-      case 'line':
-        return new MultiLineString($components);
-      case 'polygon':
-        return new MultiPolygon($components);
-      case 'geometry':
-        return new GeometryCollection($components);
-    }
-  }
+	
+	
+	/**
+	 * Serialize geometries into WKB string.
+	 *
+	 * @param Geometry $geometry
+	 *
+	 * @return string The WKB string representation of the input geometries
+	 */
+	public function write(Geometry $geometry, $write_as_hex = FALSE, $endianess=1) {
+		$this->packerPosition = 0;
+		$this->packerWkb = '';
+		
+		// We always write into NDR (little endian) by default
+		$this->set_endianness($endianess);
+		$this->write_byte($endianess);		
+		$this->writeType($geometry);
 
-  /**
-   * Serialize geometries into WKB string.
-   *
-   * @param Geometry $geometry
-   *
-   * @return string The WKB string representation of the input geometries
-   */
-  public function write(Geometry $geometry, $write_as_hex = FALSE) {
-    // We always write into NDR (little endian)
-    $wkb = pack('c',1);
+		if ($write_as_hex) {
+			return  current(unpack('H*', $this->packerWkb));
+		}
+		return $this->packerWkb;
+	}
+	
+	protected function writeType($geometry) {
+		//+ 1000 Z
+		//+ 2000 M
+		//+ 3000 ZM
+		$type = 0;
+		if ( $geometry->isMeasured() && $geometry->hasZ() ) {
+			$type = 3000;
+		}
+		else if ( $geometry->isMeasured() ) {
+			$type = 2000;
+		}
+		else if ( $geometry->hasZ() ) {
+			$type = 1000;
+		}
+		 
+		switch ($geometry->getGeomType()) {
+			case 'Point';
+				$type += 1;
+				$this->write_uint($type);
+				$this->writePoint($geometry);
+				break;
+			case 'LineString';
+				$type += 2;
+				$this->write_uint($type);
+				$this->writeLineString($geometry);
+				break;
+			case 'Polygon';
+				$type += 3;
+				$this->write_uint($type);
+				$this->writePolygon($geometry);
+				break;
+			case 'MultiPoint';
+				$type += 4;
+				$this->write_uint($type);
+				$this->writeMulti('point', $geometry);
+				break;
+			case 'MultiLineString';
+				$type += 5;
+				$this->write_uint($type);
+				$this->writeMulti('line', $geometry);
+				break;
+			case 'MultiPolygon';
+				$type += 6;
+				$this->write_uint($type);
+				$this->writeMulti('polygon', $geometry);
+				break;
+			case 'GeometryCollection';
+				$type += 7;
+				$this->write_uint($type);
+				$this->writeMulti('geometry', $geometry);
+				break;
+		}
+	}
 
-    switch ($geometry->getGeomType()) {
-      case 'Point';
-        $wkb .= pack('L',1);
-        $wkb .= $this->writePoint($geometry);
-        break;
-      case 'LineString';
-        $wkb .= pack('L',2);
-        $wkb .= $this->writeLineString($geometry);
-        break;
-      case 'Polygon';
-        $wkb .= pack('L',3);
-        $wkb .= $this->writePolygon($geometry);
-        break;
-      case 'MultiPoint';
-        $wkb .= pack('L',4);
-        $wkb .= $this->writeMulti($geometry);
-        break;
-      case 'MultiLineString';
-        $wkb .= pack('L',5);
-        $wkb .= $this->writeMulti($geometry);
-        break;
-      case 'MultiPolygon';
-        $wkb .= pack('L',6);
-        $wkb .= $this->writeMulti($geometry);
-        break;
-      case 'GeometryCollection';
-        $wkb .= pack('L',7);
-        $wkb .= $this->writeMulti($geometry);
-        break;
-    }
+	protected function writePoint($point) {		
+		$this->write_double($point->x());
+		$this->write_double($point->y());
+		if( $point->hasZ() ) {
+			$this->write_double($point->z());
+		}
+		if ($point->isMeasured() ) {
+			$this->write_double($point->m());
+		}		
+	}
 
-    if ($write_as_hex) {
-      $unpacked = unpack('H*',$wkb);
-      return $unpacked[1];
-    }
-    else {
-      return $wkb;
-    }
-  }
+	protected function writeLineString($line) {
+		// Set the number of points in this line
+		$this->write_uint($line->numPoints());
+		// Set the coords
+		foreach ($line->getComponents() as $point) {
+			$this->writePoint($point);
+		}
+	}
 
-  function writePoint($point) {
-    // Set the coords
-    $wkb = pack('dd',$point->x(), $point->y());
+	protected function writePolygon($poly) {
+		// Set the number of lines in this poly
+		$this->write_uint($poly->numGeometries());
+		// Write the lines
+		foreach ($poly->getComponents() as $line) {
+			$this->writeLineString($line);
+		}
+	}
 
-    return $wkb;
-  }
-
-  function writeLineString($line) {
-    // Set the number of points in this line
-    $wkb = pack('L',$line->numPoints());
-
-    // Set the coords
-    foreach ($line->getComponents() as $point) {
-      $wkb .= pack('dd',$point->x(), $point->y());
-    }
-
-    return $wkb;
-  }
-
-  function writePolygon($poly) {
-    // Set the number of lines in this poly
-    $wkb = pack('L',$poly->numGeometries());
-
-    // Write the lines
-    foreach ($poly->getComponents() as $line) {
-      $wkb .= $this->writeLineString($line);
-    }
-
-    return $wkb;
-  }
-
-  function writeMulti($geometry) {
-    // Set the number of components
-    $wkb = pack('L',$geometry->numGeometries());
-
-    // Write the components
-    foreach ($geometry->getComponents() as $component) {
-      $wkb .= $this->write($component);
-    }
-
-    return $wkb;
-  }
-
+	protected function writeMulti($type, $geometry) {
+		// Set the number of components
+		$this->write_uint($geometry->numGeometries());
+		// Write the components
+		foreach ($geometry->getComponents() as $component) {
+			switch ($type) {
+				case 'point':
+					$this->writePoint($component);
+					break;
+				case 'line':
+					$this->writeLineString($component);
+					break;
+				case 'polygon':
+					$this->writePolygon($component);
+					break;
+				case 'geometry':
+					$this->writeType($component);
+			}			
+		}
+	}
 }
