@@ -6,7 +6,7 @@
 class LineString extends Collection
 {
   protected $geom_type = 'LineString';
-  protected $dimention = 2;
+  protected $dimension = 2;
 
   /**
    * Constructor

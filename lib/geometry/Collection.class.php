@@ -11,7 +11,7 @@
 abstract class Collection extends Geometry
 {
   public $components = array();
-  protected $dimention = 2;
+  protected $dimension = 2;
 
   /**
    * Constructor: Checks and sets component geometries
@@ -25,8 +25,11 @@ abstract class Collection extends Geometry
     foreach ($components as $component) {
       if ($component instanceof Geometry) {
         $this->components[] = $component;
-        if ($component->coordinateDimension() > $this->dimention) {
-          $this->dimention = $component->coordinateDimension();
+        if ($component->coordinateDimension() > $this->dimension) {
+          $this->dimension = $component->coordinateDimension();
+        }
+        if ($component->isMeasured()) {
+          $this->setMeasured(TRUE);
         }
       }
       else {
@@ -322,6 +325,7 @@ abstract class Collection extends Geometry
   public function x()                { return NULL; }
   public function y()                { return NULL; }
   public function z()                { return NULL; }
+  public function m()                { return NULL; }
   public function startPoint()       { return NULL; }
   public function endPoint()         { return NULL; }
   public function isRing()           { return NULL; }

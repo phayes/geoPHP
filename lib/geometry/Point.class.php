@@ -4,11 +4,13 @@
  * Point: The most basic geometry type. All other geometries
  * are built out of Points.
  */
-class Point extends Geometry
+class Point extends Geometry 
 {
-  public $coords = array(2);
   protected $geom_type = 'Point';
-  protected $measure;
+  protected $dimension = 2;
+
+  public $coords = array(2);
+  public $m;
 
   /**
    * Constructor
@@ -25,19 +27,20 @@ class Point extends Geometry
     }
 
     // Check to see if this is a 3D point
-    if ( $z !== NULL) {
+    if ($z !== NULL) {
       if (!is_numeric($z)) {
        throw new Exception("Cannot construct Point. z should be numeric");
       }
-      $this->set3d(true);
+      $this->dimension++;
     }
     
     // Check to see if this is a measure
-    if ( $m !== NULL) {
+    if ($m !== NULL) {
     	if (!is_numeric($m)) {    		
     		throw new Exception("Cannot construct Point. m should be numeric");
     	}    	
-    	$this->setMeasured(true);
+    	$this->setMeasured(TRUE);
+      $this->dimension++;
     }
 
     // Convert to floatval in case they are passed in as a string or integer etc.
@@ -46,10 +49,16 @@ class Point extends Geometry
     $z = floatval($z);
     $m = floatval($m);
 
-    // Add positional elements
-    if ( !$this->hasZ() )  $this->coords = array($x, $y);
-    else $this->coords = array($x, $y, $z);
-    if ( $this->isMeasured() ) $this->measure = $m;
+    // Set position
+    if (!$z) {
+      $this->coords = array($x, $y);
+    }
+    else {
+      $this->coords = array($x, $y, $z);
+    }
+    if ($m) {
+      $this->m = $m;
+    }
   }
 
   /**
@@ -85,9 +94,8 @@ class Point extends Geometry
    * @return a measured value
    */
   public function m() {
-  	if ( $this->isMeasured() ) return $this->measure;
+  	return $this->m;
   }
-  
 
   // A point's centroid is itself
   public function centroid() {
@@ -244,15 +252,5 @@ class Point extends Geometry
   public function interiorRingN($n)  { return NULL; }
   public function pointOnSurface()   { return NULL; }
   public function explode()          { return NULL; }
-  
-  // Public: Aliases
-  // ---------------
-  public function getX() {
-  	return $this->x();
-  }
-  
-  public function getY() {
-  	return $this->y();
-  }
 }
 

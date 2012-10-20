@@ -13,7 +13,7 @@
 class GeoRSS extends GeoAdapter
 {
   private $namespace = FALSE;
-  private $nss = 'georss'; // Name-space string. eg 'georss:'
+  private $nss = ''; // Name-space string. eg 'georss:'
   
   /**
    * Read GeoRSS string into geometry objects
@@ -30,10 +30,10 @@ class GeoRSS extends GeoAdapter
    * Serialize geometries into a GeoRSS string.
    *
    * @param Geometry $geometry
-   * 
+   *
    * @return string The georss string representation of the input geometries
    */
-  public function write(Geometry $geometry, $namespace = 'georss') { 
+  public function write(Geometry $geometry, $namespace = FALSE) {
     if ($namespace) {
       $this->namespace = $namespace;
       $this->nss = $namespace.':';    
@@ -41,39 +41,21 @@ class GeoRSS extends GeoAdapter
     return $this->geometryToGeoRSS($geometry);
   }
   
-  public function geomFromText($xml) {
-    // Change to lower-case, strip all CDATA
-    $xml = mb_strtolower($xml, mb_detect_encoding($xml)); // why ?
-    $xml = preg_replace('/<!\[cdata\[(.*?)\]\]>/s', '', $xml); // why ?   
-    
-    // Load into DOMDOcument   
-    libxml_use_internal_errors(true);
-	$xmlobj = new DOMDocument('1.0', 'UTF-8');
-	@$xmlobj->loadXML($xml);
-	// we need namespace, always
-	if ( !$xmlobj->hasChildNodes() || !$xmlobj->firstChild->getAttributeNode('xmlns:georss') ) {
-		$element = $xmlobj->createElement('feed');
-		$element->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:georss', "http://www.georss.org/georss");
-		    	   
-	 	    $xmlobj->appendChild($element);
-	
-		    foreach ( $xmlobj->childNodes as $child ) {
-		        if ( $element->isSameNode($child) ) continue;
-		    	$element->appendChild($child);
-		    }
-		    
-		    $xml = $xmlobj->saveXml($xmlobj);
-		    $xmlobj->loadXML($xml);
-	}
-	
-	$xmlobj = new DOMXPath($xmlobj);
-	$xmlobj->registerNamespace('georss', "http://www.georss.org/georss");    
-	$pt_elements = $xmlobj->evaluate('//georss:point');
+  public function geomFromText($text) {
+    // Change to lower-case, strip all CDATA, and de-namespace
+    $text = strtolower($text);
+    $text = preg_replace('/<!\[cdata\[(.*?)\]\]>/s','',$text);
+        
+    // Load into DOMDOcument
+    $xmlobj = new DOMDocument();
+    @$xmlobj->loadXML($text);
+    if ($xmlobj === false) {
+      throw new Exception("Invalid GeoRSS: ". $text);
+    }
     
     $this->xmlobj = $xmlobj;
-
     try {
-     	$geom = $this->geomFromXML();
+      $geom = $this->geomFromXML();
     } catch(InvalidText $e) {
         throw new Exception("Cannot Read Geometry From GeoRSS: ". $text);
     } catch(Exception $e) {
@@ -117,7 +99,7 @@ class GeoRSS extends GeoAdapter
   
   protected function parsePoints() {
     $points = array();
-    $pt_elements = $this->xmlobj->evaluate('//georss:point');
+    $pt_elements = $this->xmlobj->getElementsByTagName('point');
     foreach ($pt_elements as $pt) {
       $point_array = $this->getPointsFromCoords(trim($pt->firstChild->nodeValue));
       $points[] = $point_array[0];
@@ -127,7 +109,7 @@ class GeoRSS extends GeoAdapter
   
   protected function parseLines() {
     $lines = array();
-    $line_elements = $this->xmlobj->evaluate('//georss:line');
+    $line_elements = $this->xmlobj->getElementsByTagName('line');
     foreach ($line_elements as $line) {
       $components = $this->getPointsFromCoords(trim($line->firstChild->nodeValue));
       $lines[] = new LineString($components);
@@ -137,7 +119,7 @@ class GeoRSS extends GeoAdapter
   
   protected function parsePolygons() {
     $polygons = array();
-    $poly_elements = $this->xmlobj->evaluate('//georss:polygon');
+    $poly_elements = $this->xmlobj->getElementsByTagName('polygon');
     foreach ($poly_elements as $poly) {
       if ($poly->hasChildNodes()) {
         $points = $this->getPointsFromCoords(trim($poly->firstChild->nodeValue));
@@ -155,7 +137,7 @@ class GeoRSS extends GeoAdapter
   // Boxes are rendered into polygons
   protected function parseBoxes() {
     $polygons = array();
-    $box_elements = $this->xmlobj->evaluate('//georss:box');
+    $box_elements = $this->xmlobj->getElementsByTagName('box');
     foreach ($box_elements as $box) {
       $parts = explode(' ',trim($box->firstChild->nodeValue));
       $components = array(
@@ -174,8 +156,8 @@ class GeoRSS extends GeoAdapter
   // Circles are rendered into points
   // @@TODO: Add good support once we have circular-string geometry support
   protected function parseCircles() {
-    $points = array();    
-    $circle_elements = $this->xmlobj->evaluate('//georss:circle');
+    $points = array();
+    $circle_elements = $this->xmlobj->getElementsByTagName('circle');
     foreach ($circle_elements as $circle) {
       $parts = explode(' ',trim($circle->firstChild->nodeValue));
       $points[] = new Point($parts[1], $parts[0]);
@@ -201,7 +183,7 @@ class GeoRSS extends GeoAdapter
       case 'geometrycollection':
         return $this->collectionToGeoRSS($geom);
         break;
-    }   
+    }
     return $output;
   }
   

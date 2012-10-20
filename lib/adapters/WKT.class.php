@@ -47,27 +47,29 @@ class WKT extends GeoAdapter {
   
   private function parseType($wkt) {
 	  // geometry type is the first word
-	  if ( preg_match('#^([a-z]*)#i', $wkt, $m) ) {
+	  if (preg_match('#^([a-z]*)#i', $wkt, $m)) {
 	  	$geotype = strtolower($m[1]);
 	  	$geoTypeList = geoPHP::geometryList();
-	  	if( array_key_exists($geotype, $geoTypeList) ) {
+	  	
+	  	if (array_key_exists($geotype, $geoTypeList)) {
 	  		$data_string = $this->getDataString($wkt, $geotype);
 	  		$this->hasZ 	= $data_string[0];
 	  		$this->measured = $data_string[1];
 	  		$method = 'parse'.$geotype;
-	  		$geom = $this->$method($data_string[2]);
-	  		$geom->set3d($this->hasZ);
-	  		$geom->setMeasured($this->measured);
-	  		return $geom;
+	  		return $this->$method($data_string[2]);
 	  	}
 	  }
   }
   
   private function parsePoint($data_string) {
-    $parts = explode(' ', trim($data_string));
     $z = $m = null;
-    if ( $this->hasZ ) $z = $parts[2];
-    if ( $this->measured ) $m = ( $this->hasZ ) ? $parts[3] :  $parts[2];
+    $parts = explode(' ', trim($data_string));
+    if ($this->hasZ) {
+      $z = $parts[2];
+    }
+    if ($this->measured) {
+      $m = ($this->hasZ) ? $parts[3] :  $parts[2];
+    }
     return new Point($parts[0], $parts[1], $z, $m);
   }
 

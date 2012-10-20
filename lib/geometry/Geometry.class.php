@@ -8,8 +8,8 @@ abstract class Geometry
   private   $geos = NULL;
   protected $srid = NULL;
   protected $geom_type;
-  protected $dimention = 2; // or dimension ?
-  protected $measured = false;
+  protected $dimension = 2;
+  protected $measured = FALSE;
   
   // Abtract: Standard
   // -----------------
@@ -18,6 +18,10 @@ abstract class Geometry
   abstract public function centroid();
   abstract public function length();
   abstract public function length3D();
+  abstract public function x();
+  abstract public function y();
+  abstract public function z();
+  abstract public function m();
   abstract public function numGeometries();
   abstract public function geometryN($n);
   abstract public function startPoint();
@@ -44,17 +48,6 @@ abstract class Geometry
   abstract public function greatCircleLength(); //meters
   abstract public function haversineLength(); //degrees
   abstract public function flatten(); // 3D to 2D
-
-  
-  // will be removed from here (this is for Point only)
-  // i made it non abstract because there is no difference
-  public function x() {return null;}
-  public function y() {return null;}
-  public function z()	{return null;}
-  public function m()	{return null;}
-  public function getX() {return null;}
-  public function getY() {return null;}
-
 
   // Public: Standard -- Common to all geometries
   // --------------------------------------------
@@ -94,9 +87,8 @@ abstract class Geometry
   }
 
   public function coordinateDimension() {
-    return $this->dimention;
+    return $this->dimension;
   }
- 
 
   /**
    * check if is a 3D point
@@ -104,17 +96,9 @@ abstract class Geometry
    * @return true or NULL if is not a 3D point
    */
   public function hasZ() {
-    if ($this->dimention == 3) {
+    if ($this->dimension == 4 || ($this->dimension == 3 && !$this->isMeasured())) {
       return TRUE;
     }
-  }
-  /**
-   * set geometry have 3d value
-   * 
-   * @param bool 
-   */
-  public function set3d($bool) {
-  	$this->dimention = ($bool) ? 3 : 2;
   }
   
   /**
@@ -186,6 +170,14 @@ abstract class Geometry
 
   public function is3D() {
     return $this->hasZ();
+  }
+
+  public function getX() {
+  	return $this->x();
+  }
+  
+  public function getY() {
+  	return $this->y();
   }
 
   // Public: GEOS Only Functions
