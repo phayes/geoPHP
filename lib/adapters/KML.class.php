@@ -130,13 +130,14 @@ class KML extends GeoAdapter
   protected function parsePolygon($xml) {
     $components = array();
 
-    $outer_boundary_element_a = $this->childElements($xml, 'outerboundaryis');
-    $outer_boundary_element = $outer_boundary_element_a[0];
-    $outer_ring_element_a = $this->childElements($outer_boundary_element, 'linearring');
-    $outer_ring_element = $outer_ring_element_a[0];
-    $components[] = $this->parseLineString($outer_ring_element);
+    if ( $outer_boundary_element_a = $this->childElements($xml, 'outerboundaryis') ) {
+    	$outer_boundary_element = $outer_boundary_element_a[0];
+        $outer_ring_element_a = $this->childElements($outer_boundary_element, 'linearring');
+    	$outer_ring_element = $outer_ring_element_a[0];
+	    $components[] = $this->parseLineString($outer_ring_element);
+    }
 
-    if (count($components) != 1) {
+    if (count($components) != 1) { 
       throw new Exception("Invalid KML");
     }
 
@@ -209,7 +210,7 @@ class KML extends GeoAdapter
     return '<'.$this->nss.'Point><'.$this->nss.'coordinates>'.$geom->getX().",".$geom->getY().'</'.$this->nss.'coordinates></'.$this->nss.'Point>';
   }
 
-  private function linestringToKML($geom, $type = FALSE) {
+  private function linestringToKML(LineString $geom, $type = FALSE) {
     if (!$type) {
       $type = $geom->getGeomType();
     }
@@ -233,16 +234,16 @@ class KML extends GeoAdapter
     return $str;
   }
 
-  public function polygonToKML($geom) {
+  public function polygonToKML(Polygon $geom) {
     $components = $geom->getComponents();
-    if (!empty($components)) {
+    $str = '';
+    if ( count($components) ) {
       $str = '<'.$this->nss.'outerBoundaryIs>' . $this->linestringToKML($components[0], 'LinearRing') . '</'.$this->nss.'outerBoundaryIs>';
       foreach (array_slice($components, 1) as $comp) {
         $str .= '<'.$this->nss.'innerBoundaryIs>' . $this->linestringToKML($comp) . '</'.$this->nss.'innerBoundaryIs>';
       }
-    }
-
-    return '<'.$this->nss.'Polygon>'. $str .'</'.$this->nss.'Polygon>';
+      return '<'.$this->nss.'Polygon>'. $str .'</'.$this->nss.'Polygon>';
+    }    
   }
 
   public function collectionToKML($geom) {

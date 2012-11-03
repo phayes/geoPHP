@@ -11,6 +11,7 @@
 abstract class Collection extends Geometry
 {
   public $components = array();
+  protected $dimension = 2;
 
   /**
    * Constructor: Checks and sets component geometries
@@ -24,6 +25,12 @@ abstract class Collection extends Geometry
     foreach ($components as $component) {
       if ($component instanceof Geometry) {
         $this->components[] = $component;
+        if ($component->coordinateDimension() > $this->dimension) {
+          $this->dimension = $component->coordinateDimension();
+        }
+        if ($component->isMeasured()) {
+          $this->setMeasured(TRUE);
+        }
       }
       else {
         throw new Exception("Cannot create a collection with non-geometries");
@@ -163,6 +170,14 @@ abstract class Collection extends Geometry
     return $length;
   }
 
+  public function length3D() {
+    $length = 0;
+    foreach ($this->components as $delta => $component) {
+      $length += $component->length3D();
+    }
+    return $length;
+  }
+
   public function greatCircleLength($radius = 6378137) {
     $length = 0;
     foreach ($this->components as $component) {
@@ -277,10 +292,40 @@ abstract class Collection extends Geometry
     return $parts;
   }
 
+  public function flatten() {
+    if ($this->dimension == 3) {
+      $new_components = array();
+      foreach ($this->components as $component) {
+        $new_components[] = $component->flatten();
+      }
+      $type = $this->geometryType();
+      return new $type($new_components);
+    }
+    else return $this;
+  }
+
+  public function distance(Geometry $geometry) {
+    if ($this->geos()) {
+      return $this->geos()->distance($geometry->geos());
+    }
+
+    $distance = NULL;
+    foreach ($this->components as $component) {
+      $check_distance = $component->distance($geometry);
+      if ($check_distance === 0) return 0;
+      if ($check_distance === NULL) return NULL;
+      if ($distance === NULL) $distance = $check_distance;
+      if ($check_distance < $distance) $distance = $check_distance;
+    }
+    return $distance;
+  }
+
   // Not valid for this geometry type
   // --------------------------------
   public function x()                { return NULL; }
   public function y()                { return NULL; }
+  public function z()                { return NULL; }
+  public function m()                { return NULL; }
   public function startPoint()       { return NULL; }
   public function endPoint()         { return NULL; }
   public function isRing()           { return NULL; }

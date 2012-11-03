@@ -5,6 +5,7 @@
 class MultiLineString extends Collection
 {
   protected $geom_type = 'MultiLineString';
+  protected $dimension = 2;
 
   // MultiLineString is closed if all it's components are closed
   public function isClosed() {

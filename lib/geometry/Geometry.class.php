@@ -8,15 +8,20 @@ abstract class Geometry
   private   $geos = NULL;
   protected $srid = NULL;
   protected $geom_type;
-
+  protected $dimension = 2;
+  protected $measured = FALSE;
+  
   // Abtract: Standard
   // -----------------
   abstract public function area();
   abstract public function boundary();
   abstract public function centroid();
   abstract public function length();
-  abstract public function y();
+  abstract public function length3D();
   abstract public function x();
+  abstract public function y();
+  abstract public function z();
+  abstract public function m();
   abstract public function numGeometries();
   abstract public function geometryN($n);
   abstract public function startPoint();
@@ -29,6 +34,7 @@ abstract class Geometry
   abstract public function numInteriorRings();
   abstract public function interiorRingN($n);
   abstract public function dimension();
+  abstract public function distance(Geometry $geom);
   abstract public function equals($geom);
   abstract public function isEmpty();
   abstract public function isSimple();
@@ -38,10 +44,10 @@ abstract class Geometry
   abstract public function getBBox();
   abstract public function asArray();
   abstract public function getPoints();
-  abstract public function explode();
+  abstract public function explode(); // Get all line segments
   abstract public function greatCircleLength(); //meters
   abstract public function haversineLength(); //degrees
-
+  abstract public function flatten(); // 3D to 2D
 
   // Public: Standard -- Common to all geometries
   // --------------------------------------------
@@ -80,6 +86,39 @@ abstract class Geometry
     return $this->geom_type;
   }
 
+  public function coordinateDimension() {
+    return $this->dimension;
+  }
+
+  /**
+   * check if is a 3D point
+   *
+   * @return true or NULL if is not a 3D point
+   */
+  public function hasZ() {
+    if ($this->dimension == 4 || ($this->dimension == 3 && !$this->isMeasured())) {
+      return TRUE;
+    }
+  }
+  
+  /**
+   * check if is a measured value
+   *
+   * @return true or NULL if is a measured value
+   */
+  public function isMeasured() {
+  	return $this->measured;
+  }
+  
+  /**
+   * set geometry have measured value
+   * 
+   * @param bool
+   */
+  public function setMeasured($bool) {
+  	$this->measured = ($bool) ? true : false;
+  }
+  
   // Public: Non-Standard -- Common to all geometries
   // ------------------------------------------------
 
@@ -94,7 +133,7 @@ abstract class Geometry
 
     array_unshift($args, $this);
     $result = call_user_func_array(array($processor, 'write'), $args);
-
+    
     return $result;
   }
 
@@ -107,14 +146,6 @@ abstract class Geometry
 
   public function getArea() {
     return $this->area();
-  }
-
-  public function getX() {
-    return $this->x();
-  }
-
-  public function getY() {
-    return $this->y();
   }
 
   public function getGeos() {
@@ -135,6 +166,18 @@ abstract class Geometry
 
   public function asBinary() {
     return $this->out('wkb');
+  }
+
+  public function is3D() {
+    return $this->hasZ();
+  }
+
+  public function getX() {
+  	return $this->x();
+  }
+  
+  public function getY() {
+  	return $this->y();
   }
 
   // Public: GEOS Only Functions
@@ -294,12 +337,6 @@ abstract class Geometry
     }
   }
 
-  public function distance(Geometry $geometry) {
-    if ($this->geos()) {
-      return $this->geos()->distance($geometry->geos());
-    }
-  }
-
   public function hausdorffDistance(Geometry $geometry) {
     if ($this->geos()) {
       return $this->geos()->hausdorffDistance($geometry->geos());
@@ -311,37 +348,4 @@ abstract class Geometry
       return $this->geos()->project($point->geos(), $normalized);
     }
   }
-
-  // Public - Placeholders
-  // ---------------------
-  public function hasZ() {
-    // geoPHP does not support Z values at the moment
-    return FALSE;
-  }
-
-  public function is3D() {
-    // geoPHP does not support 3D geometries at the moment
-    return FALSE;
-  }
-
-  public function isMeasured() {
-    // geoPHP does not yet support M values
-    return FALSE;
-  }
-
-  public function coordinateDimension() {
-    // geoPHP only supports 2-dimentional space
-    return 2;
-  }
-
-  public function z() {
-    // geoPHP only supports 2-dimentional space
-    return NULL;
-  }
-
-  public function m() {
-    // geoPHP only supports 2-dimentional space
-    return NULL;
-  }
-
 }

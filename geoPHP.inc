@@ -220,6 +220,7 @@ class geoPHP
 
     // First char is a tab, space or carriage-return. trim it and try again
     if ($bytes[1] == 9 || $bytes[1] == 10 || $bytes[1] == 32) {
+      $retry = ltrim($input);
       return geoPHP::detectFormat(ltrim($input));
     }
 

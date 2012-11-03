@@ -2,9 +2,11 @@
 /**
  * WKT (Well Known Text) Adapter
  */
-class WKT extends GeoAdapter
-{
+class WKT extends GeoAdapter {
   
+  protected $hasZ      = false;
+  protected $measured  = false;
+   
   /**
    * Read WKT string into geometry objects
    *
@@ -13,63 +15,65 @@ class WKT extends GeoAdapter
    * @return Geometry
    */
   public function read($wkt) {
-    $wkt = trim($wkt);
+  	$this->hasZ      = false;
+  	$this->measured  = false;
+  	
+    $wkt = trim($wkt);    
+    $srid = NULL;
     
     // If it contains a ';', then it contains additional SRID data
     if (strpos($wkt,';')) {
       $parts = explode(';', $wkt);
-      $wkt = $parts[1];
-      $eparts = explode('=',$parts[0]);
-      $srid = $eparts[1];
-    }
-    else {
-      $srid = NULL;
-    }
+    	$wkt = $parts[1];
+    	$eparts = explode('=',$parts[0]);
+    	$srid = $eparts[1];
+    } 
     
     // If geos is installed, then we take a shortcut and let it parse the WKT
-    if (geoPHP::geosInstalled()) {
-      $reader = new GEOSWKTReader();
-      if ($srid) {
-        $geom = geoPHP::geosToGeometry($reader->read($wkt));
-        $geom->setSRID($srid);
-        return $geom;
-      }
-      else { 
-        return geoPHP::geosToGeometry($reader->read($wkt));
-      }
+    if ( geoPHP::geosInstalled() ) {
+      $reader = new GEOSWKTReader();      
+      $geom = geoPHP::geosToGeometry($reader->read($wkt));
+      if ($srid) $geom->setSRID($srid);
+      return $geom;      
     }
-    $wkt = str_replace(', ', ',', $wkt);
+       
+    if (  $geom = $this->parseType($wkt) ) {   		
+    	if ($srid) $geom->setSRID($srid);
+    	return $geom;
+    } 
+    throw new Exception('Invalid Wkt');    
     
-    // For each geometry type, check to see if we have a match at the
-    // beggining of the string. If we do, then parse using that type
-    foreach (geoPHP::geometryList() as $geom_type) {
-      $wkt_geom = strtoupper($geom_type);
-      if (strtoupper(substr($wkt, 0, strlen($wkt_geom))) == $wkt_geom) {
-        $data_string = $this->getDataString($wkt, $wkt_geom);
-        $method = 'parse'.$geom_type;
-        
-        if ($srid) {
-          $geom = $this->$method($data_string);
-          $geom->setSRID($srid);
-          return $geom;
-        }
-        else { 
-          return $this->$method($data_string);
-        }
-        
-      }
-    }
+  }
+  
+  private function parseType($wkt) {
+	  // geometry type is the first word
+	  if (preg_match('#^([a-z]*)#i', $wkt, $m)) {
+	  	$geotype = strtolower($m[1]);
+	  	$geoTypeList = geoPHP::geometryList();
+	  	
+	  	if (array_key_exists($geotype, $geoTypeList)) {
+	  		$data_string = $this->getDataString($wkt, $geotype);
+	  		$this->hasZ 	= $data_string[0];
+	  		$this->measured = $data_string[1];
+	  		$method = 'parse'.$geotype;
+	  		return $this->$method($data_string[2]);
+	  	}
+	  }
   }
   
   private function parsePoint($data_string) {
-    $data_string = $this->trimParens($data_string);
-    $parts = explode(' ',$data_string);
-    return new Point($parts[0], $parts[1]);
+    $z = $m = null;
+    $parts = explode(' ', trim($data_string));
+    if ($this->hasZ) {
+      $z = $parts[2];
+    }
+    if ($this->measured) {
+      $m = ($this->hasZ) ? $parts[3] :  $parts[2];
+    }
+    return new Point($parts[0], $parts[1], $z, $m);
   }
 
   private function parseLineString($data_string) {
-    $data_string = $this->trimParens($data_string);
-
     // If it's marked as empty, then return an empty line
     if ($data_string == 'EMPTY') return new LineString();
     
@@ -81,113 +85,84 @@ class WKT extends GeoAdapter
     return new LineString($points);
   }
 
-  private function parsePolygon($data_string) {
-    $data_string = $this->trimParens($data_string);
-    
+  private function parsePolygon($data_string) {   
     // If it's marked as empty, then return an empty polygon
     if ($data_string == 'EMPTY') return new Polygon();
     
-    $parts = explode('),(',$data_string);
     $lines = array();
-    foreach ($parts as $part) {
-      if (!$this->beginsWith($part,'(')) $part = '(' . $part;
-      if (!$this->endsWith($part,')'))   $part = $part . ')';
-      $lines[] = $this->parseLineString($part);
-    }
+    if ( preg_match_all('/\(([^)(]*)\)/', $data_string, $m) ) {
+    	$parts = $m[1];    	
+    	foreach ($parts as $part) {
+    		$lines[] = $this->parseLineString($part);
+    	}
+    }   
     return new Polygon($lines);
   }
 
   private function parseMultiPoint($data_string) {
-    $data_string = $this->trimParens($data_string);
-    
     // If it's marked as empty, then return an empty MutiPoint
     if ($data_string == 'EMPTY') return new MultiPoint();
-    
-    $parts = explode(',',$data_string);
+
     $points = array();
-    foreach ($parts as $part) {
-      $points[] = $this->parsePoint($part);
+    if (  preg_match_all('/\((.*?)\)/', $data_string, $m) ) {
+    	$parts = $m[1];
+    	foreach ($parts as $part) {
+    		$points[] =  $this->parsePoint($part);
+    	}
     }
     return new MultiPoint($points);
   }
   
   private function parseMultiLineString($data_string) {
-    $data_string = $this->trimParens($data_string);
-
     // If it's marked as empty, then return an empty multi-linestring
-    if ($data_string == 'EMPTY') return new MultiLineString();
-    
-    $parts = explode('),(',$data_string);
+    if ($data_string == 'EMPTY') return new MultiLineString();    
     $lines = array();
-    foreach ($parts as $part) {
-      // Repair the string if the explode broke it
-      if (!$this->beginsWith($part,'(')) $part = '(' . $part;
-      if (!$this->endsWith($part,')'))   $part = $part . ')';
-      $lines[] = $this->parseLineString($part);
+    if (  preg_match_all('/\(([^\(].*?)\)/', $data_string, $m) ) {
+    	$parts = $m[1];
+    	foreach ($parts as $part) {
+    		$lines[] =  $this->parseLineString($part);
+    	}
     }
     return new MultiLineString($lines);
   }
 
   private function parseMultiPolygon($data_string) {
-    $data_string = $this->trimParens($data_string);
-
     // If it's marked as empty, then return an empty multi-polygon
     if ($data_string == 'EMPTY') return new MultiPolygon();
     
-    $parts = explode(')),((',$data_string);
-    $polys = array();
-    foreach ($parts as $part) {
-      // Repair the string if the explode broke it
-      if (!$this->beginsWith($part,'((')) $part = '((' . $part;
-      if (!$this->endsWith($part,'))'))   $part = $part . '))';
-      $polys[] = $this->parsePolygon($part);
+    $polygons = array();
+    if (  preg_match_all('/\(\(.*?\)\)/', $data_string, $m) ) {
+    	$parts = $m[0];
+    	foreach ($parts as $part) {
+    		$polygons[] =  $this->parsePolygon($part);
+    	}
     }
-    return new MultiPolygon($polys);
+    return new MultiPolygon($polygons);
   }
-
+ 
   private function parseGeometryCollection($data_string) {
-    $data_string = $this->trimParens($data_string);
-
-    // If it's marked as empty, then return an empty geom-collection
+     // If it's marked as empty, then return an empty geom-collection
     if ($data_string == 'EMPTY') return new GeometryCollection();
     
     $geometries = array();
-    $matches = array();
-    $str = preg_replace('/,\s*([A-Za-z])/', '|$1', $data_string);
-    $components = explode('|', trim($str));
-    
-    foreach ($components as $component) {
-      $geometries[] = $this->read($component);
+    // do not cut ZM 
+    $str = preg_replace('/([a-z]{3,})/i', '|$1', $data_string);    
+    $components = explode('|', substr($str,1) );
+
+    foreach ($components as $component) {   
+      $geometries[] = $this->parseType(trim($component,', '));
     }
     return new GeometryCollection($geometries);
   }
 
   protected function getDataString($wkt, $type) {
-    return substr($wkt, strlen($type));
-  }
-  
-  /**
-   * Trim the parenthesis and spaces
-   */
-  protected function trimParens($str) {
-    $str = trim($str);
-    
-    // We want to only strip off one set of parenthesis
-    if ($this->beginsWith($str, '(')) {
-      return substr($str,1,-1);
-    }
-    else return $str;
-  }
-  
-  protected function beginsWith($str, $char) {
-    if (substr($str,0,strlen($char)) == $char) return TRUE;
-    else return FALSE;
+    // data is between () or is empty  	
+    if ( preg_match('#(z{0,1})(m{0,1})[\s]*\((.*)\)$#i', trim($wkt), $m) ) {    	
+  		return array($m[1], $m[2], $m[3]);
+  	}
+  	return 'EMPTY';
   }
 
-  protected function endsWith($str, $char) {
-    if (substr($str,(0 - strlen($char))) == $char) return TRUE;
-    else return FALSE;
-  }
     
   /**
    * Serialize geometries into a WKT string.
@@ -196,19 +171,23 @@ class WKT extends GeoAdapter
    *
    * @return string The WKT string representation of the input geometries
    */
-  public function write(Geometry $geometry) {
+ public function write(Geometry $geometry) {
     // If geos is installed, then we take a shortcut and let it write the WKT
     if (geoPHP::geosInstalled()) {
       $writer = new GEOSWKTWriter();
       $writer->setTrim(TRUE);
       return $writer->write($geometry->geos());
     }
+    $this->measured = $geometry->isMeasured();
+    $this->hasZ     = $geometry->hasZ();
+        
+    if ($geometry->isEmpty()) return strtoupper($geometry->geometryType()).' EMPTY';
     
-    if ($geometry->isEmpty()) {
-      return strtoupper($geometry->geometryType()).' EMPTY';
-    }
-    else if ($data = $this->extractData($geometry)) {
-      return strtoupper($geometry->geometryType()).' ('.$data.')';
+    if ($data = $this->extractData($geometry, $geometry)) {
+      $p='';
+      if(  $this->hasZ ) 	 $p .= 'Z';
+      if ( $this->measured ) $p .= 'M';
+      return strtoupper($geometry->geometryType()).' '.$p.' ('.$data.')';
     }
   }
   
@@ -219,11 +198,14 @@ class WKT extends GeoAdapter
    *
    * @return string
    */
-  public function extractData($geometry) {
+   public function extractData($geometry) {
     $parts = array();
     switch ($geometry->geometryType()) {
       case 'Point':
-        return $geometry->getX().' '.$geometry->getY();
+        $p = $geometry->getX().' '.$geometry->getY();
+        if ( $this->hasZ )    	$p .= ' '.$geometry->z();
+        if ( $this->measured ) 	$p .= ' '.$geometry->m();
+        return $p;
       case 'LineString':
         foreach ($geometry->getComponents() as $component) {
           $parts[] = $this->extractData($component);
@@ -239,7 +221,15 @@ class WKT extends GeoAdapter
         return implode(', ', $parts);
       case 'GeometryCollection':
         foreach ($geometry->getComponents() as $component) {
-          $parts[] = strtoupper($component->geometryType()).' ('.$this->extractData($component).')';
+          $this->hasZ = $component->hasZ();
+          $this->measured = $component->isMeasured();
+          $geometry->set3d($this->hasZ);
+          $geometry->setMeasured($this->measured);
+          
+          $p='';
+          if(  $this->hasZ ) 	 $p .= 'Z';
+          if ( $this->measured ) $p .= 'M';          
+          $parts[] = strtoupper($component->geometryType()).' '.$p.' ('.$this->extractData($component).')';
         }
         return implode(', ', $parts);
     }

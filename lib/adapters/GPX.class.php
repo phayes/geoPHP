@@ -9,6 +9,7 @@
 
 /**
  * PHP Geometry/GPX encoder/decoder
+ * gpx spec: http://www.topografix.com/GPX/1/1/
  */
 class GPX extends GeoAdapter
 {
@@ -48,6 +49,8 @@ class GPX extends GeoAdapter
     $text = preg_replace('/<!\[cdata\[(.*?)\]\]>/s','',$text);
     
     // Load into DOMDocument
+    //ignore error
+    libxml_use_internal_errors(true);
     $xmlobj = new DOMDocument();
     @$xmlobj->loadXML($text);
     if ($xmlobj === false) {
@@ -93,9 +96,7 @@ class GPX extends GeoAdapter
     $points = array();
     $wpt_elements = $this->xmlobj->getElementsByTagName('wpt');
     foreach ($wpt_elements as $wpt) {
-      $lat = $wpt->attributes->getNamedItem("lat")->nodeValue;
-      $lon = $wpt->attributes->getNamedItem("lon")->nodeValue;
-      $points[] = new Point($lon, $lat);
+      $points[] = $this->pointNode($wpt);
     }
     return $points;
   }
@@ -107,9 +108,7 @@ class GPX extends GeoAdapter
       $components = array();
       foreach ($this->childElements($trk, 'trkseg') as $trkseg) {
         foreach ($this->childElements($trkseg, 'trkpt') as $trkpt) {
-          $lat = $trkpt->attributes->getNamedItem("lat")->nodeValue;
-          $lon = $trkpt->attributes->getNamedItem("lon")->nodeValue;
-          $components[] = new Point($lon, $lat);
+          $components[] = $this->pointNode($trkpt);
         }
       }
       if ($components) {$lines[] = new LineString($components);}
@@ -123,9 +122,7 @@ class GPX extends GeoAdapter
     foreach ($rte_elements as $rte) {
       $components = array();
       foreach ($this->childElements($rte, 'rtept') as $rtept) {
-        $lat = $rtept->attributes->getNamedItem("lat")->nodeValue;
-        $lon = $rtept->attributes->getNamedItem("lon")->nodeValue;
-        $components[] = new Point($lon, $lat);
+        $components[] = $this->pointNode($rtept);
       }
       $lines[] = new LineString($components);
     }
@@ -151,15 +148,32 @@ class GPX extends GeoAdapter
     }
   }
   
-  private function pointToGPX($geom) {
-    return '<'.$this->nss.'wpt lat="'.$geom->getY().'" lon="'.$geom->getX().'" />';
+  protected function pointNode($node) { 
+  	$lat = $node->attributes->getNamedItem("lat")->nodeValue;
+  	$lon = $node->attributes->getNamedItem("lon")->nodeValue;
+  	$elevation = null;
+  	$ele = $node->getElementsByTagName('ele');
+  	if ( $ele->length ) {
+  		 $elevation = $ele->item(0)->nodeValue; 
+  	}
+  	return new Point($lon, $lat, $elevation); 
+  }
+  
+  private function pointToGPX(Geometry $geom) {
+  	if ( $geom->hasZ() ) {
+  		$c = '<'.$this->nss.'wpt lat="'.$geom->getY().'" lon="'.$geom->getX().'">';
+  		$c .= '<ele>'.$geom->z().'</ele>';
+    	$c .= '</'.$this->nss.'wpt>';
+    	return $c;
+  	}
+  	return '<'.$this->nss.'wpt lat="'.$geom->getY().'" lon="'.$geom->getX().'" />';
   }
   
   private function linestringToGPX($geom) {
     $gpx = '<'.$this->nss.'trk><'.$this->nss.'trkseg>';
     
     foreach ($geom->getComponents() as $comp) {
-      $gpx .= '<'.$this->nss.'trkpt lat="'.$comp->getY().'" lon="'.$comp->getX().'" />';
+      $gpx .= $this->pointToGPX($comp);
     }
     
     $gpx .= '</'.$this->nss.'trkseg></'.$this->nss.'trk>';
@@ -176,5 +190,4 @@ class GPX extends GeoAdapter
     
     return $gpx;
   }
-
 }
