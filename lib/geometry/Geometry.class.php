@@ -190,6 +190,7 @@ abstract class Geometry
     // It hasn't been set yet, generate it
     if (geoPHP::geosInstalled()) {
       $reader = new GEOSWKBReader();
+      print var_dump($this->out('wkb',TRUE));
       $this->geos = $reader->readHEX($this->out('wkb',TRUE));
     }
     else {

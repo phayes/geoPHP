@@ -49,7 +49,7 @@ class geoPHP
     $type_map = geoPHP::getAdapterMap();
 
     // Auto-detect type if needed
-    if (!$type) {
+    if (!$type || $type == 'auto') {
       // If the user is trying to load a Geometry from a Geometry... Just pass it back
       if (is_object($data)) {
         if ($data instanceOf Geometry) return $data;
@@ -221,7 +221,7 @@ class geoPHP
     // First char is a tab, space or carriage-return. trim it and try again
     if ($bytes[1] == 9 || $bytes[1] == 10 || $bytes[1] == 32) {
       $retry = ltrim($input);
-      return geoPHP::detectFormat(ltrim($input));
+      return geoPHP::detectFormat($retry);
     }
 
     // Detect WKB or EWKB -- first byte is 1 (little endian indicator)

@@ -9,11 +9,6 @@
 
 /**
  * PHP Geometry/WKB encoder/decoder
- * 
- * Resources:
- * 
- *  - http://en.wikipedia.org/wiki/Well-known_text
- *  - http://postgis.refractions.net/pipermail/postgis-devel/2004-December/000710.html
  *
  */
 class WKB extends GeoAdapter
@@ -21,7 +16,6 @@ class WKB extends GeoAdapter
   private $mem;
   private $z = FALSE;
   private $m = FALSE;
-  private $s = FALSE;
   private $dimension = 2;
   private $maptype = array(
     'Point'              => 1,
@@ -42,9 +36,7 @@ class WKB extends GeoAdapter
     'TIN'                => 16,
     'Triangle'           => 17,
   );
-  private $z_marker = 0x80000000;
-  private $m_marker = 0x40000000;
-  private $s_marker = 0x20000000;
+
 
   /**
    * Read WKB into geometry objects
@@ -56,9 +48,9 @@ class WKB extends GeoAdapter
    *
    * @return Geometry
    */
-  public function read($wkb, $is_hex_string = NULL) {
+  public function read($wkb, $is_hex_string = FALSE) {
     if ($is_hex_string) {
-      $wkb = pack('H*', trim($wkb));
+      $wkb = pack('H*',$wkb);
     }
 
     if (empty($wkb)) {
@@ -75,19 +67,16 @@ class WKB extends GeoAdapter
   }
 
   function getGeometry() {
-    $edian = current(unpack("c", fread($this->mem, 1)));
-
-    if ($edian !== 1) {
+    $base_info = unpack("corder/ctype/cz/cm/cs", fread($this->mem, 5));
+    if ($base_info['order'] !== 1) {
       throw new Exception('Only NDR (little endian) SKB format is supported at the moment');
     }
-    
-    $base_info = $this->getType();
 
-    if ($base_info['d'] == 1 && $base_info['d'] == 3) {
+    if ($base_info['z']) {
       $this->dimension++;
       $this->z = TRUE;
     }
-    if ($base_info['d'] == 2 && $base_info['d'] == 3) {
+    if ($base_info['m']) {
       $this->dimension++;
       $this->m = TRUE;
     }
@@ -97,7 +86,7 @@ class WKB extends GeoAdapter
       fread($this->mem, 4);
     }
 
-    switch ($base_info['t']) {
+    switch ($base_info['type']) {
       case 1:
         return $this->getPoint();
       case 2:
@@ -113,14 +102,6 @@ class WKB extends GeoAdapter
       case 7:
         return $this->getMulti('geometry');
     }
-  }
-  
-  function getType() {
-    return array(
-      'd' => (int) substr($defint, 0, 1),
-      's' => (int) substr($defint, 1, 1),
-      't' => (int) substr($defint, 2, 2),
-    );
   }
 
   function getPoint() {
@@ -199,14 +180,15 @@ class WKB extends GeoAdapter
    * @return string The WKB string representation of the input geometries
    */
   public function write(Geometry $geometry, $write_as_hex = FALSE) {
-    // Write basic info about the geometry into the object
-    $this->setType($geometry);
-    
+    // Write z and m info. Note that this may change when parsing Multi-types as we decend into their components
+    //$this->z = $geometry->hasZ();
+    //$this->m = $geometry->isMeasured();
+
     // We always write into NDR (little endian)
     $wkb  = pack('c', 1);
-    
-    
-    $wkb .= $this->writeType($geometry);
+    $wkb .= pack('C', (int) $this->maptype[$geometry->getGeomType()]);
+    $wkb .= pack('C', (int) $this->z);
+    $wkb .= pack('C', (int) $this->m);
     
     // Set SRID to 0
     $wkb .= pack('c', 0);
@@ -289,30 +271,6 @@ class WKB extends GeoAdapter
     }
 
     return $wkb;
-  }
-
-  // Write z and m info. Note that this may change when parsing Multi-types as we decend into their components
-  function setType($geometry) {
-    $this->z = $geometry->hasZ();
-    $this->m = $geometry->isMeasured();
-    $this->s = $geometry->getSRID();
-  }
-  
-  function writeType($geometry) {
-		$type = $this->maptype[$geometry->getGeomType()];
-		
-		// Binary OR to mix in additional propeties
-		if ($geometry->hasZ()) {
-  		$type = $type|$this->z_marker;
-		}
-		if ($geometry->isMeasured()) {
-  		$type = $type|$this->m_marker;
-		}
-		if ($geometry->getSRID()) {
-  		$type = $type|$this->s_marker;
-		}
-		
-		return pack('L', $type);
   }
 
 }

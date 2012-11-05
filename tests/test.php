@@ -1,12 +1,12 @@
 <?php
-ini_set('error_reporting', -1);
-ini_set('display_errors', 1);
-ini_set('html_errors',1);
 // Uncomment to test
-#run_test();
+run_test();
 
 function run_test() {
   set_time_limit(0);
+  ini_set('error_reporting', -1);
+  ini_set('display_errors', 1);
+  ini_set('html_errors',1);
 
   header("Content-type: text");
 
