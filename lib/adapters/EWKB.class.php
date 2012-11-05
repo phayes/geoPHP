@@ -23,7 +23,7 @@ class EWKB extends WKB
     fseek($mem, 0);
     $base_info = unpack("corder/ctype/cz/cm/cs", fread($mem, 5));
     if ($base_info['s']) {
-      $srid = unpack("Lsrid", fread($mem, 4));
+      $srid = current(unpack("Lsrid", fread($mem, 4)));
     }
     else {
       $srid = NULL;
