@@ -54,7 +54,13 @@ class geoPHP
       if (is_object($data)) {
         if ($data instanceOf Geometry) return $data;
       }
-      $format = explode(':', geoPHP::detectFormat($data));
+      
+      $detected = geoPHP::detectFormat($data);
+      if (!$detected) {
+        return FALSE;
+      }
+      
+      $format = explode(':', $detected);
       $type = array_shift($format);
       $args = $format;
     }
