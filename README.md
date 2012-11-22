@@ -139,11 +139,10 @@ Credit
 
 Maintainer: Patrick Hayes
 
-This library was written entirely in my free time as a volunteer. If you find it really useful, please consider making a donation by [clicking here] (https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=geomemes%40gmail%2ecom&lc=US&item_name=Patrick%20Hayes%20-%20geoPHP&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHostedGuest).
-
 Additional Contributors:
 
- * GeoMemes Research <http://www.geomemes.com>
+ * GeoMemes Research (<http://www.geomemes.com>)
+ * HighWire Press (<http://www.highwire.org>) and GeoScienceWorld (<http://www.geoscienceworld.org>)
  * Arnaud Renevier (gisconverter.php) <https://github.com/arenevier/gisconverter.php>
  * Dave Tarc <https://github.com/dtarc>
  * Elliott Hunston (documentation) <https://github.com/ejh>
