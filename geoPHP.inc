@@ -184,19 +184,25 @@ class geoPHP
     $collections = array('MultiPoint','MultiLineString','MultiPolygon','GeometryCollection');
 
     foreach ($geometry as $item) {
-      if (in_array(get_class($item), $collections)) {
-        foreach ($item->getComponents() as $component) {
-          $geometries[] = $component;
-          $geom_types[] = $component->geometryType();
+      if ($item) {
+        if (in_array(get_class($item), $collections)) {
+          foreach ($item->getComponents() as $component) {
+            $geometries[] = $component;
+            $geom_types[] = $component->geometryType();
+          }
         }
-      }
-      else {
-        $geometries[] = $item;
-        $geom_types[] = $item->geometryType();
+        else {
+          $geometries[] = $item;
+          $geom_types[] = $item->geometryType();
+        }
       }
     }
 
     $geom_types = array_unique($geom_types);
+    
+    if (empty($geom_types)) {
+      return FALSE;
+    }
 
     if (count($geom_types) == 1) {
       if (count($geometries) == 1) {
