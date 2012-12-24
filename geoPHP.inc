@@ -147,6 +147,7 @@ class geoPHP
   static function geometryReduce($geometry) {
     // If it's an array of one, then just parse the one
     if (is_array($geometry)) {
+      if (empty($geometry)) return FALSE;
       if (count($geometry) == 1) return geoPHP::geometryReduce($geometry[0]);
     }
 
