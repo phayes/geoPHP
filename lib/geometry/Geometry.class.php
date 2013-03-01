@@ -226,7 +226,7 @@ abstract class Geometry
         foreach ($geometry as $item) {
           $geom = $geom->union($item->geos());
         }
-        return geoPHP::geosToGeometry($geos);
+        return geoPHP::geosToGeometry($geom);
       }
       else {
         return geoPHP::geosToGeometry($this->geos()->union($geometry->geos()));
