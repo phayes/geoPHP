@@ -7,7 +7,7 @@
 class Polygon extends Collection
 {
   protected $geom_type = 'Polygon';
-  
+
   public function area($exterior_only = FALSE, $signed = FALSE) {
     if ($this->isEmpty()) return 0;
     
@@ -134,6 +134,73 @@ class Polygon extends Collection
     }
     return TRUE;
   }
+
+  /**
+   * For a given point, determine whether it's bounded by the given polygon.
+   * Adapted from http://www.assemblysys.com/dataServices/php_pointinpolygon.php
+   * @see http://en.wikipedia.org/wiki/Point%5Fin%5Fpolygon
+   *
+   * @param Point $point 
+   * @param boolean $pointOnBoundary - whether a boundary should be considered "in" or not
+   * @param boolean $pointOnVertex - whether a vertex should be considered "in" or not
+   * @return boolean
+   */
+  public function pointInPolygon($point, $pointOnBoundary = true, $pointOnVertex = true) {
+    $vertices = $this->getPoints();
+
+    // Check if the point sits exactly on a vertex
+    if (pointOnVertex($point, $vertices)) {
+      return $pointOnVertex ? TRUE : FALSE;
+    }
+  
+    // Check if the point is inside the polygon or on the boundary
+    $intersections = 0; 
+    $vertices_count = count($vertices);
+
+    for ($i=1; $i < $vertices_count; $i++) {
+      $vertex1 = $vertices[$i-1]; 
+      $vertex2 = $vertices[$i];
+      if ($vertex1->y() == $vertex2->y() 
+      && $vertex1->y() == $point->y() 
+      && $point->x() > min($vertex1->x(), $vertex2->x()) 
+      && $point->x() < max($vertex1->x(), $vertex2->x())) {
+        // Check if point is on an horizontal polygon boundary
+        return $pointOnBoundary ? TRUE : FALSE;
+      }
+      if ($point->y() > min($vertex1->y(), $vertex2->y())
+      && $point->y() <= max($vertex1->y(), $vertex2->y())
+      && $point->x() <= max($vertex1->x(), $vertex2->x())
+      && $vertex1->y() != $vertex2->y()) {
+        $xinters = 
+          ($point->y() - $vertex1->y()) * ($vertex2->x() - $vertex1->x())
+          / ($vertex2->y() - $vertex1->y()) 
+          + $vertex1->x();
+        if ($xinters == $point->x()) {
+          // Check if point is on the polygon boundary (other than horizontal)
+          return $pointOnBoundary ? TRUE : FALSE;
+        }
+        if ($vertex1->x() == $vertex2->x() || $point->x() <= $xinters) {
+          $intersections++;
+        }
+      } 
+    } 
+    // If the number of edges we passed through is even, then it's in the polygon.
+    if ($intersections % 2 != 0) {
+      return TRUE;
+    }
+    else {
+      return FALSE;
+    }
+  }
+  
+  public function pointOnVertex($point) {
+    foreach($this->getPoints() as $vertex) {
+      if ($point->equals($vertex)) {
+        return true;
+      }
+    }
+  }
+
 
   // Not valid for this geometry type
   // --------------------------------
