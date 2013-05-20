@@ -34,10 +34,40 @@ abstract class Collection extends Geometry
   /**
    * Returns Collection component geometries
    *
+   * If no parameters are provided it simply returns the array of components stored in this collection
+   * instance.  If the types parameter is provided and contains a list of valid geometries as listed in
+   * geoPHP::geometryTypes() then the list of components will be further broken down to match the types
+   * provided.  For example, if $geometry->getComponents('Point') is called, then the collection
+   * will be recursively broken down until all geometries have been broken down into points.  A common
+   * use case may be to call $geometry->getComponents(array('Point', 'LineString', 'Polygon')) to break
+   * a collection down to the three basic geometry types.
+   *
+   * @param types an array of strings matching valid features types as listed in geoPHP::geometryTypes()
    * @return array
    */
-  public function getComponents() {
-    return $this->components;
+  public function getComponents($types = array()) {
+    // If no parameters are provided behave as always and return the collections stored in this instance.
+    if (!$types) {
+      return $this->components;
+    }
+
+    // If a string is provided as a parameter place it into an array before continuing.
+    if (is_string($types)) {
+      $types = array($types);
+    }
+    // If the provided parameter is neither a strong nor an array do nothing.
+    if (is_array($types)) {
+      $components = array();
+      foreach ($this->components as $component) {
+	if (in_array($component->geometryType(), $types)) {
+	  $components[] = $component;
+	} else {
+	  $components = array_merge($components, $component->getComponents($types));
+	}
+      }
+
+      return $components;
+    }
   }
 
   public function centroid() {
