@@ -126,13 +126,11 @@ class GPX extends GeoAdapter
       }
 
       if ($components) {
-        $duration_provider = new DurationMetadataProvider();
-        $speed_provider = new SpeedMetadataProvider();
-
         $line = new LineString($components);
-        $line->registerMetadataProvider($duration_provider);
-        $line->registerMetadataProvider($ele_provider);
-        $line->registerMetadataProvider($speed_provider);
+        $line->registerMetadataProvider(new DurationMetadataProvider());
+        $line->registerMetadataProvider(new ElevationMetadataProvider());
+        $line->registerMetadataProvider(new SpeedMetadataProvider());
+        $line->registerMetadataProvider(new SimplifyMetadataProvider());
         $lines[] = $line;
       }
     }

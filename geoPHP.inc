@@ -13,6 +13,7 @@ include_once("lib/metadata/TimeMetadataProvider.class.php");
 include_once("lib/metadata/ElevationMetadataProvider.class.php");
 include_once("lib/metadata/DurationMetadataProvider.class.php");
 include_once("lib/metadata/SpeedMetadataProvider.class.php");
+include_once("lib/metadata/SimplifyMetadataProvider.class.php");
 
 // Adapters
 include_once("lib/adapters/GeoAdapter.class.php"); // Abtract class
@@ -74,7 +75,7 @@ class geoPHP
     else {
       $geoms = array();
       foreach ($data as $item) {
-        $geoms[] = call_user_func_array(array($processor, "read"), array_merge(array($data), $args));
+        $geoms[] = call_user_func_array(array($processor, "read"), array_merge(array($item), $args));
       }
       $result = geoPHP::geometryReduce($geoms);
     }
