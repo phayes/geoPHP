@@ -46,7 +46,7 @@ abstract class Collection extends Geometry
    * @return array
    */
   public function getComponents($types = array()) {
-    // If no parameters are provided behave as always and return the collections stored in this instance.
+    // If no parameters are provided behave as always and return the components stored in this instance.
     if (!$types) {
       return $this->components;
     }
@@ -55,19 +55,35 @@ abstract class Collection extends Geometry
     if (is_string($types)) {
       $types = array($types);
     }
-    // If the provided parameter is neither a strong nor an array do nothing.
-    if (is_array($types)) {
-      $components = array();
-      foreach ($this->components as $component) {
-	if (in_array($component->geometryType(), $types)) {
-	  $components[] = $component;
-	} else {
-	  $components = array_merge($components, $component->getComponents($types));
-	}
-      }
 
-      return $components;
+    // If the provided parameter is neither a string nor an array do nothing.
+    if (is_array($types)) {
+      // Make sure that the types array contains at least the Point geometry type.
+      if (!in_array('Point', $types)) {
+	$types[] = 'Point';
+      }
+      return $this->getComponentsRecursive($types);
     }
+  }
+
+  private function getComponentsRecursive($types = array('Point')) {
+    // If the current geometry is of a type in the types array we can return it.
+    if (in_array($this->geometryType(), $types)) {
+      return array($this);
+    }
+
+    $components = array();
+    foreach ($this->components as $component) {
+      // Simply add geometries that match the given types to the return array to avoid calling
+      // nonexistent getComponentsRecursive method on Point geometries.
+      if (in_array($component->geometryType(), $types)) {
+	$components[] = $component;
+      } else {
+	$components = array_merge($components, $component->getComponentsRecursive($types));
+      }
+    }
+
+    return $components;
   }
 
   public function centroid() {
