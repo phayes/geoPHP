@@ -97,6 +97,7 @@ class geoPHP
       'wkb' =>  'WKB',
       'ewkb' => 'EWKB',
       'json' => 'GeoJSON',
+      'geojson' => 'GeoJSON',
       'kml' =>  'KML',
       'gpx' =>  'GPX',
       'georss' => 'GeoRSS',
