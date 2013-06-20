@@ -163,7 +163,12 @@ class WKT extends GeoAdapter
   }
 
   protected function getDataString($wkt, $type) {
-    return substr($wkt, strlen($type));
+    $first_paren = strpos($wkt, '(');
+
+    if ($first_paren !== FALSE) {
+      return substr($wkt, $first_paren);
+    }
+    return FALSE;
   }
   
   /**
