@@ -149,7 +149,7 @@ class Polygon extends Collection
     $vertices = $this->getPoints();
 
     // Check if the point sits exactly on a vertex
-    if (pointOnVertex($point, $vertices)) {
+    if ($this->pointOnVertex($point, $vertices)) {
       return $pointOnVertex ? TRUE : FALSE;
     }
   
