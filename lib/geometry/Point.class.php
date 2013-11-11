@@ -17,7 +17,7 @@ class Point extends Geometry
    * @param numeric $y The y coordinate (or latitude)
    * @param numeric $z The z coordinate (or altitude) - optional
    */
-  public function __construct($x, $y, $z = NULL) {
+  public function __construct($x, $y, $z = NULL, $metadata = array()) {
     // Basic validation on x and y
     if (!is_numeric($x) || !is_numeric($y)) {
       throw new Exception("Cannot construct Point. x and y should be numeric");
@@ -43,6 +43,7 @@ class Point extends Geometry
     if ($this->dimention == 3) {
       $this->coords = array($x, $y, $z);
     }
+    $this->metadata = $metadata;
   }
 
   /**
@@ -152,4 +153,3 @@ class Point extends Geometry
   public function pointOnSurface()   { return NULL; }
   public function explode()          { return NULL; }
 }
-
