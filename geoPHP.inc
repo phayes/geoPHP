@@ -106,7 +106,7 @@ class geoPHP {
 
 
     static function registerAdapterMap($type, $class) {
-        return $self::$adapterMap[$type] = $class;
+        return self::$adapterMap[$type] = $class;
     }
 
     static function getAdapterMap() {
