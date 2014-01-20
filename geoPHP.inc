@@ -91,7 +91,7 @@ class geoPHP {
         return $result;
     }
 
-    private $adapterMap = array(
+    static private $adapterMap = array(
         'wkt' => 'WKT',
         'ewkt' => 'EWKT',
         'wkb' => 'WKB',
@@ -106,11 +106,11 @@ class geoPHP {
 
 
     static function registerAdapterMap($type, $class) {
-        return $this->adapterMap[$type] = $class;
+        return $self::$adapterMap[$type] = $class;
     }
 
     static function getAdapterMap() {
-        return $this->adapterMap;
+        return self::$adapterMap;
     }
 
     static function geometryList() {
