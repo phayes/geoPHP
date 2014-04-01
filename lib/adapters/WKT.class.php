@@ -45,7 +45,7 @@ class WKT extends GeoAdapter
     foreach (geoPHP::geometryList() as $geom_type) {
       $wkt_geom = strtoupper($geom_type);
       if (strtoupper(substr($wkt, 0, strlen($wkt_geom))) == $wkt_geom) {
-        $data_string = $this->getDataString($wkt, $wkt_geom);
+        $data_string = $this->getDataString($wkt);
         $method = 'parse'.$geom_type;
         
         if ($srid) {
@@ -162,8 +162,13 @@ class WKT extends GeoAdapter
     return new GeometryCollection($geometries);
   }
 
-  protected function getDataString($wkt, $type) {
-    return substr($wkt, strlen($type));
+  protected function getDataString($wkt) {
+    $first_paren = strpos($wkt, '(');
+
+    if ($first_paren !== FALSE) {
+      return substr($wkt, $first_paren);
+    }
+    return FALSE;
   }
   
   /**
