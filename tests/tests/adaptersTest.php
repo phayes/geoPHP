@@ -1,7 +1,5 @@
 <?php
 require_once('../geoPHP.inc');
-require_once('PHPUnit/Autoload.php');
-
 class AdaptersTests extends PHPUnit_Framework_TestCase {
 
   function setUp() {
@@ -14,6 +12,7 @@ class AdaptersTests extends PHPUnit_Framework_TestCase {
       if ($parts[0]) {
         $format = $parts[1];
         $input = file_get_contents('./input/'.$file);
+        echo "\nloading: " . $file . " for format: " . $format;
         $geometry = geoPHP::load($input, $format);
 
         // Test adapter output and input. Do a round-trip and re-test

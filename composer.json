@@ -11,5 +11,8 @@
         {
             "name":"Patrick Hayes"
         }
-    ]
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "4.1.*"
+    }
 }
