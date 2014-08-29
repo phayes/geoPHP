@@ -50,12 +50,11 @@ class KML extends GeoAdapter
   }
 
   public function geomFromText($text) {
-
     // Change to lower-case and strip all CDATA
     $text = mb_strtolower($text, mb_detect_encoding($text));
     $text = preg_replace('/<!\[cdata\[(.*?)\]\]>/s','',$text);
 
-    // Load into DOMDOcument
+    // Load into DOMDocument
     $xmlobj = new DOMDocument();
     @$xmlobj->loadXML($text);
     if ($xmlobj === false) {
