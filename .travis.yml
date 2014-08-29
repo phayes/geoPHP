@@ -19,3 +19,9 @@ php:
   - 5.4
   - 5.3
   - hhvm
+  
+matrix:
+  fast_finish: false
+  allow_failures:
+    # php 5.3 does not support random file list as an argument to scandir
+    - php: 5.3

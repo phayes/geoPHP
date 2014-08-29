@@ -7,7 +7,7 @@ class AliasesTests extends PHPUnit_Framework_TestCase {
   }
 
   function testAliases() {
-    foreach (scandir('./input') as $file) {
+    foreach (scandir('./input', SCANDIR_SORT_NONE) as $file) {
       $parts = explode('.',$file);
       if ($parts[0]) {
         $format = $parts[1];
@@ -71,10 +71,10 @@ class AliasesTests extends PHPUnit_Framework_TestCase {
               break;
             case 'getArea':
               if ($geometry->geometryType() == 'Point') {
-                $this->assertNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name .' (test file: ' . $file . ')');
+                $this->assertEquals(0, $geometry->$alias_name($argument), 'Failed on ' . $alias_name .' (test file: ' . $file . ')');
               }
               if ($geometry->geometryType() == 'LineString') {
-                $this->assertNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name .' (test file: ' . $file . ')');
+                $this->assertEquals(0, $geometry->$alias_name($argument), 'Failed on ' . $alias_name .' (test file: ' . $file . ')');
               }
               if ($geometry->geometryType() == 'MultiLineString') {
                 $this->assertNotNull($geometry->$alias_name($argument), 'Failed on ' . $alias_name .' (test file: ' . $file . ')');

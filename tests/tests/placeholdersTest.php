@@ -7,7 +7,7 @@ class PlaceholdersTests extends PHPUnit_Framework_TestCase {
   }
 
   function testPlaceholders() {
-    foreach (scandir('./input') as $file) {
+    foreach (scandir('./input', SCANDIR_SORT_NONE) as $file) {
       $parts = explode('.',$file);
       if ($parts[0]) {
         $format = $parts[1];

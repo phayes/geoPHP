@@ -24,7 +24,7 @@ function run_test() {
   // Working with PostGIS and EWKB
   // ----------------------------
   
-  foreach (scandir('./input') as $file) {
+  foreach (scandir('./input', SCANDIR_SORT_NONE) as $file) {
     $parts = explode('.',$file);
     if ($parts[0]) {
       $name = $parts[0];
