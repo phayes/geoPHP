@@ -36,13 +36,13 @@ class PlaceholdersTests extends PHPUnit_Framework_TestCase {
             case 'm':
             case 'z':
               if ($geometry->geometryType() == 'Point') {
-                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
               }
               if ($geometry->geometryType() == 'LineString') {
-                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
               }
               if ($geometry->geometryType() == 'MultiLineString') {
-                $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+                $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
               }
               break;
             case 'coordinateDimension':
@@ -51,17 +51,17 @@ class PlaceholdersTests extends PHPUnit_Framework_TestCase {
             case 'is3D':
             case 'hasZ':
               if ($geometry->geometryType() == 'Point') {
-                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
               }
               if ($geometry->geometryType() == 'LineString') {
-                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
               }
               if ($geometry->geometryType() == 'MultiLineString') {
-                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
               }
               break;
             default:
-              $this->assertTrue($geometry->$method_name($argument), 'Failed on ' . $method_name);
+              $this->assertTrue($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
           }
         }
 

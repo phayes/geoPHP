@@ -56,24 +56,24 @@ class GeosTests extends PHPUnit_Framework_TestCase {
             case 'equals':
             case 'geos':
               if ($geometry->geometryType() == 'Point') {
-                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
               }
               if ($geometry->geometryType() == 'LineString') {
-                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
               }
               if ($geometry->geometryType() == 'MultiLineString') {
-                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
               }
               break;
             default:
               if ($geometry->geometryType() == 'Point') {
-                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
               }
               if ($geometry->geometryType() == 'LineString') {
-                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
               }
               if ($geometry->geometryType() == 'MultiLineString') {
-                $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+                $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
               }
           }
         }

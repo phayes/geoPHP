@@ -24,7 +24,7 @@ class AdaptersTests extends PHPUnit_Framework_TestCase {
               $adapter_loader = new $adapter_class();
               $test_geom_1 = $adapter_loader->read($output);
               $test_geom_2 = $adapter_loader->read($test_geom_1->out($adapter_key));
-              $this->assertEquals($test_geom_1->out('wkt'), $test_geom_2->out('wkt'), "Mismatched adapter output in ".$adapter_class);
+              $this->assertEquals($test_geom_1->out('wkt'), $test_geom_2->out('wkt'), "Mismatched adapter output in ".$adapter_class  .' (test file: ' . $file . ')');
             }
           }
         }
@@ -53,7 +53,7 @@ class AdaptersTests extends PHPUnit_Framework_TestCase {
               geoPHP::geosInstalled(TRUE);
 
               // Check to make sure a both are the same with geos and without
-              $this->assertEquals($test_geom_1->out('wkt'), $test_geom_2->out('wkt'), "Mismatched adapter output between GEOS and NORM in ".$adapter_class);
+              $this->assertEquals($test_geom_1->out('wkt'), $test_geom_2->out('wkt'), "Mismatched adapter output between GEOS and NORM in ".$adapter_class .' (test file: ' . $file . ')');
             }
           }
         }
