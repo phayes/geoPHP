@@ -631,12 +631,6 @@ form {
   color: #474747;
   text-indent: 4px;
 }
-#main-content h2:before {
-  content: "//";
-  color: #9ddcff;
-  padding-right: 0.3em;
-  margin-left: -1.5em;
-}
 
 #main-content h3 {
   font-size: 18px;
