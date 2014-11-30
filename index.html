@@ -55,16 +55,14 @@ $centroid = $polygon->getCentroid();
 $centX = $centroid->getX();
 $centY = $centroid->getY();
 
-print "This polygon has an area of ".$area." and a centroid with X=".$centX." and Y=".$centY;
+print("This polygon has an area of ".$area." and a centroid with X=".$centX." and Y=".$centY);
 ?>
 </pre></code>
 
 <pre><code class="php">
 <?php
 // MultiPoint json example
-print "<br/>";
-$json = 
-'{
+$json = '{
    "type": "MultiPoint",
    "coordinates": [
        [100.0, 0.0], [101.0, 1.0]
@@ -75,7 +73,7 @@ $multipoint = geoPHP::load($json, 'json');
 $multipoint_points = $multipoint->getComponents();
 $first_wkt = $multipoint_points[0]->out('wkt');
 
-print "This multipoint has ".$multipoint->numGeometries()." points. The first point has a wkt representation of ".$first_wkt;
+print("This multipoint has ".$multipoint->numGeometries()." points. The first point has a wkt representation of ".$first_wkt);
 ?>
 </code></pre>
 
