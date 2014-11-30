@@ -9,6 +9,10 @@
     <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
 
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function(event) {hljs.initHighlightingOnLoad();})</script>
+
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -72,35 +76,33 @@ message. Forks are also welcome, please issue pull requests and I will merge the
 <h2>
 <a id="example-usage" class="anchor" href="#example-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example usage</h2>
 
-<div class="highlight highlight-php"><pre><span class="pl-pse">&lt;?php</span><span class="pl-s2"></span>
-<span class="pl-s2"><span class="pl-k">include_once</span>(<span class="pl-s1"><span class="pl-pds">'</span>geoPHP.inc<span class="pl-pds">'</span></span>);</span>
-<span class="pl-s2"></span>
-<span class="pl-s2"><span class="pl-c">// Polygon WKT example</span></span>
-<span class="pl-s2"><span class="pl-vo">$polygon</span> <span class="pl-k">=</span> <span class="pl-s3">geoPHP</span><span class="pl-k">::</span>load(<span class="pl-s1"><span class="pl-pds">'</span>POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2))<span class="pl-pds">'</span></span>,<span class="pl-s1"><span class="pl-pds">'</span>wkt<span class="pl-pds">'</span></span>);</span>
-<span class="pl-s2"><span class="pl-vo">$area</span> <span class="pl-k">=</span> <span class="pl-vo">$polygon</span><span class="pl-k">-&gt;</span>getArea();</span>
-<span class="pl-s2"><span class="pl-vo">$centroid</span> <span class="pl-k">=</span> <span class="pl-vo">$polygon</span><span class="pl-k">-&gt;</span>getCentroid();</span>
-<span class="pl-s2"><span class="pl-vo">$centX</span> <span class="pl-k">=</span> <span class="pl-vo">$centroid</span><span class="pl-k">-&gt;</span>getX();</span>
-<span class="pl-s2"><span class="pl-vo">$centY</span> <span class="pl-k">=</span> <span class="pl-vo">$centroid</span><span class="pl-k">-&gt;</span>getY();</span>
-<span class="pl-s2"></span>
-<span class="pl-s2"><span class="pl-s3">print</span> <span class="pl-s1"><span class="pl-pds">"</span>This polygon has an area of <span class="pl-pds">"</span></span><span class="pl-k">.</span><span class="pl-vo">$area</span><span class="pl-k">.</span><span class="pl-s1"><span class="pl-pds">"</span> and a centroid with X=<span class="pl-pds">"</span></span><span class="pl-k">.</span><span class="pl-vo">$centX</span><span class="pl-k">.</span><span class="pl-s1"><span class="pl-pds">"</span> and Y=<span class="pl-pds">"</span></span><span class="pl-k">.</span><span class="pl-vo">$centY</span>;</span>
-<span class="pl-s2"></span>
-<span class="pl-s2"><span class="pl-c">// MultiPoint json example</span></span>
-<span class="pl-s2"><span class="pl-s3">print</span> <span class="pl-s1"><span class="pl-pds">"</span>&lt;br/&gt;<span class="pl-pds">"</span></span>;</span>
-<span class="pl-s2"><span class="pl-vo">$json</span> <span class="pl-k">=</span> </span>
-<span class="pl-s2"><span class="pl-s1"><span class="pl-pds">'</span>{</span></span>
-<span class="pl-s2"><span class="pl-s1">   "type": "MultiPoint",</span></span>
-<span class="pl-s2"><span class="pl-s1">   "coordinates": [</span></span>
-<span class="pl-s2"><span class="pl-s1">       [100.0, 0.0], [101.0, 1.0]</span></span>
-<span class="pl-s2"><span class="pl-s1">   ]</span></span>
-<span class="pl-s2"><span class="pl-s1">}<span class="pl-pds">'</span></span>;</span>
-<span class="pl-s2"></span>
-<span class="pl-s2"><span class="pl-vo">$multipoint</span> <span class="pl-k">=</span> <span class="pl-s3">geoPHP</span><span class="pl-k">::</span>load(<span class="pl-vo">$json</span>, <span class="pl-s1"><span class="pl-pds">'</span>json<span class="pl-pds">'</span></span>);</span>
-<span class="pl-s2"><span class="pl-vo">$multipoint_points</span> <span class="pl-k">=</span> <span class="pl-vo">$multipoint</span><span class="pl-k">-&gt;</span>getComponents();</span>
-<span class="pl-s2"><span class="pl-vo">$first_wkt</span> <span class="pl-k">=</span> <span class="pl-vo">$multipoint_points</span>[<span class="pl-c1">0</span>]<span class="pl-k">-&gt;</span>out(<span class="pl-s1"><span class="pl-pds">'</span>wkt<span class="pl-pds">'</span></span>);</span>
-<span class="pl-s2"></span>
-<span class="pl-s2"><span class="pl-s3">print</span> <span class="pl-s1"><span class="pl-pds">"</span>This multipoint has <span class="pl-pds">"</span></span><span class="pl-k">.</span><span class="pl-vo">$multipoint</span><span class="pl-k">-&gt;</span>numGeometries()<span class="pl-k">.</span><span class="pl-s1"><span class="pl-pds">"</span> points. The first point has a wkt representation of <span class="pl-pds">"</span></span><span class="pl-k">.</span><span class="pl-vo">$first_wkt</span>;</span></pre></div>
+<pre><code class="php">include_once('geoPHP.inc');
 
-<h1></h1>
+// Polygon WKT example
+$polygon = geoPHP::load('POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2))','wkt');
+$area = $polygon->getArea();
+$centroid = $polygon->getCentroid();
+$centX = $centroid->getX();
+$centY = $centroid->getY();
+
+print "This polygon has an area of ".$area." and a centroid with X=".$centX." and Y=".$centY;
+
+// MultiPoint json example
+print "<br/>";
+$json = 
+'{
+   "type": "MultiPoint",
+   "coordinates": [
+       [100.0, 0.0], [101.0, 1.0]
+   ]
+}';
+
+$multipoint = geoPHP::load($json, 'json');
+$multipoint_points = $multipoint->getComponents();
+$first_wkt = $multipoint_points[0]->out('wkt');
+
+print "This multipoint has ".$multipoint->numGeometries()." points. The first point has a wkt representation of ".$first_wkt;
+</code></pre>
 
 <h2>
 <a id="more-examples" class="anchor" href="#more-examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>More Examples</h2>
