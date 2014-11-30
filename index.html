@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>GeoPHP by phayes</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>GeoPHP</h1>
+        <h2>The world&#39;s most popular geospatial library for PHP</h2>
+        <a href="https://github.com/phayes/geoPHP" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <p>GeoPHP is a open-source native PHP library for doing geometry operations. It is written entirely in PHP and 
+can therefore run on shared hosts. It can read and write a wide variety of formats: WKT (including EWKT), WKB (including EWKB), GeoJSON, 
+KML, GPX, GeoRSS). It works with all Simple-Feature geometries (Point, LineString, Polygon, GeometryCollection etc.)
+and can be used to get centroids, bounding-boxes, area, and a wide variety of other useful information. </p>
+
+<p>geoPHP also helpfully wraps the GEOS php extension so that applications can get a transparent performance 
+increase when GEOS is installed on the server. When GEOS is installed, geoPHP also becomes
+fully compliant with the OpenGIS® Implementation Standard for Geographic information. With GEOS you get the 
+full-set of openGIS functions in PHP like Union, IsWithin, Touches etc. This means that applications
+get a useful "core-set" of geometry operations that work in all environments, and an "extended-set"of operations 
+for environments that have GEOS installed. </p>
+
+<p>See the 'getting started' section below for references and examples of everything that geoPHP can do.</p>
+
+<p>This project is currently looking for co-maintainers. If you think you can help out, please send me a 
+message. Forks are also welcome, please issue pull requests and I will merge them into the main branch.</p>
+
+<h2>
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting Started</h2>
+
+<ul>
+<li>The lastest stable version can always be downloaded at: <a href="https://github.com/downloads/phayes/geoPHP/geoPHP.tar.gz">https://github.com/downloads/phayes/geoPHP/geoPHP.tar.gz</a>
+</li>
+<li>Read the API Reference at: <a href="https://github.com/phayes/geoPHP/wiki/API-Reference">https://github.com/phayes/geoPHP/wiki/API-Reference</a>
+</li>
+<li>Examples
+
+<ul>
+<li>Using geoPHP as a GIS format converter: <a href="http://github.com/phayes/geoPHP/wiki/Example-format-converter">http://github.com/phayes/geoPHP/wiki/Example-format-converter</a>
+</li>
+</ul>
+</li>
+<li>Other Interesting Links:
+
+<ul>
+<li>Learn about GEOS integration at: <a href="https://github.com/phayes/geoPHP/wiki/GEOS">https://github.com/phayes/geoPHP/wiki/GEOS</a>
+</li>
+</ul>
+</li>
+</ul>
+
+<h2>
+<a id="example-usage" class="anchor" href="#example-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example usage</h2>
+
+<div class="highlight highlight-php"><pre><span class="pl-pse">&lt;?php</span><span class="pl-s2"></span>
+<span class="pl-s2"><span class="pl-k">include_once</span>(<span class="pl-s1"><span class="pl-pds">'</span>geoPHP.inc<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s2"></span>
+<span class="pl-s2"><span class="pl-c">// Polygon WKT example</span></span>
+<span class="pl-s2"><span class="pl-vo">$polygon</span> <span class="pl-k">=</span> <span class="pl-s3">geoPHP</span><span class="pl-k">::</span>load(<span class="pl-s1"><span class="pl-pds">'</span>POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2))<span class="pl-pds">'</span></span>,<span class="pl-s1"><span class="pl-pds">'</span>wkt<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s2"><span class="pl-vo">$area</span> <span class="pl-k">=</span> <span class="pl-vo">$polygon</span><span class="pl-k">-&gt;</span>getArea();</span>
+<span class="pl-s2"><span class="pl-vo">$centroid</span> <span class="pl-k">=</span> <span class="pl-vo">$polygon</span><span class="pl-k">-&gt;</span>getCentroid();</span>
+<span class="pl-s2"><span class="pl-vo">$centX</span> <span class="pl-k">=</span> <span class="pl-vo">$centroid</span><span class="pl-k">-&gt;</span>getX();</span>
+<span class="pl-s2"><span class="pl-vo">$centY</span> <span class="pl-k">=</span> <span class="pl-vo">$centroid</span><span class="pl-k">-&gt;</span>getY();</span>
+<span class="pl-s2"></span>
+<span class="pl-s2"><span class="pl-s3">print</span> <span class="pl-s1"><span class="pl-pds">"</span>This polygon has an area of <span class="pl-pds">"</span></span><span class="pl-k">.</span><span class="pl-vo">$area</span><span class="pl-k">.</span><span class="pl-s1"><span class="pl-pds">"</span> and a centroid with X=<span class="pl-pds">"</span></span><span class="pl-k">.</span><span class="pl-vo">$centX</span><span class="pl-k">.</span><span class="pl-s1"><span class="pl-pds">"</span> and Y=<span class="pl-pds">"</span></span><span class="pl-k">.</span><span class="pl-vo">$centY</span>;</span>
+<span class="pl-s2"></span>
+<span class="pl-s2"><span class="pl-c">// MultiPoint json example</span></span>
+<span class="pl-s2"><span class="pl-s3">print</span> <span class="pl-s1"><span class="pl-pds">"</span>&lt;br/&gt;<span class="pl-pds">"</span></span>;</span>
+<span class="pl-s2"><span class="pl-vo">$json</span> <span class="pl-k">=</span> </span>
+<span class="pl-s2"><span class="pl-s1"><span class="pl-pds">'</span>{</span></span>
+<span class="pl-s2"><span class="pl-s1">   "type": "MultiPoint",</span></span>
+<span class="pl-s2"><span class="pl-s1">   "coordinates": [</span></span>
+<span class="pl-s2"><span class="pl-s1">       [100.0, 0.0], [101.0, 1.0]</span></span>
+<span class="pl-s2"><span class="pl-s1">   ]</span></span>
+<span class="pl-s2"><span class="pl-s1">}<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s2"></span>
+<span class="pl-s2"><span class="pl-vo">$multipoint</span> <span class="pl-k">=</span> <span class="pl-s3">geoPHP</span><span class="pl-k">::</span>load(<span class="pl-vo">$json</span>, <span class="pl-s1"><span class="pl-pds">'</span>json<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s2"><span class="pl-vo">$multipoint_points</span> <span class="pl-k">=</span> <span class="pl-vo">$multipoint</span><span class="pl-k">-&gt;</span>getComponents();</span>
+<span class="pl-s2"><span class="pl-vo">$first_wkt</span> <span class="pl-k">=</span> <span class="pl-vo">$multipoint_points</span>[<span class="pl-c1">0</span>]<span class="pl-k">-&gt;</span>out(<span class="pl-s1"><span class="pl-pds">'</span>wkt<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s2"></span>
+<span class="pl-s2"><span class="pl-s3">print</span> <span class="pl-s1"><span class="pl-pds">"</span>This multipoint has <span class="pl-pds">"</span></span><span class="pl-k">.</span><span class="pl-vo">$multipoint</span><span class="pl-k">-&gt;</span>numGeometries()<span class="pl-k">.</span><span class="pl-s1"><span class="pl-pds">"</span> points. The first point has a wkt representation of <span class="pl-pds">"</span></span><span class="pl-k">.</span><span class="pl-vo">$first_wkt</span>;</span></pre></div>
+
+<h1></h1>
+
+<h2>
+<a id="more-examples" class="anchor" href="#more-examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>More Examples</h2>
+
+<p>The Well Known Text (WKT) and Well Known Binary (WKB) support is ideal for integrating with MySQL's or PostGIS's spatial capability. 
+Once you have SELECTed your data with <code>'AsText('geo_field')'</code> or <code>'AsBinary('geo_field')'</code>, you can put it straight into 
+geoPHP (can be wkt or wkb, but must be the same as how you extracted it from your database):</p>
+
+<pre><code>$geom = geoPHP::load($dbRow,'wkt');
+</code></pre>
+
+<p>You can collect multiple geometries into one (note that you must use wkt for this):</p>
+
+<pre><code>$geom = geoPHP::load("GEOMETRYCOLLECTION(".$dbString1.",".$dbString2.")",'wkt');
+</code></pre>
+
+<p>Calling get components returns the sub-geometries within a geometry as an array.</p>
+
+<pre><code>$geom2 = geoPHP::load("GEOMETRYCOLLECTION(LINESTRING(1 1,5 1,5 5,1 5,1 1),LINESTRING(2 2,2 3,3 3,3 2,2 2))");
+$geomComponents = $geom2-&gt;getComponents();    //an array of the two linestring geometries
+$linestring1 = $geomComponents[0]-&gt;getComponents(); //an array of the first linestring's point geometries
+$linestring2 = $geomComponents[1]-&gt;getComponents();
+echo $linestring1[0]-&gt;x() . ", " . $linestring1[0]-&gt;y();    //outputs '1, 1'
+</code></pre>
+
+<p>An alternative is to use the <code>asArray()</code> method. Using the above geometry collection of two linestrings, </p>
+
+<pre><code>$geometryArray = $geom2-&gt;asArray();
+echo $geometryArray[0][0][0] . ", " . $geometryArray[0][0][1];    //outputs '1, 1'
+</code></pre>
+
+<p>Clearly, more complex analysis is possible.</p>
+
+<pre><code>echo $geom2-&gt;envelope()-&gt;area();
+</code></pre>
+
+<h2>
+<a id="working-with-postgis" class="anchor" href="#working-with-postgis" aria-hidden="true"><span class="octicon octicon-link"></span></a>Working with PostGIS</h2>
+
+<p>geoPHP, through it's EWKB adapter, has good integration with postGIS. Here's an example of reading and writing postGIS geometries</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-pse">&lt;?php</span><span class="pl-s2"></span>
+<span class="pl-s2"><span class="pl-k">include_once</span>(<span class="pl-s1"><span class="pl-pds">'</span>geoPHP.inc<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s2"><span class="pl-vo">$host</span> <span class="pl-k">=</span>     <span class="pl-s1"><span class="pl-pds">'</span>localhost<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s2"><span class="pl-vo">$database</span> <span class="pl-k">=</span> <span class="pl-s1"><span class="pl-pds">'</span>phayes<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s2"><span class="pl-vo">$table</span> <span class="pl-k">=</span>    <span class="pl-s1"><span class="pl-pds">'</span>test<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s2"><span class="pl-vo">$column</span> <span class="pl-k">=</span>   <span class="pl-s1"><span class="pl-pds">'</span>geom<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s2"><span class="pl-vo">$user</span> <span class="pl-k">=</span>     <span class="pl-s1"><span class="pl-pds">'</span>phayes<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s2"><span class="pl-vo">$pass</span> <span class="pl-k">=</span>     <span class="pl-s1"><span class="pl-pds">'</span>supersecret<span class="pl-pds">'</span></span>;</span>
+<span class="pl-s2"></span>
+<span class="pl-s2"><span class="pl-vo">$connection</span> <span class="pl-k">=</span> <span class="pl-s3">pg_connect</span>(<span class="pl-s1"><span class="pl-pds">"</span>host=<span class="pl-vo">$host</span> dbname=<span class="pl-vo">$database</span> user=<span class="pl-vo">$user</span> password=<span class="pl-vo">$pass</span><span class="pl-pds">"</span></span>);</span>
+<span class="pl-s2"></span>
+<span class="pl-s2"><span class="pl-c">// Working with PostGIS and Extended-WKB</span></span>
+<span class="pl-s2"><span class="pl-c">// ----------------------------</span></span>
+<span class="pl-s2"></span>
+<span class="pl-s2"><span class="pl-c">// Using asBinary and GeomFromWKB in PostGIS</span></span>
+<span class="pl-s2"><span class="pl-vo">$result</span> <span class="pl-k">=</span> <span class="pl-s3">pg_fetch_all</span>(<span class="pl-s3">pg_query</span>(<span class="pl-vo">$connection</span>, <span class="pl-s1"><span class="pl-pds">"</span><span class="pl-s2"><span class="pl-k">SELECT</span> asBinary(<span class="pl-vo">$column</span>) <span class="pl-k">as</span> geom <span class="pl-k">FROM</span> <span class="pl-vo">$table</span></span><span class="pl-pds">"</span></span>));</span>
+<span class="pl-s2"><span class="pl-k">foreach</span> (<span class="pl-vo">$result</span> <span class="pl-k">as</span> <span class="pl-vo">$item</span>) {</span>
+<span class="pl-s2">  <span class="pl-vo">$wkb</span> <span class="pl-k">=</span> <span class="pl-s3">pg_unescape_bytea</span>(<span class="pl-vo">$item</span>[<span class="pl-s1"><span class="pl-pds">'</span>geom<span class="pl-pds">'</span></span>]); <span class="pl-c">// Make sure to unescape the hex blob</span></span>
+<span class="pl-s2">  <span class="pl-vo">$geom</span> <span class="pl-k">=</span> <span class="pl-s3">geoPHP</span><span class="pl-k">::</span>load(<span class="pl-vo">$wkb</span>, <span class="pl-s1"><span class="pl-pds">'</span>ewkb<span class="pl-pds">'</span></span>); <span class="pl-c">// We now a full geoPHP Geometry object</span></span>
+<span class="pl-s2"></span>
+<span class="pl-s2">  <span class="pl-c">// Let's insert it back into the database</span></span>
+<span class="pl-s2">  <span class="pl-vo">$insert_string</span> <span class="pl-k">=</span> <span class="pl-s3">pg_escape_bytea</span>(<span class="pl-vo">$geom</span><span class="pl-k">-&gt;</span>out(<span class="pl-s1"><span class="pl-pds">'</span>ewkb<span class="pl-pds">'</span></span>));</span>
+<span class="pl-s2">  <span class="pl-s3">pg_query</span>(<span class="pl-vo">$connection</span>, <span class="pl-s1"><span class="pl-pds">"</span><span class="pl-s2"><span class="pl-k">INSERT INTO</span> <span class="pl-vo">$table</span> (<span class="pl-vo">$column</span>) <span class="pl-k">values</span> (GeomFromWKB(<span class="pl-s1">'<span class="pl-vo">$insert_string</span>'</span>))</span><span class="pl-pds">"</span></span>);</span>
+<span class="pl-s2">}</span>
+<span class="pl-s2"></span>
+<span class="pl-s2"><span class="pl-c">// Using a direct SELECT and INSERTs in PostGIS without using wrapping functions</span></span>
+<span class="pl-s2"><span class="pl-vo">$result</span> <span class="pl-k">=</span> <span class="pl-s3">pg_fetch_all</span>(<span class="pl-s3">pg_query</span>(<span class="pl-vo">$connection</span>, <span class="pl-s1"><span class="pl-pds">"</span><span class="pl-s2"><span class="pl-k">SELECT</span> <span class="pl-vo">$column</span> <span class="pl-k">as</span> geom <span class="pl-k">FROM</span> <span class="pl-vo">$table</span></span><span class="pl-pds">"</span></span>));</span>
+<span class="pl-s2"><span class="pl-k">foreach</span> (<span class="pl-vo">$result</span> <span class="pl-k">as</span> <span class="pl-vo">$item</span>) {</span>
+<span class="pl-s2">  <span class="pl-vo">$wkb</span> <span class="pl-k">=</span> <span class="pl-s3">pack</span>(<span class="pl-s1"><span class="pl-pds">'</span>H*<span class="pl-pds">'</span></span>,<span class="pl-vo">$item</span>[<span class="pl-s1"><span class="pl-pds">'</span>geom<span class="pl-pds">'</span></span>]);   <span class="pl-c">// Unpacking the hex blob</span></span>
+<span class="pl-s2">  <span class="pl-vo">$geom</span> <span class="pl-k">=</span> <span class="pl-s3">geoPHP</span><span class="pl-k">::</span>load(<span class="pl-vo">$wkb</span>, <span class="pl-s1"><span class="pl-pds">'</span>ewkb<span class="pl-pds">'</span></span>); <span class="pl-c">// We now have a geoPHP Geometry</span></span>
+<span class="pl-s2"></span>
+<span class="pl-s2">  <span class="pl-c">// To insert directly into postGIS we need to unpack the WKB</span></span>
+<span class="pl-s2">  <span class="pl-vo">$unpacked</span> <span class="pl-k">=</span> <span class="pl-s3">unpack</span>(<span class="pl-s1"><span class="pl-pds">'</span>H*<span class="pl-pds">'</span></span>, <span class="pl-vo">$geom</span><span class="pl-k">-&gt;</span>out(<span class="pl-s1"><span class="pl-pds">'</span>ewkb<span class="pl-pds">'</span></span>));</span>
+<span class="pl-s2">  <span class="pl-vo">$insert_string</span> <span class="pl-k">=</span> <span class="pl-vo">$unpacked</span>[<span class="pl-c1">1</span>];</span>
+<span class="pl-s2">  <span class="pl-s3">pg_query</span>(<span class="pl-vo">$connection</span>, <span class="pl-s1"><span class="pl-pds">"</span><span class="pl-s2"><span class="pl-k">INSERT INTO</span> <span class="pl-vo">$table</span> (<span class="pl-vo">$column</span>) <span class="pl-k">values</span> (<span class="pl-s1">'<span class="pl-vo">$insert_string</span>'</span>)</span><span class="pl-pds">"</span></span>);</span>
+<span class="pl-s2">}</span></pre></div>
+
+<h2>
+<a id="credit" class="anchor" href="#credit" aria-hidden="true"><span class="octicon octicon-link"></span></a>Credit</h2>
+
+<p>Maintainer: Patrick Hayes</p>
+
+<p>Additional Contributors:</p>
+
+<ul>
+<li>GeoMemes Research (<a href="http://www.geomemes.com">http://www.geomemes.com</a>)</li>
+<li>HighWire Press (<a href="http://www.highwire.org">http://www.highwire.org</a>) and GeoScienceWorld (<a href="http://www.geoscienceworld.org">http://www.geoscienceworld.org</a>)</li>
+<li>Arnaud Renevier (gisconverter.php) <a href="https://github.com/arenevier/gisconverter.php">https://github.com/arenevier/gisconverter.php</a>
+</li>
+<li>Dave Tarc <a href="https://github.com/dtarc">https://github.com/dtarc</a>
+</li>
+<li>Elliott Hunston (documentation) <a href="https://github.com/ejh">https://github.com/ejh</a>
+</li>
+</ul>
+
+<p>This library is open-source and dual-licensed under both the Modified BSD License and GPLv2. Either license may be used at your option.           </p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/phayes/geoPHP/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/phayes/geoPHP/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/phayes/geoPHP"></a> is maintained by <a href="https://github.com/phayes">phayes</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
