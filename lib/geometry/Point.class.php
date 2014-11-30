@@ -8,7 +8,7 @@ class Point extends Geometry
 {
   public $coords = array(2);
   protected $geom_type = 'Point';
-  protected $dimention = 2;
+  protected $dimension = 2;
 
   /**
    * Constructor
@@ -28,7 +28,7 @@ class Point extends Geometry
       if (!is_numeric($z)) {
        throw new Exception("Cannot construct Point. z should be numeric");
       }
-      $this->dimention = 3;
+      $this->dimension = 3;
     }
 
     // Convert to floatval in case they are passed in as a string or integer etc.
@@ -37,10 +37,10 @@ class Point extends Geometry
     $z = floatval($z);
 
     // Add poitional elements
-    if ($this->dimention == 2) {
+    if ($this->dimension == 2) {
       $this->coords = array($x, $y);
     }
-    if ($this->dimention == 3) {
+    if ($this->dimension == 3) {
       $this->coords = array($x, $y, $z);
     }
   }
@@ -69,7 +69,7 @@ class Point extends Geometry
    * @return float The Z coordinate or NULL is not a 3D point
    */
   public function z() {
-    if ($this->dimention == 3) {
+    if ($this->dimension == 3) {
       return $this->coords[2];
     }
     else return NULL;
