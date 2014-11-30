@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/railscasts.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>GeoPHP by phayes</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>GeoPHP</h1>
+        <h2>The world&#39;s most popular geospatial library for PHP</h2>
+        <a href="https://github.com/phayes/geoPHP" class="button"><small>View project on</small> GitHub</a>
+      </div>
+      <div class="header-links">
+        <a href="index.html">Home</a>
+        <a href="api.html">API Refernce</a>
+        <a href="geos.html">GEOS Integration</a>
+      </div>
+      <div class="clearfix"></div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+
+
+
+
+
+<div class="markdown-body">
+      <p>GEOS (Geometry Engine - Open Source) is a C++ port of the Java Topology Suite (JTS). This includes all the OpenGIS Simple Features for SQL spatial predicate functions and spatial operators. GeoPHP transparently integrates GEOS. If geoPHP detects that GEOS is installed it will automatically start using it - you don't need to do anything. When GEOS is installed, a bunch of additional geometry methods become available (detailed in the <a class="internal present" href="api.html">API Reference</a>).</p>
+
+<p>When you install GEOS you also get some pretty awesome automatic performance improvements.</p>
+
+<p>You can learn more about GEOS on its website at <a href="http://trac.osgeo.org/geos">http://trac.osgeo.org/geos</a></p>
+
+<h2>
+<a id="user-content-integration" class="anchor" href="#user-content-installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Integration</h2>
+
+<p>You don't need to do anything special to integrate GEOS, just install it. However, if you want to make use of special GEOS functions that are <em>not</em> part of OpenGIS Standard (there aren't many), then you need to call them explicitly. Lucky for you, this is easy to do. Example:</p>
+
+<pre><code class='php'>$geos_geom = $foo-&gt;geos();
+$geos_result = $bar-&gt;geos()-&gt;relateBoundaryNodeRule($geos_geom);
+// Put it back into a geoPHP geometry
+$geometry = geoPHP::geosToGeometry($geos_result);
+</code></pre>
+
+<p>However, it's unlikely that you will need to do this since most methods are cleanly wrapped and can be called directly from a geoPHP geometry. To get a list of all available methods see <a href="http://trac.osgeo.org/geos/browser/trunk/php/geos.c">http://trac.osgeo.org/geos/browser/trunk/php/geos.c</a></p>
+
+<h2>
+<a id="user-content-installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>To install GEOS with it's PHP extension, you need to compile it from source. This may sound scary, but it's really quite easy! Various instructions on installing GEOS (with the requisite PHP extension) can be found here:</p>
+
+<ul class="task-list">
+<li>
+<a href="http://wygoda.net/blog/testing-geos-33-php-bindings">http://wygoda.net/blog/testing-geos-33-php-bindings</a> (Best Instructions)</li>
+<li><a href="http://trac.osgeo.org/geos/wiki/BuildingOnUnixWithAutotools">http://trac.osgeo.org/geos/wiki/BuildingOnUnixWithAutotools</a></li>
+<li><a href="http://trac.osgeo.org/geos/wiki/BuildingOnUnixWithCMake">http://trac.osgeo.org/geos/wiki/BuildingOnUnixWithCMake</a></li>
+</ul>
+
+<p>Ubuntu: See <a href="http://www.saintsjd.com/2014/06/05/howto-intsall-libgeos-with-php5-bindings-ubuntu-trusty-14.04.html">Howto install libgeos with PHP5 bindings on Ubuntu Trusty 14.04 LTS</a>
+
+<p>MAMP users: See <a class="internal present" href="/phayes/geoPHP/wiki/GEOS-Installation-on-OSX-with-MAMP">GEOS Installation on OSX with MAMP</a> for special requirements.</p>
+
+<p>CentOS 6 users: See <a class="internal present" href="/phayes/geoPHP/wiki/Geos-installation-on-centos6">GEOS Installation on CentOS6</a> for special instructions.</p>
+
+<h2>
+<a id="user-content-performance-improvements" class="anchor" href="#performance-improvements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Performance Improvements</h2>
+
+<p>Below are some simple performance tests that I ran using both a large set of roads (2MB of JSON), and a really simple polygon. For the polygon, I looped the test 3000 times to get an average. </p>
+
+<p>The results are number of seconds to complete the operation (lower is better). As you can see installing the geos-php extension at least doubles performance and can, in some cases, lead to a 10x improvement in performance.</p>
+
+<h4>
+<a id="user-content-big-roads-centroid" class="anchor" href="#big-roads-centroid" aria-hidden="true"><span class="octicon octicon-link"></span></a>Big Roads centroid</h4>
+
+<pre><code>Without Geos: 1.2631900310516 secs
+With Geos:    0.6027820110321 secs
+</code></pre>
+
+<h4>
+<a id="user-content-big-roads-getbbox" class="anchor" href="#big-roads-getbbox" aria-hidden="true"><span class="octicon octicon-link"></span></a>Big Roads getBBox</h4>
+
+<pre><code>Without Geos: 1.2799670696259 secs
+With Geos:    0.6133630275726 secs
+</code></pre>
+
+<h4>
+<a id="user-content-simple-polygon-centroid-x3000" class="anchor" href="#simple-polygon-centroid-x3000" aria-hidden="true"><span class="octicon octicon-link"></span></a>Simple Polygon centroid x3000</h4>
+
+<pre><code>Without Geos: 0.21501302719116 secs
+With Geos:    0.03558087348938 secs
+</code></pre>
+
+<h4>
+<a id="user-content-simple-polygon-area-x3000" class="anchor" href="#simple-polygon-area-x3000" aria-hidden="true"><span class="octicon octicon-link"></span></a>Simple Polygon area x3000</h4>
+
+<pre><code>Without Geos: 0.073577880859375 secs
+With Geos:    0.009435892105102 secs
+</code></pre>
+
+<h4>
+<a id="user-content-simple-polygon-getbbox-x3000" class="anchor" href="#simple-polygon-getbbox-x3000" aria-hidden="true"><span class="octicon octicon-link"></span></a>Simple Polygon getBBox x3000</h4>
+
+<pre><code>Without Geos: 0.09908390045166 secs
+With Geos:    0.05712819099426 secs
+</code></pre>
+
+<h4>
+<a id="user-content-complex-geometry-collection-reading-wkt-into-a-geometry-x5" class="anchor" href="#complex-geometry-collection-reading-wkt-into-a-geometry-x5" aria-hidden="true"><span class="octicon octicon-link"></span></a>Complex Geometry Collection reading WKT into a Geometry x5</h4>
+
+<pre><code>Without Geos: 11.156386852264 secs
+With Geos:    7.8141958713531 secs
+</code></pre>
+
+<h4>
+<a id="user-content-complex-geometry-collection-writing-wkt-x5" class="anchor" href="#complex-geometry-collection-writing-wkt-x5" aria-hidden="true"><span class="octicon octicon-link"></span></a>Complex Geometry Collection writing WKT x5</h4>
+
+<pre><code>Without Geos: 13.316060066223 secs
+With Geos:    2.0791599750519 secs
+</code></pre>
+
+    </div>
+
+
+
+
+
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/phayes/geoPHP/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/phayes/geoPHP/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
