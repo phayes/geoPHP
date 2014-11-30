@@ -418,13 +418,9 @@ optgroup {
 
 table {
   border-collapse: collapse;
-  border-spacing: 0;
+  background-color: white;
 }
 
-td,
-th {
-  padding: 0;
-}
 
 /* LAYOUT STYLES */
 body {
@@ -448,7 +444,7 @@ a:hover {
 
 header {
   padding-top: 40px;
-  padding-bottom: 40px;
+  padding-bottom: 20px;
   background: #2e7bcf url(../images/header-bg.jpg) 0 0 repeat-x;
   border-bottom: solid 1px #275da1;
 }
@@ -513,6 +509,24 @@ aside#sidebar p.repo-owner a {
   margin-bottom: 40px;
 }
 
+.header-links {
+  padding-top:20px;
+  position: relative;
+  width: 1080px;
+  margin: 0 auto;
+}
+
+.header-links a {
+  color:white;
+  font-size: larger;
+  background-size: 100%;
+  border: 2px solid white;
+  border-radius: 5px;
+  padding:5px 12px 5px 12px;
+  float: left;
+  margin-right: 40px;
+}
+
 a.button {
   width: 134px;
   height: 58px;
@@ -566,10 +580,6 @@ pre code {
   padding: 0;
 }
 
-ul, ol, dl {
-  margin-bottom: 20px;
-}
-
 
 /* COMMON STYLES */
 
@@ -592,8 +602,9 @@ th {
 
 td {
   border: 1px solid #ebebeb;
-  text-align: center;
   font-weight: 300;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
 form {
@@ -615,13 +626,6 @@ form {
   text-indent: 6px;
 }
 
-#main-content h1:before {
-  content: "/";
-  color: #9ddcff;
-  padding-right: 0.3em;
-  margin-left: -0.9em;
-}
-
 #main-content h2 {
   font-size: 22px;
   font-weight: bold;
@@ -639,13 +643,6 @@ form {
   text-indent: 3px;
 }
 
-#main-content h3:before {
-  content: "///";
-  color: #9ddcff;
-  padding-right: 0.3em;
-  margin-left: -2em;
-}
-
 #main-content h4 {
   font-size: 15px;
   font-weight: bold;
@@ -654,24 +651,11 @@ form {
   text-indent: 3px;
 }
 
-h4:before {
-  content: "////";
-  color: #9ddcff;
-  padding-right: 0.3em;
-  margin-left: -2.8em;
-}
-
 #main-content h5 {
   font-size: 14px;
   margin-bottom: 8px;
   color: #474747;
   text-indent: 3px;
-}
-h5:before {
-  content: "/////";
-  color: #9ddcff;
-  padding-right: 0.3em;
-  margin-left: -3.2em;
 }
 
 #main-content h6 {
@@ -679,12 +663,6 @@ h5:before {
   margin-bottom: 8px;
   color: #474747;
   text-indent: 3px;
-}
-h6:before {
-  content: "//////";
-  color: #9ddcff;
-  padding-right: 0.3em;
-  margin-left: -3.7em;
 }
 
 p {
