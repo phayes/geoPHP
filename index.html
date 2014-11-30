@@ -78,15 +78,15 @@ print("This multipoint has ".$multipoint->numGeometries()." points. The first po
 Once you have SELECTed your data with <code>'AsText('geo_field')'</code> or <code>'AsBinary('geo_field')'</code>, you can put it straight into 
 geoPHP</p>
 
-<pre><code>$geom = geoPHP::load($dbRow);</code></pre>
+<pre><code class='php'>$geom = geoPHP::load($dbRow);</code></pre>
 
 <p>You can collect multiple geometries into one:</p>
 
-<pre><code>$geom = geoPHP::load("GEOMETRYCOLLECTION(".$dbString1.",".$dbString2.")");</code></pre>
+<pre><code class='php'>$geom = geoPHP::load("GEOMETRYCOLLECTION(".$dbString1.",".$dbString2.")");</code></pre>
 
 <p>Calling get components returns the sub-geometries within a geometry as an array.</p>
 
-<pre><code>$geom2 = geoPHP::load("GEOMETRYCOLLECTION(LINESTRING(1 1,5 1,5 5,1 5,1 1),LINESTRING(2 2,2 3,3 3,3 2,2 2))");
+<pre><code class='php'>$geom2 = geoPHP::load("GEOMETRYCOLLECTION(LINESTRING(1 1,5 1,5 5,1 5,1 1),LINESTRING(2 2,2 3,3 3,3 2,2 2))");
 $geomComponents = $geom2-&gt;getComponents();    //an array of the two linestring geometries
 $linestring1 = $geomComponents[0]-&gt;getComponents(); //an array of the first linestring's point geometries
 $linestring2 = $geomComponents[1]-&gt;getComponents();
@@ -95,7 +95,7 @@ echo $linestring1[0]-&gt;x() . ", " . $linestring1[0]-&gt;y();    //outputs '1, 
 
 <p>An alternative is to use the <code>asArray()</code> method. Using the above geometry collection of two linestrings, </p>
 
-<pre><code>$geometryArray = $geom2-&gt;asArray();
+<pre><code class='php'>$geometryArray = $geom2-&gt;asArray();
 echo $geometryArray[0][0][0] . ", " . $geometryArray[0][0][1];    //outputs '1, 1'
 </code></pre>
 
