@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
 
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/railscasts.min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
     <script>hljs.initHighlightingOnLoad();</script>
 
@@ -48,8 +48,6 @@ for environments that have GEOS installed. </p>
 
 <pre><code class="php">
 <?php
-include_once('geoPHP.inc');
-
 // Polygon WKT example
 $polygon = geoPHP::load('POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2))','wkt');
 $area = $polygon->getArea();
@@ -58,7 +56,11 @@ $centX = $centroid->getX();
 $centY = $centroid->getY();
 
 print "This polygon has an area of ".$area." and a centroid with X=".$centX." and Y=".$centY;
+?>
+</pre></code>
 
+<pre><code class="php">
+<?php
 // MultiPoint json example
 print "<br/>";
 $json = 
