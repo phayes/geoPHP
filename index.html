@@ -46,9 +46,7 @@ for environments that have GEOS installed. </p>
 
 <h2><a id="example-usage" class="anchor" href="#example-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example usage</h2>
 
-<pre><code class="php">
-<?php
-// Polygon WKT example
+<pre><code class="php">// Polygon WKT example
 $polygon = geoPHP::load('POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2))','wkt');
 $area = $polygon->getArea();
 $centroid = $polygon->getCentroid();
@@ -56,12 +54,9 @@ $centX = $centroid->getX();
 $centY = $centroid->getY();
 
 print("This polygon has an area of ".$area." and a centroid with X=".$centX." and Y=".$centY);
-?>
 </pre></code>
 
-<pre><code class="php">
-<?php
-// MultiPoint json example
+<pre><code class="php">// MultiPoint json example
 $json = '{
    "type": "MultiPoint",
    "coordinates": [
@@ -74,7 +69,6 @@ $multipoint_points = $multipoint->getComponents();
 $first_wkt = $multipoint_points[0]->out('wkt');
 
 print("This multipoint has ".$multipoint->numGeometries()." points. The first point has a wkt representation of ".$first_wkt);
-?>
 </code></pre>
 
 <h2>
