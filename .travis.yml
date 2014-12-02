@@ -5,12 +5,16 @@ language: php
 before_script:
   - composer self-update
 
+env: GEOPHP_RUN_TESTS=1
+
 install:
   - composer install
   # TODO Install geos library -- as a matrix test
   # TODO optionally set up a postgis database for testing
 
-script: cd tests && phpunit --verbose --colors --stderr tests
+script: 
+  - cd tests && phpunit --verbose --colors --stderr tests
+  - cd tests && php tests.php
 
 # run tests on the following versions
 php:
@@ -22,6 +26,3 @@ php:
   
 matrix:
   fast_finish: false
-  allow_failures:
-    # php 5.3 does not support random file list as an argument to scandir
-    - php: 5.3
