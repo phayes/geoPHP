@@ -15,7 +15,7 @@ install:
 script: 
   - cd tests
   - phpunit --verbose --colors --stderr tests
-  - php tests.php
+  - php test.php
 
 # run tests on the following versions
 php:
