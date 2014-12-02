@@ -24,7 +24,7 @@ function run_test() {
     print "GEOS is not installed.\n";
   }
 
-  foreach (scandir('./input', SCANDIR_SORT_NONE) as $file) {
+  foreach (scandir('./input') as $file) {
     $parts = explode('.',$file);
     if ($parts[0]) {
       $format = $parts[1];
