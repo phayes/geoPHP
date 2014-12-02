@@ -7,6 +7,10 @@ class GeosTests extends PHPUnit_Framework_TestCase {
   }
 
   function testGeos() {
+    if (!geoPHP::geosInstalled()) {
+      echo "Skipping GEOS -- not installed";
+      return;
+    }
     foreach (scandir('./input', SCANDIR_SORT_NONE) as $file) {
       $parts = explode('.',$file);
       if ($parts[0]) {

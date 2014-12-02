@@ -8,6 +8,11 @@ class Polygon extends Collection
 {
   protected $geom_type = 'Polygon';
 
+  // The boundary of a polygin is it's outer ring
+  public function boundary() {
+    return $this->exteriorRing();
+  }
+
   public function area($exterior_only = FALSE, $signed = FALSE) {
     if ($this->isEmpty()) return 0;
     

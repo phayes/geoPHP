@@ -17,7 +17,15 @@ class Point extends Geometry
    * @param numeric $y The y coordinate (or latitude)
    * @param numeric $z The z coordinate (or altitude) - optional
    */
-  public function __construct($x, $y, $z = NULL) {
+  public function __construct($x = NULL, $y = NULL, $z = NULL) {
+
+    // Check if it's an empty point
+    if ($x === NULL && $y === NULL) {
+      $this->coords = array(NULL, NULL);
+      $this->dimension = 0;
+      return;
+    }
+
     // Basic validation on x and y
     if (!is_numeric($x) || !is_numeric($y)) {
       throw new Exception("Cannot construct Point. x and y should be numeric");
@@ -119,7 +127,12 @@ class Point extends Geometry
   }
 
   public function isEmpty() {
-    return FALSE;
+    if ($this->dimension == 0) {
+      return TRUE;
+    }
+    else {
+      return FALSE;
+    }
   }
 
   public function numPoints() {
@@ -131,7 +144,18 @@ class Point extends Geometry
   }
 
   public function equals($geometry) {
-    return ($this->x() == $geometry->x() && $this->y() == $geometry->y());
+    if (get_class($geometry) != 'Point') {
+      return FALSE;
+    }
+    if (!$this->isEmpty() && !$geometry->isEmpty()) {
+      return ($this->x() == $geometry->x() && $this->y() == $geometry->y());
+    }
+    else if ($this->isEmpty() && $geometry->isEmpty()) {
+      return TRUE;
+    }
+    else {
+      return FALSE;
+    }
   }
 
   public function isSimple() {
