@@ -148,7 +148,12 @@ class Point extends Geometry
       return FALSE;
     }
     if (!$this->isEmpty() && !$geometry->isEmpty()) {
-      return ($this->x() == $geometry->x() && $this->y() == $geometry->y());
+      /**
+       * @see: http://php.net/manual/en/function.bccomp.php
+       * @see: http://php.net/manual/en/language.types.float.php
+       * @see: http://tubalmartin.github.io/spherical-geometry-php/#LatLng
+       */
+      return (abs($this->x() - $geometry->x()) <= 1.0E-9 && abs($this->y() - $geometry->y()) <= 1.0E-9);
     }
     else if ($this->isEmpty() && $geometry->isEmpty()) {
       return TRUE;
