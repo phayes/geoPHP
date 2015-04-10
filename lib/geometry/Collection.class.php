@@ -214,7 +214,8 @@ abstract class Collection extends Geometry
     $points = array();
     foreach ($this->components as $component) {
       if ($component->geometryType() == 'Point') {
-        $points[] = $component->getPoints()[0];
+        $point = $component->getPoints();
+        $points[] = reset($point);
       } else {
         $points = array_merge($points, $component->getPoints());
       }
