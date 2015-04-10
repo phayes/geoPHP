@@ -6,9 +6,11 @@
  */
 class Point extends Geometry
 {
-  public $coords = array(2);
   protected $geom_type = 'Point';
   protected $dimension = 2;
+  protected $_x = NULL;
+  protected $_y = NULL;
+  protected $_z = NULL;
 
   /**
    * Constructor
@@ -21,7 +23,6 @@ class Point extends Geometry
 
     // Check if it's an empty point
     if ($x === NULL && $y === NULL) {
-      $this->coords = array(NULL, NULL);
       $this->dimension = 0;
       return;
     }
@@ -40,18 +41,12 @@ class Point extends Geometry
     }
 
     // Convert to floatval in case they are passed in as a string or integer etc.
-    $x = floatval($x);
-    $y = floatval($y);
-    $z = floatval($z);
-
-    // Add poitional elements
-    if ($this->dimension == 2) {
-      $this->coords = array($x, $y);
+    $this->_x = floatval($x);
+    $this->_y = floatval($y);
+    if ($this->dimension > 2) {
+      $this->_z = floatval($z);
     }
-    if ($this->dimension == 3) {
-      $this->coords = array($x, $y, $z);
-    }
-  }
+ }
 
   /**
    * Get X (longitude) coordinate
@@ -59,7 +54,7 @@ class Point extends Geometry
    * @return float The X coordinate
    */
   public function x() {
-    return $this->coords[0];
+    return $this->_x;
   }
 
   /**
@@ -68,7 +63,7 @@ class Point extends Geometry
    * @return float The Y coordinate
    */
   public function y() {
-    return $this->coords[1];
+    return $this->_y;
   }
 
   /**
@@ -78,7 +73,7 @@ class Point extends Geometry
    */
   public function z() {
     if ($this->dimension == 3) {
-      return $this->coords[2];
+      return $this->_z;
     }
     else return NULL;
   }
@@ -98,7 +93,9 @@ class Point extends Geometry
   }
 
   public function asArray($assoc = FALSE) {
-    return $this->coords;
+    return ($this->dimension == 3)
+        ? array($this->_x, $this->_y, $this->_z)
+        : array($this->_x, $this->_y);
   }
 
   public function area() {
