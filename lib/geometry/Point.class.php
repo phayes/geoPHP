@@ -83,6 +83,21 @@ class Point extends Geometry
     else return NULL;
   }
 
+  /**
+   * Author : Adam Cherti
+   * inverts x and y coordinates
+   * Useful with old applications still using lng lat
+   *
+   * @return void
+   * */
+  public function invertxy()
+  {
+	$x=$this->coords[0];
+	$this->coords[0]=$this->coords[1];
+	$this->coords[1]=$x;
+  }
+
+
   // A point's centroid is itself
   public function centroid() {
     return $this;

@@ -40,6 +40,24 @@ abstract class Collection extends Geometry
     return $this->components;
   }
 
+  /*
+   * Author : Adam Cherti
+   *
+   * inverts x and y coordinates
+   * Useful for old data still using lng lat
+   *
+   * @return void
+   *
+   * */
+  public function invertxy()
+  {
+	for($i=0;$i<count($this->components);$i++)
+	{
+		if( method_exists($this->components[$i], 'invertxy' ) )
+			$this->components[$i]->invertxy();
+	}
+  }
+
   public function centroid() {
     if ($this->isEmpty()) return NULL;
 
