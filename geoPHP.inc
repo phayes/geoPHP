@@ -69,7 +69,6 @@ class geoPHP
 
     if (!$processor_type) {
       throw new exception('geoPHP could not find an adapter of type '.htmlentities($type));
-      exit;
     }
 
     $processor = new $processor_type();
@@ -78,7 +77,7 @@ class geoPHP
     if (!is_array($data)) {
       $result = call_user_func_array(array($processor, "read"), array_merge(array($data), $args));
     }
-    // Data is an array, combine all passed in items into a single geomtetry
+    // Data is an array, combine all passed in items into a single geometry
     else {
       $geoms = array();
       foreach ($data as $item) {
