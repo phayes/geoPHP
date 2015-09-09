@@ -1,4 +1,4 @@
-<?
+<?php
 // Uncomment to test
 # run_test();
 
