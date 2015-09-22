@@ -74,10 +74,13 @@ class GoogleGeocode extends GeoAdapter
         }
       }
     }
+    
+    // result->status is not 'OK', so throw exception
+    if ($this->result->status) {
+      throw new \Exception('Error in Google Geocoder: '.$this->result->status);
+    }
     else {
-      if ($this->result->status) throw new Exception('Error in Google Geocoder: '.$this->result->status);
-      else throw new Exception('Unknown error in Google Geocoder');
-      return FALSE;
+      throw new \Exception('Unknown error in Google Geocoder');
     }
   }
 
@@ -87,7 +90,7 @@ class GoogleGeocode extends GeoAdapter
    * @param Geometry $geometry
    * @param string $return_type Should be either 'string' or 'array'
    *
-   * @return string Does a reverse geocode of the geometry
+   * @return string|array string (default) otherwise array. Does a reverse geocode of the geometry.
    */
   public function write(Geometry $geometry, $return_type = 'string') {
     $centroid = $geometry->getCentroid();
@@ -99,26 +102,20 @@ class GoogleGeocode extends GeoAdapter
     $url .= '&sensor=false';
     $this->result = json_decode(@file_get_contents($url));
 
-    if ($this->result->status == 'OK') {
-      if ($return_type == 'string') {
-        return $this->result->results[0]->formatted_address;
-      }
-      if ($return_type == 'array') {
-        return $this->result->results[0]->address_components;
-      }
+    if ($this->result->status === 'OK') {
+        return $return_type === 'string' ? 
+          $this->result->results[0]->formatted_address : $this->result->results[0]->address_components;
     }
-    elseif ($this->result->status == 'ZERO_RESULTS') {
-      if ($return_type == 'string') {
-        return '';
-      }
-      if ($return_type == 'array') {
-        return $this->result->results;
-      }
+    elseif ($this->result->status === 'ZERO_RESULTS') {
+        return $return_type === 'string' ? '' : $this->result->results;
+    }
+
+    // result->status is not 'OK', so throw exception
+    if ($this->result->status) {
+      throw new \Exception('Error in Google Reverse Geocoder: '.$this->result->status);
     }
     else {
-      if ($this->result->status) throw new Exception('Error in Google Reverse Geocoder: '.$this->result->status);
-      else throw new Exception('Unknown error in Google Reverse Geocoder');
-      return FALSE;
+      throw new \Exception('Unknown error in Google Reverse Geocoder');
     }
   }
 
