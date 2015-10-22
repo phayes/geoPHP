@@ -55,7 +55,12 @@ class GeoJSON extends GeoAdapter
   }
 
   private function arrayToPoint($array) {
-    return new Point($array[0], $array[1]);
+    if (!empty($array)) {
+      return new Point($array[0], $array[1]);
+    }
+    else {
+      return new Point();
+    }
   }
 
   private function arrayToLineString($array) {

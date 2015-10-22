@@ -330,17 +330,17 @@ abstract class Geometry
   }
 
   public function coordinateDimension() {
-    // geoPHP only supports 2-dimentional space
+    // geoPHP only supports 2-dimensional space
     return 2;
   }
 
   public function z() {
-    // geoPHP only supports 2-dimentional space
+    // geoPHP only supports 2-dimensional space
     return NULL;
   }
 
   public function m() {
-    // geoPHP only supports 2-dimentional space
+    // geoPHP only supports 2-dimensional space
     return NULL;
   }
 

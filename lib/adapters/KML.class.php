@@ -50,12 +50,11 @@ class KML extends GeoAdapter
   }
 
   public function geomFromText($text) {
-
     // Change to lower-case and strip all CDATA
     $text = mb_strtolower($text, mb_detect_encoding($text));
     $text = preg_replace('/<!\[cdata\[(.*?)\]\]>/s','',$text);
 
-    // Load into DOMDOcument
+    // Load into DOMDocument
     $xmlobj = new DOMDocument();
     @$xmlobj->loadXML($text);
     if ($xmlobj === false) {
@@ -115,7 +114,12 @@ class KML extends GeoAdapter
 
   protected function parsePoint($xml) {
     $coordinates = $this->_extractCoordinates($xml);
-    return new Point($coordinates[0][0],$coordinates[0][1]);
+    if (!empty($coordinates)) {
+      return new Point($coordinates[0][0],$coordinates[0][1]);
+    }
+    else {
+      return new Point();
+    }
   }
 
   protected function parseLineString($xml) {
@@ -131,6 +135,9 @@ class KML extends GeoAdapter
     $components = array();
 
     $outer_boundary_element_a = $this->childElements($xml, 'outerboundaryis');
+    if (empty($outer_boundary_element_a)) {
+      return new Polygon(); // It's an empty polygon
+    }
     $outer_boundary_element = $outer_boundary_element_a[0];
     $outer_ring_element_a = $this->childElements($outer_boundary_element, 'linearring');
     $outer_ring_element = $outer_ring_element_a[0];
@@ -206,7 +213,12 @@ class KML extends GeoAdapter
   }
 
   private function pointToKML($geom) {
-    return '<'.$this->nss.'Point><'.$this->nss.'coordinates>'.$geom->getX().",".$geom->getY().'</'.$this->nss.'coordinates></'.$this->nss.'Point>';
+    $out = '<'.$this->nss.'Point>';
+    if (!$geom->isEmpty()) {
+      $out .= '<'.$this->nss.'coordinates>'.$geom->getX().",".$geom->getY().'</'.$this->nss.'coordinates>';
+    }
+    $out .= '</'.$this->nss.'Point>';
+    return $out;
   }
 
   private function linestringToKML($geom, $type = FALSE) {
@@ -235,6 +247,7 @@ class KML extends GeoAdapter
 
   public function polygonToKML($geom) {
     $components = $geom->getComponents();
+    $str = '';
     if (!empty($components)) {
       $str = '<'.$this->nss.'outerBoundaryIs>' . $this->linestringToKML($components[0], 'LinearRing') . '</'.$this->nss.'outerBoundaryIs>';
       foreach (array_slice($components, 1) as $comp) {

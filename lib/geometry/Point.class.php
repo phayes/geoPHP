@@ -8,7 +8,7 @@ class Point extends Geometry
 {
   public $coords = array(2);
   protected $geom_type = 'Point';
-  protected $dimention = 2;
+  protected $dimension = 2;
 
   /**
    * Constructor
@@ -17,7 +17,15 @@ class Point extends Geometry
    * @param numeric $y The y coordinate (or latitude)
    * @param numeric $z The z coordinate (or altitude) - optional
    */
-  public function __construct($x, $y, $z = NULL) {
+  public function __construct($x = NULL, $y = NULL, $z = NULL) {
+
+    // Check if it's an empty point
+    if ($x === NULL && $y === NULL) {
+      $this->coords = array(NULL, NULL);
+      $this->dimension = 0;
+      return;
+    }
+
     // Basic validation on x and y
     if (!is_numeric($x) || !is_numeric($y)) {
       throw new Exception("Cannot construct Point. x and y should be numeric");
@@ -28,7 +36,7 @@ class Point extends Geometry
       if (!is_numeric($z)) {
        throw new Exception("Cannot construct Point. z should be numeric");
       }
-      $this->dimention = 3;
+      $this->dimension = 3;
     }
 
     // Convert to floatval in case they are passed in as a string or integer etc.
@@ -37,10 +45,10 @@ class Point extends Geometry
     $z = floatval($z);
 
     // Add poitional elements
-    if ($this->dimention == 2) {
+    if ($this->dimension == 2) {
       $this->coords = array($x, $y);
     }
-    if ($this->dimention == 3) {
+    if ($this->dimension == 3) {
       $this->coords = array($x, $y, $z);
     }
   }
@@ -69,11 +77,26 @@ class Point extends Geometry
    * @return float The Z coordinate or NULL is not a 3D point
    */
   public function z() {
-    if ($this->dimention == 3) {
+    if ($this->dimension == 3) {
       return $this->coords[2];
     }
     else return NULL;
   }
+
+  /**
+   * Author : Adam Cherti
+   * inverts x and y coordinates
+   * Useful with old applications still using lng lat
+   *
+   * @return void
+   * */
+  public function invertxy()
+  {
+	$x=$this->coords[0];
+	$this->coords[0]=$this->coords[1];
+	$this->coords[1]=$x;
+  }
+
 
   // A point's centroid is itself
   public function centroid() {
@@ -119,7 +142,12 @@ class Point extends Geometry
   }
 
   public function isEmpty() {
-    return FALSE;
+    if ($this->dimension == 0) {
+      return TRUE;
+    }
+    else {
+      return FALSE;
+    }
   }
 
   public function numPoints() {
@@ -131,7 +159,23 @@ class Point extends Geometry
   }
 
   public function equals($geometry) {
-    return ($this->x() == $geometry->x() && $this->y() == $geometry->y());
+    if (get_class($geometry) != 'Point') {
+      return FALSE;
+    }
+    if (!$this->isEmpty() && !$geometry->isEmpty()) {
+      /**
+       * @see: http://php.net/manual/en/function.bccomp.php
+       * @see: http://php.net/manual/en/language.types.float.php
+       * @see: http://tubalmartin.github.io/spherical-geometry-php/#LatLng
+       */
+      return (abs($this->x() - $geometry->x()) <= 1.0E-9 && abs($this->y() - $geometry->y()) <= 1.0E-9);
+    }
+    else if ($this->isEmpty() && $geometry->isEmpty()) {
+      return TRUE;
+    }
+    else {
+      return FALSE;
+    }
   }
 
   public function isSimple() {

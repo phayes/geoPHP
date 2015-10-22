@@ -1,7 +1,5 @@
 <?php
 require_once('../geoPHP.inc');
-require_once('PHPUnit/Autoload.php');
-
 class Tests_20120702 extends PHPUnit_Framework_TestCase {
 
   function setUp() {
