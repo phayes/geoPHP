@@ -27,7 +27,7 @@ class Polygon extends Collection
     if((int)$c == '0') return NULL;
     $a = '0';
     foreach($pts as $k => $p){
-      if (extension_loaded('bcmath')) {
+      if (geoPHP::bcmathInstalled()) {
         $j = bcmod(bcadd($k, '1'), $c);
         $a = bcadd($a, bcsub(bcmul($p->getX(), $pts[$j]->getY()), bcmul($p->getY(), $pts[$j]->getX())));
         if ($signed) $area = bcdiv($a, '2');
@@ -47,7 +47,7 @@ class Polygon extends Collection
     foreach ($this->components as $delta => $component) {
       if ($delta != 0) {
         $inner_poly = new Polygon(array($component));
-        if (extension_loaded('bcmath')) {
+        if (geoPHP::bcmathInstalled()) {
           $area = bcsub($area, $inner_poly->area());
         }
         else {
@@ -79,7 +79,7 @@ class Polygon extends Collection
     }
     
     foreach($pts as $k => $p){
-      if (extension_loaded('bcmath')) {
+      if (geoPHP::bcmathInstalled()) {
         $j = bcmod(bcadd($k, '1'), $c);
         $P = bcsub(bcmul($p->getX(), $pts[$j]->getY()), bcmul($p->getY(), $pts[$j]->getX()));
         $cn['x'] = bcadd($cn['x'], bcmul(bcadd($p->getX(), $pts[$j]->getX()), $P));
@@ -93,7 +93,7 @@ class Polygon extends Collection
       }
     }
 
-    if (extension_loaded('bcmath')) {
+    if (geoPHP::bcmathInstalled()) {
       $cn['x'] = bcdiv($cn['x'], bcmul('6', $a));
       $cn['y'] = bcdiv($cn['y'], bcmul('6', $a));
     }

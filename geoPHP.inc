@@ -117,6 +117,10 @@ class geoPHP
     );
   }
 
+  static function bcmathInstalled() {
+    return extension_loaded('bcmath');
+  }
+
   static function geosInstalled($force = NULL) {
     static $geos_installed = NULL;
     if ($force !== NULL) $geos_installed = $force;

@@ -69,7 +69,7 @@ class LineString extends Collection
     foreach ($this->getPoints() as $delta => $point) {
       $previous_point = $this->geometryN($delta);
       if ($previous_point) {
-        if (extension_loaded('bcmath')) {
+        if (geoPHP::bcmathInstalled()) {
           $length = bcadd(
             $length,
             bcsqrt(
@@ -101,7 +101,7 @@ class LineString extends Collection
       $lon1 = deg2rad($point->getX());
       $lon2 = deg2rad($next_point->getX());
       $dlon = $lon2 - $lon1;
-      if (extension_loaded('bcmath')) {
+      if (geoPHP::bcmathInstalled()) {
         $length = bcadd(
           $length,
           bcmul(
@@ -152,7 +152,7 @@ class LineString extends Collection
       $point = $points[$i];
       $next_point = $points[$i+1];
       if (!is_object($next_point)) {continue;}
-      if (extension_loaded('bcmath')) {
+      if (geoPHP::bcmathInstalled()) {
         $degree = rad2deg(
           acos(
             bcadd(
@@ -230,7 +230,7 @@ class LineString extends Collection
     $p3_x = $segment->endPoint()->x();
     $p3_y = $segment->endPoint()->y();
 
-    if (extension_loaded('bcmath')) {
+    if (geoPHP::bcmathInstalled()) {
       $s1_x = bcsub($p1_x, $p0_x);
       $s1_y = bcsub($p1_y, $p0_y);
       $s2_x = bcsub($p3_x, $p2_x);
@@ -251,7 +251,7 @@ class LineString extends Collection
       return FALSE;
     }
 
-    if (extension_loaded('bcmath')) {
+    if (geoPHP::bcmathInstalled()) {
       $s = bcdiv(bcadd(bcmul(bcmul('-1', $s1_y), bcsub($p0_x, $p2_x)), bcmul($s1_x, bcsub($p0_y, $p2_y))), $fps);
       $t = bcdiv(bcsub(bcmul($s2_x, bcsub($p0_y, $p2_y)), bcmul($s2_y, bcsub($p0_x, $p2_x))), $fpt);
     }
