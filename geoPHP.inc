@@ -118,7 +118,13 @@ class geoPHP
   }
 
   static function bcmathInstalled() {
-    return extension_loaded('bcmath');
+    if (extension_loaded('bcmath')) {
+      // Set the BCMath scale to 24 to maintain precision in arithmetic that
+      // uses a lot of decimal places (ie: latitude/longitude).
+      bcscale(24);
+      return TRUE;
+    }
+    return FALSE;
   }
 
   static function geosInstalled($force = NULL) {
