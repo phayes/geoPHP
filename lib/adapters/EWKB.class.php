@@ -55,31 +55,31 @@ class EWKB extends WKB
     
     switch ($geometry->getGeomType()) {
       case 'Point';
-        $wkb .= pack('L',1);
+        $wkb .= pack('V',1);
         $wkb .= $this->writePoint($geometry);
         break;
       case 'LineString';
-        $wkb .= pack('L',2);
+        $wkb .= pack('V',2);
         $wkb .= $this->writeLineString($geometry);
         break;
       case 'Polygon';
-        $wkb .= pack('L',3);
+        $wkb .= pack('V',3);
         $wkb .= $this->writePolygon($geometry);
         break;
       case 'MultiPoint';
-        $wkb .= pack('L',4);
+        $wkb .= pack('V',4);
         $wkb .= $this->writeMulti($geometry);
         break;
       case 'MultiLineString';
-        $wkb .= pack('L',5);
+        $wkb .= pack('V',5);
         $wkb .= $this->writeMulti($geometry);
         break;
       case 'MultiPolygon';
-        $wkb .= pack('L',6);
+        $wkb .= pack('V',6);
         $wkb .= $this->writeMulti($geometry);
         break;
       case 'GeometryCollection';
-        $wkb .= pack('L',7);
+        $wkb .= pack('V',7);
         $wkb .= $this->writeMulti($geometry);
         break;
     }
