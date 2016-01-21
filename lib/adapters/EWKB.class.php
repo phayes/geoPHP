@@ -55,31 +55,38 @@ class EWKB extends WKB
     
     switch ($geometry->getGeomType()) {
       case 'Point';
-        $wkb .= pack('V',1);
+        $wkb .= $this->writeType($geometry, 1);
+        $wkb .= $this->writeSRID($geometry);
         $wkb .= $this->writePoint($geometry);
         break;
       case 'LineString';
-        $wkb .= pack('V',2);
+        $wkb .= $this->writeType($geometry, 2);
+        $wkb .= $this->writeSRID($geometry);
         $wkb .= $this->writeLineString($geometry);
         break;
       case 'Polygon';
-        $wkb .= pack('V',3);
+        $wkb .= $this->writeType($geometry, 3);
+        $wkb .= $this->writeSRID($geometry);
         $wkb .= $this->writePolygon($geometry);
         break;
       case 'MultiPoint';
-        $wkb .= pack('V',4);
+        $wkb .= $this->writeType($geometry, 4);
+        $wkb .= $this->writeSRID($geometry);
         $wkb .= $this->writeMulti($geometry);
         break;
       case 'MultiLineString';
-        $wkb .= pack('V',5);
+        $wkb .= $this->writeType($geometry, 5);
+        $wkb .= $this->writeSRID($geometry);
         $wkb .= $this->writeMulti($geometry);
         break;
       case 'MultiPolygon';
-        $wkb .= pack('V',6);
+        $wkb .= $this->writeType($geometry, 6);
+        $wkb .= $this->writeSRID($geometry);
         $wkb .= $this->writeMulti($geometry);
         break;
       case 'GeometryCollection';
-        $wkb .= pack('V',7);
+        $wkb .= $this->writeType($geometry, 7);
+        $wkb .= $this->writeSRID($geometry);
         $wkb .= $this->writeMulti($geometry);
         break;
     }
@@ -93,4 +100,27 @@ class EWKB extends WKB
     }
   }
 
+  protected function writeType(Geometry $geometry, $type) {
+    if ($geometry->hasZ()) {
+      $type |= 0x80000000;
+    }
+
+    if ($geometry->isMeasured()) {
+      $type |= 0x40000000;
+    }
+
+    if ($geometry->getSRID()) {
+      $type |= 0x20000000;
+    }
+
+    return pack('V', $type);
+  }
+
+  protected function writeSRID(Geometry $geometry) {
+    $srid = $geometry->getSRID();
+
+    if ($srid) {
+      return pack('V', $srid);
+    }
+  }
 }

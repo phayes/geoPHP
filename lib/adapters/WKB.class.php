@@ -163,31 +163,31 @@ class WKB extends GeoAdapter
 
     switch ($geometry->getGeomType()) {
       case 'Point';
-        $wkb .= pack('V',1);
+        $wkb .= $this->writeType($geometry, 1);
         $wkb .= $this->writePoint($geometry);
         break;
       case 'LineString';
-        $wkb .= pack('V',2);
+        $wkb .= $this->writeType($geometry, 2);
         $wkb .= $this->writeLineString($geometry);
         break;
       case 'Polygon';
-        $wkb .= pack('V',3);
+        $wkb .= $this->writeType($geometry, 3);
         $wkb .= $this->writePolygon($geometry);
         break;
       case 'MultiPoint';
-        $wkb .= pack('V',4);
+        $wkb .= $this->writeType($geometry, 4);
         $wkb .= $this->writeMulti($geometry);
         break;
       case 'MultiLineString';
-        $wkb .= pack('V',5);
+        $wkb .= $this->writeType($geometry, 5);
         $wkb .= $this->writeMulti($geometry);
         break;
       case 'MultiPolygon';
-        $wkb .= pack('V',6);
+        $wkb .= $this->writeType($geometry, 6);
         $wkb .= $this->writeMulti($geometry);
         break;
       case 'GeometryCollection';
-        $wkb .= pack('V',7);
+        $wkb .= $this->writeType($geometry, 7);
         $wkb .= $this->writeMulti($geometry);
         break;
     }
@@ -245,6 +245,18 @@ class WKB extends GeoAdapter
     }
 
     return $wkb;
+  }
+
+  protected function writeType(Geometry $geometry, $type) {
+    if ($geometry->hasZ()) {
+      $type |= 0x80000000;
+    }
+
+    if ($geometry->isMeasured()) {
+      $type |= 0x40000000;
+    }
+
+    return pack('V', $type);
   }
 
 }
