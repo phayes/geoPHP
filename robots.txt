@@ -1,0 +1,5 @@
+User-Agent: *
+Disallow: 
+
+Sitemap: https://geophp.net/sitemap.xml
+
