@@ -89,21 +89,28 @@ class geoPHP
     return $result;
   }
 
-  static function getAdapterMap() {
-    return array (
-      'wkt' =>  'WKT',
-      'ewkt' => 'EWKT',
-      'wkb' =>  'WKB',
-      'ewkb' => 'EWKB',
-      'json' => 'GeoJSON',
-      'geojson' => 'GeoJSON',
-      'kml' =>  'KML',
-      'gpx' =>  'GPX',
-      'georss' => 'GeoRSS',
-      'google_geocode' => 'GoogleGeocode',
-      'geohash' => 'GeoHash',
+
+    static private $adapterMap = array(
+        'wkt' => 'WKT',
+        'ewkt' => 'EWKT',
+        'wkb' => 'WKB',
+        'ewkb' => 'EWKB',
+        'json' => 'GeoJSON',
+        'kml' => 'KML',
+        'gpx' => 'GPX',
+        'georss' => 'GeoRSS',
+        'google_geocode' => 'GoogleGeocode',
+        'geohash' => 'GeoHash',
     );
-  }
+
+
+    static function registerAdapterMap($type, $class) {
+        return self::$adapterMap[$type] = $class;
+    }
+
+    static function getAdapterMap() {
+        return self::$adapterMap;
+    }
 
   static function geometryList() {
     return array(
