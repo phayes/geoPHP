@@ -96,7 +96,7 @@ class WKB extends GeoAdapter
 
   function getLinstring(&$mem) {
     // Get the number of points expected in this string out of the first 4 bytes
-    $line_length = unpack('L',fread($mem,4));
+    $line_length = unpack('V',fread($mem,4));
 
     // Return an empty linestring if there is no line-length
     if (!$line_length[1]) return new LineString();
@@ -117,7 +117,7 @@ class WKB extends GeoAdapter
 
   function getPolygon(&$mem) {
     // Get the number of linestring expected in this poly out of the first 4 bytes
-    $poly_length = unpack('L',fread($mem,4));
+    $poly_length = unpack('V',fread($mem,4));
 
     $components = array();
     $i = 1;
@@ -130,7 +130,7 @@ class WKB extends GeoAdapter
 
   function getMulti(&$mem, $type) {
     // Get the number of items expected in this multi out of the first 4 bytes
-    $multi_length = unpack('L',fread($mem,4));
+    $multi_length = unpack('V',fread($mem,4));
 
     $components = array();
     $i = 1;
@@ -163,31 +163,31 @@ class WKB extends GeoAdapter
 
     switch ($geometry->getGeomType()) {
       case 'Point';
-        $wkb .= pack('L',1);
+        $wkb .= $this->writeType($geometry, 1);
         $wkb .= $this->writePoint($geometry);
         break;
       case 'LineString';
-        $wkb .= pack('L',2);
+        $wkb .= $this->writeType($geometry, 2);
         $wkb .= $this->writeLineString($geometry);
         break;
       case 'Polygon';
-        $wkb .= pack('L',3);
+        $wkb .= $this->writeType($geometry, 3);
         $wkb .= $this->writePolygon($geometry);
         break;
       case 'MultiPoint';
-        $wkb .= pack('L',4);
+        $wkb .= $this->writeType($geometry, 4);
         $wkb .= $this->writeMulti($geometry);
         break;
       case 'MultiLineString';
-        $wkb .= pack('L',5);
+        $wkb .= $this->writeType($geometry, 5);
         $wkb .= $this->writeMulti($geometry);
         break;
       case 'MultiPolygon';
-        $wkb .= pack('L',6);
+        $wkb .= $this->writeType($geometry, 6);
         $wkb .= $this->writeMulti($geometry);
         break;
       case 'GeometryCollection';
-        $wkb .= pack('L',7);
+        $wkb .= $this->writeType($geometry, 7);
         $wkb .= $this->writeMulti($geometry);
         break;
     }
@@ -213,7 +213,7 @@ class WKB extends GeoAdapter
 
   function writeLineString($line) {
     // Set the number of points in this line
-    $wkb = pack('L',$line->numPoints());
+    $wkb = pack('V',$line->numPoints());
 
     // Set the coords
     foreach ($line->getComponents() as $point) {
@@ -225,7 +225,7 @@ class WKB extends GeoAdapter
 
   function writePolygon($poly) {
     // Set the number of lines in this poly
-    $wkb = pack('L',$poly->numGeometries());
+    $wkb = pack('V',$poly->numGeometries());
 
     // Write the lines
     foreach ($poly->getComponents() as $line) {
@@ -237,7 +237,7 @@ class WKB extends GeoAdapter
 
   function writeMulti($geometry) {
     // Set the number of components
-    $wkb = pack('L',$geometry->numGeometries());
+    $wkb = pack('V',$geometry->numGeometries());
 
     // Write the components
     foreach ($geometry->getComponents() as $component) {
@@ -245,6 +245,18 @@ class WKB extends GeoAdapter
     }
 
     return $wkb;
+  }
+
+  protected function writeType(Geometry $geometry, $type) {
+    if ($geometry->hasZ()) {
+      $type |= 0x80000000;
+    }
+
+    if ($geometry->isMeasured()) {
+      $type |= 0x40000000;
+    }
+
+    return pack('V', $type);
   }
 
 }
