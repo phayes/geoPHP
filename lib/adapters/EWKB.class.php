@@ -18,7 +18,7 @@ class EWKB extends WKB
     }
     
     // Open the wkb up in memory so we can examine the SRID
-    $mem = fopen('php://memory', 'r+');
+    $mem = fopen('php://memory', 'x+'); //Fixed CWE-367
     fwrite($mem, $wkb);
     fseek($mem, 0);
     $base_info = unpack("corder/ctype/cz/cm/cs", fread($mem, 5));

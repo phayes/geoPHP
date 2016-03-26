@@ -37,7 +37,7 @@ class WKB extends GeoAdapter
       throw new Exception('Cannot read empty WKB geometry. Found ' . gettype($wkb));
     }
 
-    $mem = fopen('php://memory', 'r+');
+    $mem = fopen('php://memory', 'x+'); //Fixed CWE-367
     fwrite($mem, $wkb);
     fseek($mem, 0);
 
