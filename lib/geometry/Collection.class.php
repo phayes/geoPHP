@@ -231,7 +231,9 @@ abstract class Collection extends Geometry
   public function getPoints() {
     $points = array();
     foreach ($this->components as $component) {
-      $points = array_merge($points, $component->getPoints());
+      foreach ($component->getPoints() as $point) {
+        $points[] = $point;
+      }
     }
     return $points;
   }
@@ -290,7 +292,9 @@ abstract class Collection extends Geometry
   public function explode() {
     $parts = array();
     foreach ($this->components as $component) {
-      $parts = array_merge($parts, $component->explode());
+      foreach ($component->explode() as $subComponent) {
+        $parts[] = $subComponent;
+      }
     }
     return $parts;
   }
