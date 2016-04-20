@@ -139,6 +139,13 @@ foreach ($result as $item) {
 ```
 
 
+Testing
+-------
+```
+cd tests/
+GEOPHP_RUN_TESTS=1 php tests/test.php
+```
+
 Credit
 -------------------------------------------------
 
