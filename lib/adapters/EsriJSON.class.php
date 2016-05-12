@@ -31,9 +31,9 @@ class EsriJSON extends GeoAdapter {
     // TODO: What if the wkid is different from 4326?
     //$inputSpatialReference = isset($input->geometry) ? $input->geometry->spatialReference : $input->spatialReference;
 
-    if (isset($input->x) && is_numeric($input->x) && isset($input->y) && is_numeric($input->y)) {
+    if (property_exists($input, 'x') && property_exists($input, 'y')) {
       $coords = array($input->x, $input->y);
-      if (isset($input->z)) {
+      if (property_exists($input, 'z')) {
         $coords[] = $input->z;
       }
       return $this->arrayToPoint($coords);
@@ -52,7 +52,7 @@ class EsriJSON extends GeoAdapter {
       }
     }
 
-    if ($input->rings) {
+    if (property_exists($input, 'rings')) {
       return $this->convertRingsToGeometry($input->rings);
     }
 
@@ -79,7 +79,9 @@ class EsriJSON extends GeoAdapter {
 
   protected function arrayToPoint($array) {
     return new Point(
-        isset($array[0]) ? $array[0] : NULL, isset($array[1]) ? $array[1] : NULL, isset($array[2]) ? $array[2] : NULL
+      isset($array[0]) ? $array[0] : NULL,
+      isset($array[1]) ? $array[1] : NULL,
+      isset($array[2]) ? $array[2] : NULL
     );
   }
 
@@ -166,11 +168,10 @@ class EsriJSON extends GeoAdapter {
         $result['rings'] = $this->flattenMultiPolygonRings($geometry->asArray());
         break;
       case "GeometryCollection":
-        $result = array();
+        $result['features'] = array();
         foreach ($geometry->getComponents() as $component) {
-          $result[] = $this->getArray($component);
+          $result['features'][] = $this->getArray($component);
         }
-        unset($result['spatialReference']);
         break;
     }
 
@@ -345,9 +346,9 @@ class EsriJSON extends GeoAdapter {
    * @return boolean Whether or not the edges intersect.
    */
   protected function edgeIntersectsEdge($a1, $a2, $b1, $b2) {
-    $$ua_t = ($b2[0] - $b1[0]) * ($a1[1] - $b1[1]) - ($b2[1] - $b1[1]) * ($a1[0] - $b1[0]);
-    $$ub_t = ($a2[0] - $a1[0]) * ($a1[1] - $b1[1]) - ($a2[1] - $a1[1]) * ($a1[0] - $b1[0]);
-    $$u_b = ($b2[1] - $b1[1]) * ($a2[0] - $a1[0]) - ($b2[0] - $b1[0]) * ($a2[1] - $a1[1]);
+    $ua_t = ($b2[0] - $b1[0]) * ($a1[1] - $b1[1]) - ($b2[1] - $b1[1]) * ($a1[0] - $b1[0]);
+    $ub_t = ($a2[0] - $a1[0]) * ($a1[1] - $b1[1]) - ($a2[1] - $a1[1]) * ($a1[0] - $b1[0]);
+    $u_b = ($b2[1] - $b1[1]) * ($a2[0] - $a1[0]) - ($b2[0] - $b1[0]) * ($a2[1] - $a1[1]);
 
     if ($u_b !== 0) {
       $ua = $ua_t / $u_b;
@@ -410,7 +411,7 @@ class EsriJSON extends GeoAdapter {
     for ($i = -1, $l = count($coordinates), $j = $l - 1; ++$i < $l; $j = $i) {
       if ((($coordinates[$i][1] <= $point[1] && $point[1] < $coordinates[$j][1]) ||
           ($coordinates[$j][1] <= $point[1] && $point[1] < $coordinates[$i][1])) &&
-          ($point[0] < ($coordinates[j][0] - $coordinates[$i][0]) * ($point[1] - $coordinates[$i][1]) / ($coordinates[$j][1] - $coordinates[$i][1]) + $coordinates[$i][0])) {
+          ($point[0] < ($coordinates[$j][0] - $coordinates[$i][0]) * ($point[1] - $coordinates[$i][1]) / ($coordinates[$j][1] - $coordinates[$i][1]) + $coordinates[$i][0])) {
         $contains = !$contains;
       }
     }
@@ -491,7 +492,7 @@ class EsriJSON extends GeoAdapter {
     }
 
     // If we couldn't match any holes using contains we can now try intersects...
-    while ($uncontainedHoles . length) {
+    while (count($uncontainedHoles)) {
       // Pop a hole off out stack.
       $hole = array_pop($uncontainedHoles);
 
