@@ -28,8 +28,8 @@ class EsriJSON extends GeoAdapter {
       throw new Exception('Invalid JSON');
     }
 
-    // TODO: conversion?
-    // $inputSpatialReference = isset($input->geometry) ? $input->geometry->spatialReference : $input->spatialReference;
+    // TODO: What if the wkid is different from 4326?
+    //$inputSpatialReference = isset($input->geometry) ? $input->geometry->spatialReference : $input->spatialReference;
 
     if (isset($input->x) && is_numeric($input->x) && isset($input->y) && is_numeric($input->y)) {
       $coords = array($input->x, $input->y);
@@ -56,8 +56,7 @@ class EsriJSON extends GeoAdapter {
       return $this->convertRingsToGeometry($input->rings);
     }
 
-
-    if ($input->compressedGeometry || $input->geometry) {
+    if ((isset($input->compressedGeometry) && $input->compressedGeometry) || (isset($input->geometry)) && $input->geometry) {
       if ($input->compressedGeometry) {
         $input->geometry = (object) array(
               'paths' => array(
@@ -66,6 +65,13 @@ class EsriJSON extends GeoAdapter {
         );
       }
       return $this->read($input->geometry);
+    }
+    if ((isset($input->features)) && $input->features) {
+      $geometries = array();
+      foreach ($input->features as $feature) {
+        $geometries[] = $this->read($feature);
+      }
+      return new GeometryCollection($geometries);
     }
     // Should have returned something by now.
     throw new Exception('Invalid JSON');

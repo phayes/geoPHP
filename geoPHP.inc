@@ -99,7 +99,7 @@ class geoPHP
       'json' => 'GeoJSON',
       'geojson' => 'GeoJSON',
       'esrijson' => 'EsriJSON',
-      'argcgis' => 'EsriJSON',
+      'arcgis' => 'EsriJSON',
       'kml' =>  'KML',
       'gpx' =>  'GPX',
       'georss' => 'GeoRSS',
