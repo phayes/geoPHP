@@ -10,6 +10,7 @@
 // Adapters
 include_once("lib/adapters/GeoAdapter.class.php"); // Abtract class
 include_once("lib/adapters/GeoJSON.class.php");
+include_once("lib/adapters/EsriJSON.class.php");
 include_once("lib/adapters/WKT.class.php");
 include_once("lib/adapters/EWKT.class.php");
 include_once("lib/adapters/WKB.class.php");
@@ -97,6 +98,8 @@ class geoPHP
       'ewkb' => 'EWKB',
       'json' => 'GeoJSON',
       'geojson' => 'GeoJSON',
+      'esrijson' => 'EsriJSON',
+      'argcgis' => 'EsriJSON',
       'kml' =>  'KML',
       'gpx' =>  'GPX',
       'georss' => 'GeoRSS',
@@ -256,6 +259,9 @@ class geoPHP
 
     // Detect GeoJSON - first char starts with {
     if ($bytes[1] == 123) {
+      if (strpos($input, 'esri') !== FALSE) {
+        return 'esrijson';
+      }
       return 'json';
     }
 
