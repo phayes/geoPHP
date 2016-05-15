@@ -3,6 +3,8 @@
 namespace Phayes\GeoPHP;
 
 use Phayes\GeoPHP\Adapters\GeoAdapter;
+use Phayes\GeoPHP\Adapters\WKT;
+use Phayes\GeoPHP\Adapters\GeoJSON;
 use Phayes\GeoPHP\Geometry\Geometry;
 use Phayes\GeoPHP\Geometry\GeometryCollection;
 use Phayes\GeoPHP\Geometry\Point;
