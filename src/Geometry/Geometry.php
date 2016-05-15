@@ -2,7 +2,7 @@
 
 namespace Phayes\GeoPHP\Geometry;
 
-use Phayes\GeoPHP;
+use Phayes\GeoPHP\GeoPHP;
 use Phayes\GeoPHP\Geometry\Point;
 use Phayes\GeoPHP\Geometry\Polygon;
 use Phayes\GeoPHP\Geometry\LineString;

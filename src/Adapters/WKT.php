@@ -2,7 +2,7 @@
 
 namespace Phayes\GeoPHP\Adapters;
 
-use Phayes\GeoPHP;
+use Phayes\GeoPHP\GeoPHP;
 use Phayes\GeoPHP\Adapters\GeoAdapter;
 use Phayes\GeoPHP\Geometry\Point;
 use Phayes\GeoPHP\Geometry\Polygon;

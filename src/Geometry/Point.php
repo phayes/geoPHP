@@ -2,7 +2,7 @@
 
 namespace Phayes\GeoPHP\Geometry;
 
-use Phayes\GeoPHP;
+use Phayes\GeoPHP\GeoPHP;
 use Phayes\GeoPHP\Geometry\Geometry;
 use Exception;
 
