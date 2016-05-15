@@ -90,15 +90,22 @@ abstract class Geometry
   // Public: Non-Standard -- Common to all geometries
   // ------------------------------------------------
   // $this->out($format, $other_args);
-  public function out() {
+  public function out()
+  {
     $args = func_get_args();
     $format = array_shift($args);
+
     $type_map = GeoPHP::getAdapterMap();
-    $processor_type = $type_map[$format];
+
+    // 15.05.2016 rd1988
+    // Fix for composer autoloading
+    // We have to put full namespace if we are calling our class dynamically
+    $processor_type = "Phayes\\GeoPHP\\Adapters\\".$type_map[$format];
+
     $processor = new $processor_type();
     array_unshift($args, $this);
 
-    $result = call_user_func_array(array($processor, 'write'), $args);
+    $result = call_user_func_array([$processor, 'write'], $args);
     return $result;
   }
 

@@ -203,7 +203,7 @@ class Point extends Geometry
 
   public function isSimple()
   {
-    return true
+    return true;
   }
 
   // Not valid for this geometry type

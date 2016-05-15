@@ -90,7 +90,7 @@ class WKT extends GeoAdapter
 
     // If it's marked as empty, then return an empty line
     if ($data_string == 'EMPTY') {
-      return new LineString()
+      return new LineString();
     }
 
     $parts = explode(',',$data_string);
@@ -239,7 +239,7 @@ class WKT extends GeoAdapter
 
   protected function endsWith($str, $char)
   {
-    return substr($str,(0 - strlen($char))) == $char) ? true : false;
+    return (substr($str,(0 - strlen($char))) == $char) ? true : false;
   }
 
   /**

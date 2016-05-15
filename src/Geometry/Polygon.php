@@ -111,7 +111,7 @@ class Polygon extends Collection
   public function exteriorRing()
   {
     if ($this->isEmpty()) {
-      return new LineString()
+      return new LineString();
     }
 
     return $this->components[0];
