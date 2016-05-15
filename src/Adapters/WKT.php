@@ -251,6 +251,7 @@ class WKT extends GeoAdapter
    */
   public function write(Geometry $geometry)
   {
+
     // If geos is installed, then we take a shortcut and let it write the WKT
     if (GeoPHP::geosInstalled()) {
       $writer = new GEOSWKTWriter();
