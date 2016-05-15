@@ -50,7 +50,10 @@ class GeoPHP
       $args = $format;
     }
 
-    $processor_type = $type_map[$type];
+    // 15.05.2016 rd1988
+    // Fix for composer autoloading
+    // We have to put full namespace if we are calling our class dynamically
+    $processor_type = "Phayes\\GeoPHP\\Adapters\\".$type_map[$type];
 
     if (!$processor_type) {
       throw new \Exception('geoPHP could not find an adapter of type '.htmlentities($type));
