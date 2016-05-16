@@ -8,6 +8,7 @@ abstract class Geometry
   private   $geos = NULL;
   protected $srid = NULL;
   protected $geom_type;
+  protected $meta_data; 	// to support including features meta_data from GPX, GeoJSON, etc.
 
   // Abtract: Standard
   // -----------------
@@ -21,7 +22,7 @@ abstract class Geometry
   abstract public function geometryN($n);
   abstract public function startPoint();
   abstract public function endPoint();
-  abstract public function isRing();            // Mssing dependancy
+  abstract public function isRing();            // Missing dependancy
   abstract public function isClosed();          // Missing dependancy
   abstract public function numPoints();
   abstract public function pointN($n);
@@ -54,6 +55,14 @@ abstract class Geometry
       $this->geos()->setSRID($srid);
     }
     $this->srid = $srid;
+  }
+
+  public function setMetaData( $meta_data ) {
+    $this->meta_data = $meta_data;
+  }
+
+  public function getMetaData() {
+    return $this->meta_data;
   }
 
   public function envelope() {

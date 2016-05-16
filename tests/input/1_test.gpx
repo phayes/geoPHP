@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="BMW Navigator IV" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd">
+  <metadata>
+    <link href="http://www.garmin.com">
+      <text>Garmin International</text>
+    </link>
+    <time>2013-05-27T17:23:57Z</time>
+  </metadata>
+  <wpt lat="35.466436" lon="-83.920083">
+    <ele>573.07</ele>
+    <name>Deals Gap</name>
+    <sym>Waypoint</sym>
+  </wpt>
+  <wpt lat="35.524077" lon="-83.993233">
+    <ele>286.36</ele>
+    <name>Deals Gap End Lot</name>
+    <sym>Waypoint</sym>
+  </wpt>
+  <wpt lat="35.503675" lon="-83.976248">
+    <ele>457.71</ele>
+    <name>Deals Gap Overlook</name>
+    <sym>Waypoint</sym>
+  </wpt>
+  <wpt lat="35.432454" lon="-83.821132">
+    <ele>574.51</ele>
+    <name>Fontana Resort</name>
+    <sym>Waypoint</sym>
+  </wpt>
+  <wpt lat="25.061784" lon="121.640268">
+    <ele>38.10</ele>
+    <name>Garmin Asia</name>
+    <sym>Waypoint</sym>
+    <extensions>
+      <gpxx:WaypointExtension>
+        <gpxx:Address>
+          <gpxx:StreetAddress>No 68, Jangshu 2nd Road</gpxx:StreetAddress>
+          <gpxx:City>Shijr, Taipei County</gpxx:City>
+          <gpxx:Country>Taiwan</gpxx:Country>
+        </gpxx:Address>
+      </gpxx:WaypointExtension>
+    </extensions>
+  </wpt>
+  <wpt lat="50.901701" lon="-1.489350">
+    <ele>35.93</ele>
+    <name>Garmin Europe</name>
+    <sym>Waypoint</sym>
+    <extensions>
+      <gpxx:WaypointExtension>
+        <gpxx:Address>
+          <gpxx:StreetAddress>Liberty House
+Hounsdown Bus Pk</gpxx:StreetAddress>
+          <gpxx:City>Southampton</gpxx:City>
+          <gpxx:Country>UK</gpxx:Country>
+          <gpxx:PostalCode>SO40 9RB</gpxx:PostalCode>
+        </gpxx:Address>
+      </gpxx:WaypointExtension>
+    </extensions>
+  </wpt>
+  <wpt lat="38.855550" lon="-94.799018">
+    <ele>325.05</ele>
+    <name>Garmin USA</name>
+    <sym>Waypoint</sym>
+    <extensions>
+      <gpxx:WaypointExtension>
+        <gpxx:Address>
+          <gpxx:StreetAddress>1200 E 151st St</gpxx:StreetAddress>
+          <gpxx:City>Olathe</gpxx:City>
+          <gpxx:State>KS</gpxx:State>
+          <gpxx:Country>USA</gpxx:Country>
+          <gpxx:PostalCode>66062-3426</gpxx:PostalCode>
+        </gpxx:Address>
+      </gpxx:WaypointExtension>
+    </extensions>
+  </wpt>
+  <wpt lat="39.039973" lon="-76.918448">
+    <ele>56.84</ele>
+    <name>Home</name>
+    <sym>Residence</sym>
+  </wpt>
+  <wpt lat="38.040224" lon="-76.322521">
+    <ele>-6.12</ele>
+    <name>Point Lookout</name>
+    <sym>Waypoint</sym>
+  </wpt>
+  <wpt lat="38.103829" lon="-76.470196">
+    <ele>-6.84</ele>
+    <name>St Georges Island Point</name>
+    <sym>Waypoint</sym>
+  </wpt>
+  <wpt lat="35.345089" lon="-83.826926">
+    <ele>646.13</ele>
+    <name>Wheeler's Cycle</name>
+    <sym>Waypoint</sym>
+  </wpt>
+  <trk>
+    <name>Active Log: 25 MAY 2013 11:19</name>
+    <trkseg>
+      <trkpt lat="35.468628" lon="-83.916901">
+        <ele>104.92</ele>
+        <time>2013-05-25T15:19:45Z</time>
+      </trkpt>
+      <trkpt lat="35.468604" lon="-83.915720">
+        <ele>267.38</ele>
+        <time>2013-05-25T15:20:19Z</time>
+      </trkpt>
+      <trkpt lat="35.470814" lon="-83.914471">
+        <ele>124.15</ele>
+        <time>2013-05-25T15:20:28Z</time>
+      </trkpt>
+      <trkpt lat="35.471597" lon="-83.914129">
+        <ele>93.87</ele>
+        <time>2013-05-25T15:20:32Z</time>
+      </trkpt>
+      <trkpt lat="35.472942" lon="-83.912672">
+        <ele>69.83</ele>
+        <time>2013-05-25T15:20:39Z</time>
+      </trkpt>
+      <trkpt lat="35.473824" lon="-83.912603">
+        <ele>52.53</ele>
+        <time>2013-05-25T15:20:45Z</time>
+      </trkpt>
+      <trkpt lat="35.475809" lon="-83.912143">
+        <ele>33.30</ele>
+        <time>2013-05-25T15:20:57Z</time>
+      </trkpt>
+      <trkpt lat="35.476480" lon="-83.911609">
+        <ele>26.09</ele>
+        <time>2013-05-25T15:21:03Z</time>
+      </trkpt>
+      <trkpt lat="35.476327" lon="-83.911556">
+        <ele>31.38</ele>
+        <time>2013-05-25T15:21:07Z</time>
+      </trkpt>
+      <trkpt lat="35.477013" lon="-83.910796">
+        <ele>27.53</ele>
+        <time>2013-05-25T15:21:12Z</time>
+      </trkpt>
+      <trkpt lat="35.478317" lon="-83.909880">
+        <ele>24.17</ele>
+        <time>2013-05-25T15:21:20Z</time>
+      </trkpt>
+      <trkpt lat="35.478991" lon="-83.911163">
+        <ele>30.42</ele>
+        <time>2013-05-25T15:21:29Z</time>
+      </trkpt>
+      <trkpt lat="35.479265" lon="-83.911161">
+        <ele>30.42</ele>
+        <time>2013-05-25T15:21:31Z</time>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>

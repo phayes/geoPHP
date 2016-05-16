@@ -10,16 +10,16 @@ class LineString extends Collection
   /**
    * Constructor
    *
-   * @param array $points An array of at least two points with
-   * which to build the LineString
+   * @param array $points An array of at least two points with which to build the LineString
+   * @param array $meta_data features meta data associated with this linestring - optional.
    */
-  public function __construct($points = array()) {
+  public function __construct($points = array(), $meta_data = NULL) {
     if (count($points) == 1) {
       throw new Exception("Cannot construct a LineString with a single point");
     }
 
     // Call the Collection constructor to build the LineString
-    parent::__construct($points);
+    parent::__construct($points,$meta_data);
   }
 
   // The boundary of a linestring is itself
