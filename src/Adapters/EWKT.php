@@ -1,7 +1,9 @@
-<?php
-/**
- * EWKT (Extended Well Known Text) Adapter
- */
+<?php 
+
+namespace Phayes\GeoPHP\Adapters;
+
+use Phayes\GeoPHP\Adapters\WKT;
+
 class EWKT extends WKT
 {
   
@@ -12,7 +14,8 @@ class EWKT extends WKT
    *
    * @return string The Extended-WKT string representation of the input geometries
    */
-  public function write(Geometry $geometry) {
+  public function write(Geometry $geometry) 
+  {
     $srid = $geometry->SRID();
     $wkt = '';
     if ($srid) {

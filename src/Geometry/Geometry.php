@@ -1,13 +1,20 @@
 <?php
 
+namespace Phayes\GeoPHP\Geometry;
+
+use Phayes\GeoPHP\GeoPHP;
+use Phayes\GeoPHP\Geometry\Point;
+use Phayes\GeoPHP\Geometry\Polygon;
+use Phayes\GeoPHP\Geometry\LineString;
+
 /**
  * Geometry abstract class
  */
 abstract class Geometry
 {
-  private   $geos = NULL;
-  protected $srid = NULL;
+  protected $srid = null;
   protected $geom_type;
+  private $geos = null;
 
   // Abtract: Standard
   // -----------------
@@ -42,7 +49,6 @@ abstract class Geometry
   abstract public function greatCircleLength(); //meters
   abstract public function haversineLength(); //degrees
 
-
   // Public: Standard -- Common to all geometries
   // --------------------------------------------
   public function SRID() {
@@ -60,10 +66,11 @@ abstract class Geometry
     if ($this->isEmpty()) return new Polygon();
 
     if ($this->geos()) {
-      return geoPHP::geosToGeometry($this->geos()->envelope());
+      return GeoPHP::geosToGeometry($this->geos()->envelope());
     }
 
     $bbox = $this->getBBox();
+
     $points = array (
       new Point($bbox['maxx'],$bbox['miny']),
       new Point($bbox['maxx'],$bbox['maxy']),
@@ -82,22 +89,25 @@ abstract class Geometry
 
   // Public: Non-Standard -- Common to all geometries
   // ------------------------------------------------
-
   // $this->out($format, $other_args);
-  public function out() {
+  public function out()
+  {
     $args = func_get_args();
-
     $format = array_shift($args);
-    $type_map = geoPHP::getAdapterMap();
-    $processor_type = $type_map[$format];
+
+    $type_map = GeoPHP::getAdapterMap();
+
+    // 15.05.2016 rd1988
+    // Fix for composer autoloading
+    // We have to put full namespace if we are calling our class dynamically
+    $processor_type = "Phayes\\GeoPHP\\Adapters\\".$type_map[$format];
+
     $processor = new $processor_type();
-
     array_unshift($args, $this);
-    $result = call_user_func_array(array($processor, 'write'), $args);
 
+    $result = call_user_func_array([$processor, 'write'], $args);
     return $result;
   }
-
 
   // Public: Aliases
   // ---------------
@@ -108,31 +118,24 @@ abstract class Geometry
   public function getArea() {
     return $this->area();
   }
-
   public function getX() {
     return $this->x();
   }
-
   public function getY() {
     return $this->y();
   }
-
   public function getGeos() {
     return $this->geos();
   }
-
   public function getGeomType() {
     return $this->geometryType();
   }
-
   public function getSRID() {
     return $this->SRID();
   }
-
   public function asText() {
     return $this->out('wkt');
   }
-
   public function asBinary() {
     return $this->out('wkb');
   }
@@ -141,16 +144,16 @@ abstract class Geometry
   // ---------------------------
   public function geos() {
     // If it's already been set, just return it
-    if ($this->geos && geoPHP::geosInstalled()) {
+    if ($this->geos && GeoPHP::geosInstalled()) {
       return $this->geos;
     }
     // It hasn't been set yet, generate it
-    if (geoPHP::geosInstalled()) {
+    if (GeoPHP::geosInstalled()) {
       $reader = new GEOSWKBReader();
-      $this->geos = $reader->readHEX($this->out('wkb',TRUE));
+      $this->geos = $reader->readHEX($this->out('wkb', true));
     }
     else {
-      $this->geos = FALSE;
+      $this->geos = false;
     }
     return $this->geos;
   }
@@ -161,7 +164,7 @@ abstract class Geometry
 
   public function pointOnSurface() {
     if ($this->geos()) {
-      return geoPHP::geosToGeometry($this->geos()->pointOnSurface());
+      return GeoPHP::geosToGeometry($this->geos()->pointOnSurface());
     }
   }
 
@@ -171,7 +174,7 @@ abstract class Geometry
     }
   }
 
-  public function relate(Geometry $geometry, $pattern = NULL) {
+  public function relate(Geometry $geometry, $pattern = null) {
     if ($this->geos()) {
       if ($pattern) {
         return $this->geos()->relate($geometry->geos(), $pattern);
@@ -190,31 +193,31 @@ abstract class Geometry
 
   public function buffer($distance) {
     if ($this->geos()) {
-      return geoPHP::geosToGeometry($this->geos()->buffer($distance));
+      return GeoPHP::geosToGeometry($this->geos()->buffer($distance));
     }
   }
 
   public function intersection(Geometry $geometry) {
     if ($this->geos()) {
-      return geoPHP::geosToGeometry($this->geos()->intersection($geometry->geos()));
+      return GeoPHP::geosToGeometry($this->geos()->intersection($geometry->geos()));
     }
   }
 
   public function convexHull() {
     if ($this->geos()) {
-      return geoPHP::geosToGeometry($this->geos()->convexHull());
+      return GeoPHP::geosToGeometry($this->geos()->convexHull());
     }
   }
 
   public function difference(Geometry $geometry) {
     if ($this->geos()) {
-      return geoPHP::geosToGeometry($this->geos()->difference($geometry->geos()));
+      return GeoPHP::geosToGeometry($this->geos()->difference($geometry->geos()));
     }
   }
 
   public function symDifference(Geometry $geometry) {
     if ($this->geos()) {
-      return geoPHP::geosToGeometry($this->geos()->symDifference($geometry->geos()));
+      return GeoPHP::geosToGeometry($this->geos()->symDifference($geometry->geos()));
     }
   }
 
@@ -226,17 +229,17 @@ abstract class Geometry
         foreach ($geometry as $item) {
           $geom = $geom->union($item->geos());
         }
-        return geoPHP::geosToGeometry($geom);
+        return GeoPHP::geosToGeometry($geom);
       }
       else {
-        return geoPHP::geosToGeometry($this->geos()->union($geometry->geos()));
+        return GeoPHP::geosToGeometry($this->geos()->union($geometry->geos()));
       }
     }
   }
 
-  public function simplify($tolerance, $preserveTopology = FALSE) {
+  public function simplify($tolerance, $preserveTopology = false) {
     if ($this->geos()) {
-      return geoPHP::geosToGeometry($this->geos()->simplify($tolerance, $preserveTopology));
+      return GeoPHP::geosToGeometry($this->geos()->simplify($tolerance, $preserveTopology));
     }
   }
 
@@ -306,7 +309,7 @@ abstract class Geometry
     }
   }
 
-  public function project(Geometry $point, $normalized = NULL) {
+  public function project(Geometry $point, $normalized = null) {
     if ($this->geos()) {
       return $this->geos()->project($point->geos(), $normalized);
     }
@@ -316,32 +319,26 @@ abstract class Geometry
   // ---------------------
   public function hasZ() {
     // geoPHP does not support Z values at the moment
-    return FALSE;
+    return false;
   }
-
   public function is3D() {
     // geoPHP does not support 3D geometries at the moment
-    return FALSE;
+    return false;
   }
-
   public function isMeasured() {
     // geoPHP does not yet support M values
-    return FALSE;
+    return false;
   }
-
   public function coordinateDimension() {
     // geoPHP only supports 2-dimensional space
     return 2;
   }
-
   public function z() {
     // geoPHP only supports 2-dimensional space
-    return NULL;
+    return null;
   }
-
   public function m() {
     // geoPHP only supports 2-dimensional space
-    return NULL;
+    return null;
   }
-
 }

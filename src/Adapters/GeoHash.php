@@ -1,4 +1,19 @@
 <?php
+
+namespace Phayes\GeoPHP\Adapters;
+
+use Phayes\GeoPHP\GeoPHP;
+use Phayes\GeoPHP\Adapters\GeoAdapter;
+use Phayes\GeoPHP\Geometry\Point;
+use Phayes\GeoPHP\Geometry\Polygon;
+use Phayes\GeoPHP\Geometry\LineString;
+use Phayes\GeoPHP\Geometry\MultiPoint;
+use Phayes\GeoPHP\Geometry\MultiPolygon;
+use Phayes\GeoPHP\Geometry\MultiLineString;
+use Phayes\GeoPHP\Geometry\Geometry;
+use Phayes\GeoPHP\Geometry\GeometryCollection;
+use Exception;
+
 /**
  * PHP Geometry GeoHash encoder/decoder.
  *
@@ -6,8 +21,8 @@
  * @see http://en.wikipedia.org/wiki/Geohash
  *
  */
-class GeoHash extends GeoAdapter{
-
+class GeoHash extends GeoAdapter
+{
   /**
    * base32 encoding character map.
    */
@@ -16,54 +31,54 @@ class GeoHash extends GeoAdapter{
   /**
    * array of neighbouring hash character maps.
    */
-  private $neighbours = array (
+  private $neighbours = [
       // north
-      'top' => array (
+      'top' => [
           'even' => 'p0r21436x8zb9dcf5h7kjnmqesgutwvy',
           'odd' => 'bc01fg45238967deuvhjyznpkmstqrwx'
-      ),
+      ],
       // east
-      'right' => array (
+      'right' => [
           'even' => 'bc01fg45238967deuvhjyznpkmstqrwx',
           'odd' => 'p0r21436x8zb9dcf5h7kjnmqesgutwvy'
-      ),
+      ],
       // west
-      'left' => array (
+      'left' => [
           'even' => '238967debc01fg45kmstqrwxuvhjyznp',
           'odd' => '14365h7k9dcfesgujnmqp0r2twvyx8zb'
-      ),
+      ],
       // south
-      'bottom' => array (
+      'bottom' => [
           'even' => '14365h7k9dcfesgujnmqp0r2twvyx8zb',
           'odd' => '238967debc01fg45kmstqrwxuvhjyznp'
-      )
-  );
+      ]
+  ];
 
   /**
    * array of bordering hash character maps.
    */
-  private $borders = array (
+  private $borders = [
       // north
-      'top' => array (
+      'top' => [
           'even' => 'prxz',
           'odd' => 'bcfguvyz'
-      ),
+      ],
       // east
-      'right' => array (
+      'right' => [
           'even' => 'bcfguvyz',
           'odd' => 'prxz'
-      ),
+      ],
       // west
-      'left' => array (
+      'left' => [
           'even' => '0145hjnp',
           'odd' => '028b'
-      ),
+      ],
       // south
-      'bottom' => array (
+      'bottom' => [
           'even' => '028b',
           'odd' => '0145hjnp'
-      )
-  );
+      ]
+  ];
 
   /**
    * Convert the geohash to a Point. The point is 2-dimensional.
@@ -71,21 +86,21 @@ class GeoHash extends GeoAdapter{
    * @param string $hash a geohash
    * @see GeoAdapter::read()
    */
-  public function read($hash, $as_grid = FALSE) {
+  public function read($hash, $as_grid = false)
+  {
     $ll = $this->decode($hash);
     if (!$as_grid) {
       return new Point($ll['medlon'], $ll['medlat']);
-    }
-    else {
-      return new Polygon(array(
-        new LineString(array(
+    } else {
+      return new Polygon([
+        new LineString([
           new Point($ll['minlon'], $ll['maxlat']),
           new Point($ll['maxlon'], $ll['maxlat']),
           new Point($ll['maxlon'], $ll['minlat']),
           new Point($ll['minlon'], $ll['minlat']),
           new Point($ll['minlon'], $ll['maxlat']),
-        ))
-      ));
+        ])
+      ]);
     }
   }
 
@@ -95,16 +110,16 @@ class GeoHash extends GeoAdapter{
    * @param Point $geometry
    * @see GeoAdapter::write()
    */
-  public function write(Geometry $geometry, $precision = NULL){
+  public function write(Geometry $geometry, $precision = null)
+  {
     if ($geometry->isEmpty()) return '';
 
     if($geometry->geometryType() === 'Point'){
       return $this->encodePoint($geometry, $precision);
-    }
-    else {
+    } else {
       // The geohash is the hash grid ID that fits the envelope
       $envelope = $geometry->envelope();
-      $geohashes = array();
+      $geohashes = [];
       $geohash = '';
       foreach ($envelope->getPoints() as $point) {
         $geohashes[] = $this->encodePoint($point, 0.0000001);
@@ -130,13 +145,13 @@ class GeoHash extends GeoAdapter{
    * @author algorithm based on code by Alexander Songe <a@songe.me>
    * @see https://github.com/asonge/php-geohash/issues/1
    */
-  private function encodePoint($point, $precision = NULL){
-    if ($precision === NULL) {
+  private function encodePoint($point, $precision = null)
+  {
+    if ($precision === null) {
       $lap = strlen($point->y())-strpos($point->y(),".");
       $lop = strlen($point->x())-strpos($point->x(),".");
       $precision = pow(10,-max($lap-1,$lop-1,0))/2;
     }
-
     $minlat =  -90;
     $maxlat =   90;
     $minlon = -180;
@@ -183,8 +198,9 @@ class GeoHash extends GeoAdapter{
    * @author algorithm based on code by Alexander Songe <a@songe.me>
    * @see https://github.com/asonge/php-geohash/issues/1
    */
-  private function decode($hash){
-    $ll = array();
+  private function decode($hash)
+  {
+    $ll = [];
     $minlat =  -90;
     $maxlat =   90;
     $minlon = -180;
@@ -237,7 +253,8 @@ class GeoHash extends GeoAdapter{
    * @param string $direction the direction of the neighbor (top, bottom, left or right)
    * @return string the geohash of the adjacent cell
    */
-  public function adjacent($hash, $direction){
+  public function adjacent($hash, $direction)
+  {
     $last = substr($hash, -1);
     $type = (strlen($hash) % 2)? 'odd': 'even';
     $base = substr($hash, 0, strlen($hash) - 1);

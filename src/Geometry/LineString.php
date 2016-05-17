@@ -1,8 +1,11 @@
 <?php
-/**
- * LineString. A collection of Points representing a line.
- * A line can have more than one segment.
- */
+
+namespace Phayes\GeoPHP\Geometry;
+
+use Phayes\GeoPHP\GeoPHP;
+use Phayes\GeoPHP\Geometry\Collection;
+use Exception;
+
 class LineString extends Collection
 {
   protected $geom_type = 'LineString';
@@ -13,7 +16,8 @@ class LineString extends Collection
    * @param array $points An array of at least two points with
    * which to build the LineString
    */
-  public function __construct($points = array()) {
+  public function __construct($points = []) {
+
     if (count($points) == 1) {
       throw new Exception("Cannot construct a LineString with a single point");
     }
@@ -53,7 +57,9 @@ class LineString extends Collection
   }
 
   public function dimension() {
-    if ($this->isEmpty()) return 0;
+    if ($this->isEmpty()) {
+      return 0;
+    }
     return 1;
   }
 
@@ -78,6 +84,7 @@ class LineString extends Collection
   public function greatCircleLength($radius = 6378137) {
     $length = 0;
     $points = $this->getPoints();
+
     for($i=0; $i<$this->numPoints()-1; $i++) {
       $point = $points[$i];
       $next_point = $points[$i+1];
@@ -100,6 +107,7 @@ class LineString extends Collection
               cos($lat1) * cos($lat2) * cos($dlon)
           );
     }
+
     // Returns length in meters.
     return $length;
   }
@@ -120,19 +128,24 @@ class LineString extends Collection
       );
       $degrees += $degree;
     }
+
     // Returns degrees
     return $degrees;
   }
 
   public function explode() {
-    $parts = array();
+    $parts = [];
     $points = $this->getPoints();
 
     foreach ($points as $i => $point) {
       if (isset($points[$i+1])) {
-        $parts[] = new LineString(array($point, $points[$i+1]));
+        $parts[] = new LineString([
+          $point,
+          $points[$i+1]
+        ]);
       }
     }
+
     return $parts;
   }
 
@@ -147,12 +160,13 @@ class LineString extends Collection
       foreach ($segments as $j => $check_segment) {
         if ($i != $j) {
           if ($segment->lineSegmentIntersect($check_segment)) {
-            return FALSE;
+            return false;
           }
         }
       }
     }
-    return TRUE;
+
+    return true;
   }
 
   // Utility function to check if any line sigments intersect
@@ -166,25 +180,19 @@ class LineString extends Collection
     $p2_y = $segment->startPoint()->y();
     $p3_x = $segment->endPoint()->x();
     $p3_y = $segment->endPoint()->y();
-
     $s1_x = $p1_x - $p0_x;     $s1_y = $p1_y - $p0_y;
     $s2_x = $p3_x - $p2_x;     $s2_y = $p3_y - $p2_y;
-
     $fps = (-$s2_x * $s1_y) + ($s1_x * $s2_y);
     $fpt = (-$s2_x * $s1_y) + ($s1_x * $s2_y);
-
     if ($fps == 0 || $fpt == 0) {
-      return FALSE;
+      return false;
     }
-
     $s = (-$s1_y * ($p0_x - $p2_x) + $s1_x * ($p0_y - $p2_y)) / $fps;
     $t = ( $s2_x * ($p0_y - $p2_y) - $s2_y * ($p0_x - $p2_x)) / $fpt;
-
     if ($s > 0 && $s < 1 && $t > 0 && $t < 1) {
       // Collision detected
-      return TRUE;
+      return true;
     }
-    return FALSE;
+    return false;
   }
 }
-
