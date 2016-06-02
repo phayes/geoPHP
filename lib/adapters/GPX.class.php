@@ -12,6 +12,9 @@
 *
 * This has been extended from the original geoPHP codebase to support
 * reading and writing metadata tags including Garmin extensions for tracks, routes, and waypoints.
+*
+* gpxx: extensions are stored internally (and exported to GeoJSON) using gpxx_ so we can use dot 
+* notation in javascript.
 */
 
 class GPX extends GeoAdapter {
@@ -272,8 +275,8 @@ class GPX extends GeoAdapter {
 		foreach ($rte_elements as $rte) {
 			$components = array();
 			foreach ($this->childElements($rte, 'rtept') as $rtept) {
-				$lat = $rtept->attributes->getNamedItem("lat")->nodeValue;
 				$lon = $rtept->attributes->getNamedItem("lon")->nodeValue;
+				$lat = $rtept->attributes->getNamedItem("lat")->nodeValue;
 
 				$elevation = NULL;
 
@@ -422,13 +425,13 @@ class GPX extends GeoAdapter {
 
 				case 'gpxx:waypointextension':
 
-					$meta_data[ 'gpxx:waypointextension' ] = $this->parseWaypointExtension( $child );
+					$meta_data[ 'gpxx_waypointextension' ] = $this->parseWaypointExtension( $child );
 
 					break;
 
 				case 'gpxx:routepointextension':
 
-					$meta_data[ 'gpxx:routepointextension' ] = $this->parseRoutepointExtension( $child );
+					$meta_data[ 'gpxx_routepointextension' ] = $this->parseRoutepointExtension( $child );
 
 			}
 
@@ -576,7 +579,7 @@ class GPX extends GeoAdapter {
 
 				case 'gpxx:displaymode' :
 
-					$meta_data[ 'gpxx:displaymode' ] = $child->nodeValue;
+					$meta_data[ 'gpxx_displaymode' ] = $child->nodeValue;
 
 					break;
 
@@ -588,13 +591,13 @@ class GPX extends GeoAdapter {
 
 				case 'gpxx:address':
 
-					$meta_data[ 'gpxx:address' ] = $this->parseAddress( $child );
+					$meta_data[ 'gpxx_address' ] = $this->parseAddress( $child );
 
 					break;
 
 				case 'gpxx:phonenumber':
 
-					$meta_data[ 'gpxx:phonenumber' ] = $this->parsePhoneNumbers( $child );
+					$meta_data[ 'gpxx_phonenumber' ] = $this->parsePhoneNumbers( $child );
 
 					break;
 			}
@@ -632,7 +635,10 @@ class GPX extends GeoAdapter {
 					$lat = $child->attributes->getNamedItem( 'lat' )->nodeValue;
 					$lon = $child->attributes->getNamedItem( 'lon' )->nodeValue;
 
-					$meta_data[] = array( $lat, $lon ); 
+					// NOTE geoPHP uses lon before lat in arrays. This is also 
+					// what's used in GeoJSON.
+
+					$meta_data[] = array( $lon, $lat ); 
 
 					break;
 			}
@@ -687,31 +693,31 @@ class GPX extends GeoAdapter {
 
 				case 'gpxx:streetaddress' :
 
-					$meta_data[ 'gpxx:streetaddress' ] = $child->nodeValue;
+					$meta_data[ 'gpxx_streetaddress' ] = $child->nodeValue;
 
 					break;
 
 				case 'gpxx:city' :
 
-					$meta_data[ 'gpxx:city' ] = $child->nodeValue;
+					$meta_data[ 'gpxx_city' ] = $child->nodeValue;
 
 					break;
 
 				case 'gpxx:state' :
 
-					$meta_data[ 'gpxx:state' ] = $child->nodeValue;
+					$meta_data[ 'gpxx_state' ] = $child->nodeValue;
 
 					break;
 
 				case 'gpxx:country' :
 
-					$meta_data[ 'gpxx:country' ] = $child->nodeValue;
+					$meta_data[ 'gpxx_country' ] = $child->nodeValue;
 
 					break;
 
 				case 'gpxx:postalcode' :
 
-					$meta_data[ 'gpxx:postalcode' ] = $child->nodeValue;
+					$meta_data[ 'gpxx_postalcode' ] = $child->nodeValue;
 
 					break;
 
@@ -737,7 +743,7 @@ class GPX extends GeoAdapter {
 
 			switch( strtolower( $child->nodeName )) {
 
-				case 'gpxx:phonenumber':
+				case 'gpxx_phonenumber':
 
 					if (( $category =  $child->attributes->getNamedItem("Category")->nodeValue) != NULL ) {
 						$meta_data[ $category ] = $child->nodeValue;
@@ -1051,13 +1057,13 @@ class GPX extends GeoAdapter {
 
 			switch( $key ) {
 
-				case 'gpxx:waypointextension':
+				case 'gpxx_waypointextension':
 
 					$gpx .= '<' . $this->nss . 'gpxx:WaypointExtension>' . $this->waypointExtensionToGPX( $data ) . '</' . $this->nss . 'gpxx:WaypointExtension>';
 
 					break;
 
-				case 'gpxx:routepointextension':
+				case 'gpxx_routepointextension':
 
 					$gpx .= '<' . $this->nss . 'gpxx:RoutepointExtension>' . $this->routepointExtensionToGPX( $data ) . '</' . $this->nss . 'gpxx:RoutepointExtension>';
 
@@ -1085,25 +1091,25 @@ class GPX extends GeoAdapter {
 
 			switch( $key ) {
 
-				case 'gpxx:displaymode' :
+				case 'gpxx_displaymode' :
 
 					$gpx .= '<' . $this->nss . 'gpxx:DisplayMode>' . $data . '</' . $this->nss . 'gpxx:DisplayMode>';
 
 					break;
 
-				case 'gpxx:Categories':
+				case 'gpxx_Categories':
 
 					$gpx .= '<' . $this->nss . 'gpxx:Categories>' . $this->categoriesToGPX( $data ) . '</' . $this->nss . 'gpxx:Categories>';
 
 					break;
 
-				case 'gpxx:address':
+				case 'gpxx_address':
 
 					$gpx .= '<' . $this->nss . 'gpxx:Address>' . $this->addressToGPX( $data ) . '</' . $this->nss . 'gpxx:Address>';
 
 					break;
 
-				case 'gpxx:phonenumber':
+				case 'gpxx_phonenumber':
 
 					$gpx .= '<' . $this->nss . 'gpxx:PhoneNumber>' . $this->phonenumberToGPX( $data ) . '</' . $this->nss . 'gpxx:PhoneNumber>';
 
@@ -1152,7 +1158,7 @@ class GPX extends GeoAdapter {
 
 			switch( $key ) {
 
-				case 'gpxx:category':
+				case 'gpxx_category':
 
 					foreach ( $data as $category ) {
 
@@ -1184,25 +1190,25 @@ class GPX extends GeoAdapter {
 
 			switch( $key ) {
 
-				case 'gpxx:streetaddress' :
+				case 'gpxx_streetaddress' :
 
 					$gpx .= '<' . $this->nss . 'gpxx:StreetAddress>' . $data . '</' . $this->nss . 'gpxx:StreetAddress>';
 
 					break;
 
-				case 'gpxx:city' :
+				case 'gpxx_city' :
 
 					$gpx .= '<' . $this->nss . 'gpxx:City>' . $data . '</' . $this->nss . 'gpxx:City>';
 
 					break;
 
-				case 'gpxx:state' :
+				case 'gpxx_state' :
 
 					$gpx .= '<' . $this->nss . 'gpxx:State>' . $data . '</' . $this->nss . 'gpxx:State>';
 
 					break;
 
-				case 'gpxx:postalcode' :
+				case 'gpxx_postalcode' :
 
 					$gpx .= '<' . $this->nss . 'gpxx:PostalCode>' . $data . '</' . $this->nss . 'gpxx:PostalCode>';
 
@@ -1230,7 +1236,7 @@ class GPX extends GeoAdapter {
 
 			switch( $key ) {
 
-				case 'gpxx:phonenumber':
+				case 'gpxx_phonenumber':
 
 					foreach ( $data as $category => $value ) {
 

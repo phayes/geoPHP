@@ -6,6 +6,56 @@
 * a "properties" property is added to the root of the JSON. This corresponds to the top
 * level <metadata> tag in GPX files and is included so we can convert from one to the other
 * without losing data.
+*
+* For routes and tracks it saves them as "features" and adds a line_type property which may be
+* 'rte' or 'trk' corresponding to GPX routes and tracks.
+*
+* Routes waypoints are stored in the coordatinates array of the geometry but route points are
+* stored under an object at position 3 in the coordinate array. 
+*
+* The extended GeoJSON for a route has the following format:
+*
+* {
+*	"geometry" : {
+*		"type" : "LineString",
+*		"coordinates" : [[
+*			-77.463442,
+*			39.526728,
+*			null, {
+*				"extensions" : {
+*					"gpxx_routepointextension" : [[
+*							"-77.463442",
+*							"39.526642",
+*						],
+*						....
+*					],
+*				},
+*				"name" : "Watershed"
+*			}
+*			],
+*			[
+*			-77.500843,
+*			39.548915,
+*			null, {
+*				"extensions" : {
+*					"gpxx_routepointextension" : [[
+*							"-77.500864",
+*							"39.548872"
+*						],
+*						....
+* ....
+*					]
+*				}
+*				"name": "Dirt"
+*			}]
+*		]
+*	},
+*	"type" : "Feature",
+*	"properties" : {
+*		"line_type" : "rte",
+*		"name" : "Michaux from Watershed"
+*	}
+* }
 */
 
 class GeoJSON extends GeoAdapter {
