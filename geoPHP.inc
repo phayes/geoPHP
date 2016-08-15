@@ -203,11 +203,6 @@ class geoPHP {
 
 		if (gettype($geometry) == 'object') {
 
-			// TEMPORARY: KLUDGE: Disabling reducing geometries to avoid
-			// losing too much GPS data.
-
-			return $geometry;
-
 			$passbacks = array('Point','LineString','Polygon');
 			if (in_array($geometry->geometryType(),$passbacks)) {
 				return $geometry;
@@ -265,9 +260,16 @@ class geoPHP {
 			return FALSE;
 		}
 
-		// KLUDGE: TEMPORARY: Always return a geometry collection.
+		// KLUDGE: TEMPORARY: Always return a geometry collection for multiple objects.
 
-		if ( FALSE && count($geom_types) == 1) {
+		if (count($geometries) == 1) {
+			return $geometries[0];
+		} else {
+			return new GeometryCollection($geometries);
+		}
+
+/*
+		if ( count($geom_types) == 1) {
 			if (count($geometries) == 1) {
 				return $geometries[0];
 			} else {
@@ -279,6 +281,7 @@ class geoPHP {
 
 			return new GeometryCollection($geometries);
 		}
+*/
 
 	} // end of geometryReduce()
 
