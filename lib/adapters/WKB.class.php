@@ -108,8 +108,9 @@ class WKB extends GeoAdapter
     $components = array();
     $i = 1;
     $num_coords = count($line_coords);
+    $line_coord_values = array_values($line_coords);
     while ($i <= $num_coords) {
-      $components[] = new Point($line_coords[$i],$line_coords[$i+1]);
+      $components[] = new Point($line_coord_values[$i],$line_coord_values[$i+1]);
       $i += 2;
     }
     return new LineString($components);
