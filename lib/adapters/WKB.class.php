@@ -107,20 +107,15 @@ class WKB extends GeoAdapter
 
     // We have our coords, build up the linestring
     $components = array();
-    $i = 0;
-    $num_coords = count($line_coords);
-    $line_coord_values = array_values($line_coords);
-    while ($i <= $num_coords) {
-      // Drop any malformed points.
-      if (!array_key_exists($i, $line_coord_values)) {
-        break;
-      }
-      if (!array_key_exists($i+1, $line_coord_values)) {
-        break;
-      }
-      $components[] = new Point($line_coord_values[$i],$line_coord_values[$i+1]);
-      $i += 2;
-    }
+
+    // Chunk array into 2-tuples, discarding any malformed elements.
+    $line_coords_filtered = array_filter(array_chunk($line_coords, 2), function($i) {
+      return count($i) == 2;
+    });
+    $components = array_map(function($i) {
+      return new Point($i[0], $i[1]);
+    }, $line_coords_filtered);
+
     return new LineString($components);
   }
 
