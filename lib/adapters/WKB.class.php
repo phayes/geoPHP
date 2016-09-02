@@ -103,13 +103,21 @@ class WKB extends GeoAdapter
 
     // Read the nubmer of points x2 (each point is two coords) into decimal-floats
     $line_coords = unpack('d*', fread($mem,$line_length[1]*$this->dimension*8));
+    ksort($line_coords);
 
     // We have our coords, build up the linestring
     $components = array();
-    $i = 1;
+    $i = 0;
     $num_coords = count($line_coords);
     $line_coord_values = array_values($line_coords);
     while ($i <= $num_coords) {
+      // Drop any malformed points.
+      if (!array_key_exists($i, $line_coord_values)) {
+        break;
+      }
+      if (!array_key_exists($i+1, $line_coord_values)) {
+        break;
+      }
       $components[] = new Point($line_coord_values[$i],$line_coord_values[$i+1]);
       $i += 2;
     }
