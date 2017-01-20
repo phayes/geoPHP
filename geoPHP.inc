@@ -181,8 +181,6 @@ class geoPHP {
 	* For example a GeometryCollection of only points will become a MultiPoint
 	* A multi-point containing a single point will return a point.
 	* An array of geometries can be passed and they will be compiled into a single geometry
-	*
-	* 2016-08-15 - do not reduce geometries. Temporary.
 	*/
 
 	static function geometryReduce($geometry) {
@@ -268,7 +266,6 @@ class geoPHP {
 			return new GeometryCollection($geometries);
 		}
 
-/*
 		if ( count($geom_types) == 1) {
 			if (count($geometries) == 1) {
 				return $geometries[0];
@@ -281,7 +278,6 @@ class geoPHP {
 
 			return new GeometryCollection($geometries);
 		}
-*/
 
 	} // end of geometryReduce()
 
