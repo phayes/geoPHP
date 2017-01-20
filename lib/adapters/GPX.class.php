@@ -107,6 +107,15 @@ class GPX extends GeoAdapter {
 
 	// -------------------------------------------------
   
+	/**
+	* create geometry collection data structure from XML
+	*
+	* This method always returns a Geometry Collection even if the 
+	* data involves only a single object.
+	*
+	* @return GeometryCollection
+	*/
+
 	protected function geomFromXML() {
 		$geometries = array();
 		$geometries = array_merge($geometries, $this->parseWaypoints());
@@ -117,13 +126,18 @@ class GPX extends GeoAdapter {
 			throw new Exception("Invalid / Empty GPX");
 		}
     
-		$geom = geoPHP::geometryReduce($geometries); 
+		$geom_collection = new GeometryCollection( $geometries );
+
+		// Reducing the geometry from the GPX file was causing far more problems
+		// than it solved for our use case.
+		//
+		// $geom = geoPHP::geometryReduce($geometries); 
 
 		// it's a bit forced, but we store the top level metadata info in the geometrycollection.
 
-		$geom->setMetaData( $this->parseMetaData() );
+		$geom_collection->setMetaData( $this->parseMetaData() );
 
-		return $geom;
+		return $geom_collection;
 
 	} // end of geomFromXML()
 
