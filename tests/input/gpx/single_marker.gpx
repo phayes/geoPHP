@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="BMW Navigator IV" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd">
+  <metadata>
+    <name>Single Marker geoPHPwithFeatures Test</name>
+    <author>
+      <name>Yermo Lamers, Manager, Flying Brick Software, LLC</name>
+      <link href="https://github.com/Yermo/geoPHPwithFeatures">geoPHPwithFeatures</link>
+    </author>
+    <link href="https://www.miles-by-motorcycle.com">
+      <text>Miles By Motorcycle</text>
+    </link>
+    <time>2013-05-27T17:23:57Z</time>
+  </metadata>
+  <wpt lat="35.466436" lon="-83.920083">
+    <ele>573.07</ele>
+    <name>Deals Gap</name>
+    <sym>Waypoint</sym>
+  </wpt>
+</gpx>

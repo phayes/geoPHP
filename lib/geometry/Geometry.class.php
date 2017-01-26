@@ -126,6 +126,10 @@ abstract class Geometry
     return $this->y();
   }
 
+  public function getZ() {
+    return $this->z();
+  }
+
   public function getGeos() {
     return $this->geos();
   }

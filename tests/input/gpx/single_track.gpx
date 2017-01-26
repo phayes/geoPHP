@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="BMW Navigator IV" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd">
+  <metadata>
+    <name>Single Track geoPHPwithFeatures Test</name>
+    <author>
+      <name>Yermo Lamers, Manager, Flying Brick Software, LLC</name>
+      <link href="https://github.com/Yermo/geoPHPwithFeatures">geoPHPwithFeatures</link>
+    </author>
+    <link href="https://www.miles-by-motorcycle.com">
+      <text>Miles By Motorcycle</text>
+    </link>
+    <time>2013-05-27T17:23:57Z</time>
+  </metadata>
+  <trk>
+    <name>Active Log: 25 MAY 2013 11:19</name>
+    <trkseg>
+      <trkpt lat="35.468628" lon="-83.916901">
+        <ele>104.92</ele>
+        <time>2013-05-25T15:19:45Z</time>
+      </trkpt>
+      <trkpt lat="35.468604" lon="-83.915720">
+        <ele>267.38</ele>
+        <time>2013-05-25T15:20:19Z</time>
+      </trkpt>
+      <trkpt lat="35.470814" lon="-83.914471">
+        <ele>124.15</ele>
+        <time>2013-05-25T15:20:28Z</time>
+      </trkpt>
+      <trkpt lat="35.477013" lon="-83.910796">
+        <ele>27.53</ele>
+        <time>2013-05-25T15:21:12Z</time>
+      </trkpt>
+      <trkpt lat="35.478317" lon="-83.909880">
+        <ele>24.17</ele>
+        <time>2013-05-25T15:21:20Z</time>
+      </trkpt>
+      <trkpt lat="35.478991" lon="-83.911163">
+        <ele>30.42</ele>
+        <time>2013-05-25T15:21:29Z</time>
+      </trkpt>
+      <trkpt lat="35.479265" lon="-83.911161">
+        <ele>30.42</ele>
+        <time>2013-05-25T15:21:31Z</time>
+      </trkpt>
+      <trkpt lat="35.479776" lon="-83.911290">
+        <ele>28.50</ele>
+        <time>2013-05-25T15:21:35Z</time>
+      </trkpt>
+      <trkpt lat="35.480562" lon="-83.910777">
+        <ele>26.57</ele>
+        <time>2013-05-25T15:21:41Z</time>
+      </trkpt>
+      <trkpt lat="35.480649" lon="-83.910816">
+        <ele>24.17</ele>
+        <time>2013-05-25T15:21:46Z</time>
+      </trkpt>
+      <trkpt lat="35.481036" lon="-83.911832">
+        <ele>0.62</ele>
+        <time>2013-05-25T15:21:53Z</time>
+      </trkpt>
+      <trkpt lat="35.481053" lon="-83.912370">
+        <ele>-1.79</ele>
+        <time>2013-05-25T15:21:55Z</time>
+      </trkpt>
+      <trkpt lat="35.480950" lon="-83.913742">
+        <ele>26.09</ele>
+        <time>2013-05-25T15:21:59Z</time>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>

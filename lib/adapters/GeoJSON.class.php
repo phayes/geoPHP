@@ -122,16 +122,22 @@ class GeoJSON extends GeoAdapter {
 				$geoms[] = $this->read($feature);
 			}
 
-			$geometry = geoPHP::geometryReduce($geoms);
+			// Reducing geometries in the case of converting to and from GPX 
+			// causes way too many problems.
+			// $geometry = geoPHP::geometryReduce($geoms);
+
+			// For the time being we save everything as as GeometryCollection.
+
+			 $geom_collection = new GeometryCollection( $geoms );
 
 			// this violates the geoJSON spec but allows us to 
 			// keep top level GPX <metadata> around.
 
 			if ( isset( $input[ 'properties' ] ) ) {
-				$geometry->setMetaData( $input[ 'properties' ] );
+				$geom_collection->setMetaData( $input[ 'properties' ] );
 			}
 
-			return $geometry;
+			return $geom_collection;
 		}
 
 		if ($input[ 'type' ] == 'Feature') {
