@@ -1,7 +1,44 @@
-[![Build Status](https://travis-ci.org/phayes/geoPHP.svg?branch=master)](https://travis-ci.org/phayes/geoPHP)
-
 [geophp.net](https://geophp.net "GeoPHP homepage")
 
+The GeoPHP project has stated that it intends to restrict their project to pure geometry data. In other words,
+no features data such as what you might find in a GPX file. 
+
+GeoPHPwithFeatures is a fork of the popular GeoPHP project that adds features metadata to geometries. 
+
+The primary purpose of this fork is to add support for GPX file features data and convert that to and from GeoJSON making it easier
+to handle the kinds of features data you might find in a GPS generated GPX file and render that on a LeafLet map. I needed this capability
+for the next version of the maps on my site:
+[miles-by-motorcycle.com](https://miles-by-motorcycle.com "Miles-By-Motorcycle")
+
+The other adaptors (KML, etc) simply ignore the metadata as of this writing. 
+
+GPX files with extension metadata can be read and written. They can also be converted to the GeoJSON format where geometries with
+metadata are converted to GeoJSON Features objects with a properties property that includes a verbatim copy of the GPX meta data extensions. The
+GeoJSON spec has no opinions on how the properties property is formatted so I've chosen to simply mimic the metadata structure found in 
+GPX files keeping all the extension names the same (e.g. Garmin's gpxx:RouteExtension, gpxx:WaypointExtension, et al.)
+
+Please note:
+
+- A properties property is included at the top level FeaturesCollection, in violation of the standard.
+- A metadata object is included in the LineString point type to represent elevation, time, and other metadata (from the GPX file) also in violation of the standard. 
+- GPX trkseg's in a given trk are coalesced into a single trkseg.
+
+For an example of a Garmin Zumo 550 generated GPX file converted to GeoJSON see the tests/input/gpx and tests/input/json directories. 
+
+A simple command line tool, bin/geo_convert.php, is included to convert files manually. You may find the xmllint and json_pp useful for formatting
+the output so that it is human readable. For an example try:
+
+$ cd geoPHPwithFeatures/bin
+$ php geo_convert.php --input-path=../test/input/gpx/2_test.gpx --input-format=gpx --output-path=test.json --output-format=geojson
+
+For documentation please refer to the GeoPHP project.
+
+The only public changes are the addition of an additional "metadata" parameter to all geometry constructors in addition to 
+setMetaData() and getMetaData(). In all cases, they simply take an arbitrary associative array. Everything else should be backwards compatible
+with the main GeoPHP project.
+
+Original GeoPHP README
+-----------------------
 
 GeoPHP is a open-source native PHP library for doing geometry operations. It is written entirely in PHP and 
 can therefore run on shared hosts. It can read and write a wide variety of formats: WKT (including EWKT), WKB (including EWKB), GeoJSON, 
@@ -142,7 +179,9 @@ foreach ($result as $item) {
 Credit
 -------------------------------------------------
 
-Maintainer: Patrick Hayes
+GeoPHPwithFeatures Maintainer: Yermo Lamers <https://github.com/yermo> 
+
+GeoPHP Maintainer: Patrick Hayes
 
 Additional Contributors:
 

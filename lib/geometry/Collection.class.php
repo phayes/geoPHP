@@ -16,8 +16,9 @@ abstract class Collection extends Geometry
    * Constructor: Checks and sets component geometries
    *
    * @param array $components array of geometries
+   * @param array $meta_data features meta data related to this collection
    */
-  public function __construct($components = array()) {
+  public function __construct($components = array(), $meta_data = NULL) {
     if (!is_array($components)) {
       throw new Exception("Component geometries must be passed as an array");
     }
@@ -29,6 +30,9 @@ abstract class Collection extends Geometry
         throw new Exception("Cannot create a collection with non-geometries");
       }
     }
+
+    $this->meta_data = $meta_data;
+
   }
 
   /**
