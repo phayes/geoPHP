@@ -23,7 +23,7 @@ function run_test() {
 		print "GEOS is not installed.\n";
 	}
 
-	print '---- Testing MetaData '."\n";
+	print '---- Testing MetaData - load GPX, Convert to GeoJSON, compare '."\n";
 
 	foreach (scandir('./input/gpx') as $file) {
 		$parts = explode('.',$file);
@@ -32,7 +32,6 @@ function run_test() {
 			$format = $parts[1];
 
 			$gpx_file = './input/gpx/' . $file;
-			$geojson_file = './input/geojson/' . $parts[0] . '.json';
 
 			$value = file_get_contents( $gpx_file );
 			print '---- Loading '.$gpx_file."\n";

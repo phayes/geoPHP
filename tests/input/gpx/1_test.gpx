@@ -29,6 +29,7 @@
   <wpt lat="25.061784" lon="121.640268">
     <ele>38.10</ele>
     <name>Garmin Asia</name>
+    <link href="http://garmin.com">Garmin Link</link>
     <sym>Waypoint</sym>
     <extensions>
       <gpxx:WaypointExtension>

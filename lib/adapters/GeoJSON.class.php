@@ -10,8 +10,9 @@
 * For routes and tracks it saves them as "features" and adds a line_type property which may be
 * 'rte' or 'trk' corresponding to GPX routes and tracks.
 *
-* Routes waypoints are stored in the coordatinates array of the geometry but route points are
-* stored under an object at position 3 in the coordinate array. 
+* Routes waypoints are stored in the coordatinates array of the geometry but the calculated
+* points between waypoints are stored in object at position 3 in the coordate array
+* that includes an extensions property among others.
 *
 * The extended GeoJSON for a route has the following format:
 *
@@ -56,6 +57,35 @@
 *		"name" : "Michaux from Watershed"
 *	}
 * }
+*
+* GPX waypoints have the following format:
+*
+*      {
+*         "properties" : {
+*            "sym" : "Waypoint",
+*            "elevation" : "38.10",
+*            "extensions" : {
+*               "gpxx_waypointextension" : {
+*                  "gpxx_address" : {
+*                     "gpxx_city" : "Shijr, Taipei County",
+*                     "gpxx_country" : "Taiwan",
+*                     "gpxx_streetaddress" : "No 68, Jangshu 2nd Road"
+*                  }
+*               }
+*            },
+*            "name" : "Garmin Asia"
+*         },
+*         "geometry" : {
+*            "coordinates" : [
+*               121.640268,
+*               25.061784,
+*               38.1
+*            ],
+*            "type" : "Point"
+*         },
+*         "type" : "Feature"
+*      }
+*
 */
 
 class GeoJSON extends GeoAdapter {
@@ -82,7 +112,7 @@ class GeoJSON extends GeoAdapter {
 		}
 
 		if (!is_string( $input['type'] )) {
-			throw new Exception('Invalid JSON');
+			throw new Exception('Invalid JSON - no type property.');
 		}
 
 		if ($input[ 'type' ] == 'FeatureCollection') {
@@ -157,7 +187,7 @@ class GeoJSON extends GeoAdapter {
 	* array to point
 	* 
 	* array members are:
-	*	x, y, [z],[metadata]
+	*	x, y, [z], [metadata]
 	*/
 
 	private function arrayToPoint($array) {
@@ -166,9 +196,9 @@ class GeoJSON extends GeoAdapter {
 			// for the sake of passing tests
 
 			if ( count( $array ) == 4 ) {
-				return new Point($array[0], $array[1], @$array[2], @$array[3]);
-			} else if ( count( $array ) == 3 ) {
-				return new Point($array[0], $array[1], @$array[2] );
+				return new Point( $array[0], $array[1], $array[2], $array[3] );
+			} else if ( count( $array ) >= 3 ) {
+				return new Point($array[0], $array[1], $array[2] );
 			} else {
 				return new Point($array[0], $array[1] );
 			}

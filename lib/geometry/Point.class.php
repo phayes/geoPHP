@@ -134,9 +134,12 @@ class Point extends Geometry {
 	*
 	* This method returns an array representation of a point
 	* typically used in 'coords' arrays. This now includes an 
-	* optional metadata object at offset 3.
+	* optional metadata object at offset 3 when the object represents
+	* a waypoint in a route.
 	*
-	* 0 = x, 1 = y, 2 = z, 3 = {metadata object}
+	* @return {Array} 0 = x, 1 = y, 2 = z, 3 = {metadata object in the case of a route point extension}
+	*
+	* @todo supporting gpx route extension meta data here is an ugly shoehorning.
 	*/
 
 	public function asArray($assoc = FALSE) {
@@ -148,7 +151,36 @@ class Point extends Geometry {
 		}
 
 		if (( $metadata = $this->getMetaData() ) != NULL ) {
-			$coords[3] = $metadata;
+
+			// KLUDGE: shoehorn the meta data in if we are generating
+			// a route waypoint or a track point.
+
+			$coords[3] = array();
+
+			// we may have a track point elevation
+
+			if ( array_key_exists( 'elevation', $metadata )) {
+
+				$coords[3][ 'elevation' ] = $metadata[ 'elevation' ];
+
+			}
+
+			// we may have a track point time index.
+
+			if ( array_key_exists( 'time', $metadata )) {
+
+				$coords[3][ 'time' ] = $metadata[ 'time' ];
+
+			}
+
+			// we may have a route way point.
+
+			if ( array_key_exists( 'extensions', $metadata ) && array_key_exists( 'gpxx_routepointextension', $metadata[ 'extensions' ] )) {
+
+				// for route endpoints we carry it all forward.
+
+				$coords[3] = $metadata;
+			}
 		}
 
 		return $coords;
