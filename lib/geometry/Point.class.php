@@ -154,20 +154,12 @@ class Point extends Geometry {
 
 			// KLUDGE: shoehorn the meta data in if we are generating
 			// a route waypoint or a track point.
-
-			$coords[3] = array();
-
-			// we may have a track point elevation
-
-			if ( array_key_exists( 'elevation', $metadata )) {
-
-				$coords[3][ 'elevation' ] = $metadata[ 'elevation' ];
-
-			}
-
+			//
 			// we may have a track point time index.
 
 			if ( array_key_exists( 'time', $metadata )) {
+
+				$coords[3] = array();
 
 				$coords[3][ 'time' ] = $metadata[ 'time' ];
 
@@ -175,7 +167,13 @@ class Point extends Geometry {
 
 			// we may have a route way point.
 
-			if ( array_key_exists( 'extensions', $metadata ) && array_key_exists( 'gpxx_routepointextension', $metadata[ 'extensions' ] )) {
+			if ( array_key_exists( 'extensions', $metadata ) ) {
+
+				// && array_key_exists( 'gpxx_routepointextension', $metadata[ 'extensions' ] )) {
+
+				if ( ! isset( $coords[3] )) {
+					$coords[3] = array();
+				}
 
 				// for route endpoints we carry it all forward.
 

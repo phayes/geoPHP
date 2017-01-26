@@ -207,6 +207,12 @@ class GPX extends GeoAdapter {
 
 			if ( isset( $meta_data[ 'elevation' ] ) ) {
 				$elevation = @$meta_data[ 'elevation' ];
+
+				// we do not include elevation in the metadata. 
+				// on generating GPX later on we used the Z coordinate
+				// to generate the <ele> meta data tag.
+
+				unset( $meta_data[ 'elevation' ] );
 			}
 
 			$points[] = new Point($lon, $lat, $elevation, $meta_data);
@@ -248,6 +254,8 @@ class GPX extends GeoAdapter {
 
 					if ( isset( $meta_data[ 'elevation' ] ) ) {
 						$elevation = @$meta_data[ 'elevation' ];
+
+						unset( $meta_data[ 'elevation' ] );
 					}
 
 					$components[] = new Point($lon, $lat, $elevation, $meta_data );
@@ -300,6 +308,8 @@ class GPX extends GeoAdapter {
 
 				if ( isset( $meta_data[ 'elevation' ] ) ) {
 					$elevation = @$meta_data[ 'elevation' ];
+
+					unset( $meta_data[ 'elevation' ] );
 				}
 
 				$components[] = new Point($lon, $lat, $elevation, $meta_data );
@@ -808,8 +818,30 @@ class GPX extends GeoAdapter {
 	private function pointToGPX($geom) {
 		$gpx = '<'.$this->nss.'wpt lat="'.$geom->getY().'" lon="'.$geom->getX() . '"';
 
+		$tagClosed = false;
+
+		// do we have an elevation for this point? 
+
+		if ( $geom->getZ() ) {
+
+			$tagClosed = true;
+			$gpx .= '><ele>' . $geom->getZ() . '</ele>';
+
+		}
+
 		if (( $meta_data = $geom->getMetaData()) != NULL ) {
-			$gpx .= '>' . $this->metaDataToGPX( $meta_data ) . '</' . $this->nss . 'wpt>';
+
+			if ( ! $tagClosed ) {
+				$tagClosed = true;
+				$gpx .= '>';
+			}
+
+			$gpx .= $this->metaDataToGPX( $meta_data );
+
+		}
+
+		if ( $tagClosed ) {
+			$gpx .= '</' . $this->nss . 'wpt>';
 		} else {
 			$gpx .= '/>';
 		}
@@ -866,8 +898,30 @@ class GPX extends GeoAdapter {
 		foreach ($geom->getComponents() as $comp) {
 			$gpx .= '<'.$this->nss.'trkpt lat="'.$comp->getY().'" lon="'.$comp->getX() . '"';
 
+			$tagClosed = false;
+
+			// do we have an elevation for this point? 
+
+			if ( $comp->getZ() ) {
+
+				$tagClosed = true;
+				$gpx .= '><ele>' . $comp->getZ() . '</ele>';
+
+			}
+
 			if (( $meta_data = $comp->getMetaData()) != NULL ) {
-				$gpx .= '>' . $this->metaDataToGPX( $meta_data ) . '</' . $this->nss . 'trkpt>';
+
+				if ( ! $tagClosed ) {
+					$tagClosed = true;
+					$gpx .= '>';
+				}
+
+				$gpx .= $this->metaDataToGPX( $meta_data );
+
+			}
+
+			if ( $tagClosed ) {
+				$gpx .= '</' . $this->nss . 'trkpt>'; 
 			} else {
 				$gpx .= '/>';
 			}
@@ -1042,7 +1096,7 @@ class GPX extends GeoAdapter {
 
 		foreach ( $meta_data as $offset => $link ) {
 
-			$gpx .= '<link href="' . $link[ 'href' ] . '>';
+			$gpx .= '<link href="' . $link[ 'href' ] . '">';
 
 			if ( isset( $link[ 'text' ] ) ) {
 				$gpx .= '<text>' . $link[ 'text' ] . '</text>';
@@ -1055,6 +1109,8 @@ class GPX extends GeoAdapter {
 			$gpx .= '</link>';
 				
 		}
+
+		return $gpx;
 
 	} // end of linksToGPX()
 
