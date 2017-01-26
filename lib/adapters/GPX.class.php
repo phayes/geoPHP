@@ -277,7 +277,9 @@ class GPX extends GeoAdapter {
 	/**
 	* parse routes
 	*
-	* Each route is represented by a linestring
+	* Each route is represented by a linestring. The linestring just consists of
+	* the waypoints used to calculate the route. The calculated points 
+	* between each waypoint are stored under the routepoint extension.
 	*
 	* @link http://www.topografix.com/gpx/1/1/#type_rteType
 	*/
@@ -627,11 +629,10 @@ class GPX extends GeoAdapter {
 	/**  
 	* parse Garmin meta data extensions for routes
 	*
-	* I assume to distinguish between routes calculated by the GPS unit itself
-	* and routes generated elsewhere, routes calculated by Garmin GPS units
-	* are included under a RoutePointExtension.
+	* I assume Garmin stores the calculated route under the point point extension to distinguish between routes 
+	* calculated by the GPS unit itself and routes generated elsewhere.
 	*
-	* We ignore the gpxx:SubClass nodes. Not sure what they are used for.
+	* We ignore the gpxx:SubClass nodes. I'm not sure what they are used for.
 	*
 	* @return array of lat/lon coords. We are not using Point objects here. 
 	*/
