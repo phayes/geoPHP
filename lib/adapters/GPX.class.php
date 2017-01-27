@@ -1217,11 +1217,19 @@ class GPX extends GeoAdapter {
 
 		$gpx = '';
 
+		$blank = true;
+
 		foreach ( $meta_data as $key => $data ) {
+
+			if (( is_array( $data ) && ( count( $data ) == 0 )) || ( $data == '' )) {
+				continue;
+			}
 
 			switch( $key ) {
 
 				case 'gpxx_displaymode' :
+
+					$blank = false;
 
 					$gpx .= '<' . $this->nss . 'gpxx:DisplayMode>' . $data . '</' . $this->nss . 'gpxx:DisplayMode>';
 
@@ -1229,17 +1237,23 @@ class GPX extends GeoAdapter {
 
 				case 'gpxx_Categories':
 
+					$blank = false;
+
 					$gpx .= '<' . $this->nss . 'gpxx:Categories>' . $this->categoriesToGPX( $data ) . '</' . $this->nss . 'gpxx:Categories>';
 
 					break;
 
 				case 'gpxx_address':
 
+					$blank = false;
+
 					$gpx .= '<' . $this->nss . 'gpxx:Address>' . $this->addressToGPX( $data ) . '</' . $this->nss . 'gpxx:Address>';
 
 					break;
 
 				case 'gpxx_phonenumber':
+
+					$blank = false;
 
 					$gpx .= '<' . $this->nss . 'gpxx:PhoneNumber>' . $this->phonenumberToGPX( $data ) . '</' . $this->nss . 'gpxx:PhoneNumber>';
 
@@ -1248,7 +1262,11 @@ class GPX extends GeoAdapter {
 
 		}
 
-	return $gpx;
+		if ( $blank ) {
+			return '';
+		}
+
+		return $gpx;
 
 	} // end of waypointExtensionsToGPX()
 
