@@ -10,9 +10,8 @@
 * For routes and tracks it saves them as "features" and adds a line_type property which may be
 * 'rte' or 'trk' corresponding to GPX routes and tracks.
 *
-* Routes waypoints are stored in the coordatinates array of the geometry but the calculated
-* points between waypoints are stored in object at position 3 in the coordate array
-* that includes an extensions property among others.
+* Route waypoints are stored in the coordatinates array of the geometry but the calculated
+* points between waypoints are stored in a waypoint feature object at position 3 in the coordate array.
 *
 * The extended GeoJSON for a route has the following format:
 *
@@ -37,24 +36,41 @@
 *			[
 *			-77.500843,
 *			39.548915,
-*			null, {
-*				"extensions" : {
-*					"gpxx_routepointextension" : [[
+*			null, 
+*			{
+*				"properties" : {
+*					"sym" : "Waypoint",
+*					"extensions" : {
+*						"gpxx_waypointextension" : {},
+*						"gpxx_address" : {
+*							...
+*							},
+*						"gpxx_routepointextension" : [[
 *							"-77.500864",
 *							"39.548872"
 *						],
 *						....
-* ....
-*					]
-*				}
-*				"name": "Dirt"
-*			}]
+*						]
+*
+*					},
+*					"name" : "A Sample WayPoint"
+*				},
+*				"geometry" : {
+*					"coordinates" : [
+*						-77.500843,
+*						39.548915,
+*						null
+*					],
+*					"type" : "Point"
+*				},
+*				"type" : "Feature"
+*			}
 *		]
 *	},
 *	"type" : "Feature",
 *	"properties" : {
 *		"line_type" : "rte",
-*		"name" : "Michaux from Watershed"
+*		"name" : "Some Route"
 *	}
 * }
 *
@@ -305,7 +321,8 @@ class GeoJSON extends GeoAdapter {
 	*/
 
 	public function getArray($geometry) {
-		$isFeatureCollection = false;
+
+		$returnFeatureCollection = false;
 
 		if ($geometry->getGeomType() == 'GeometryCollection') {
 			$component_array = array();
@@ -317,7 +334,7 @@ class GeoJSON extends GeoAdapter {
 
 				if (( $meta_data = $component->getMetaData() ) != NULL ) {
 
-					$isFeatureCollection = true;
+					$returnFeatureCollection = true;
 
 					$component_array[] = array(
 						'type' => 'Feature',
@@ -337,7 +354,7 @@ class GeoJSON extends GeoAdapter {
 				}
 			}
 
-			if ( $isFeatureCollection ) {
+			if ( $returnFeatureCollection ) {
 
 				return array(
 					'type'=> 'FeatureCollection',

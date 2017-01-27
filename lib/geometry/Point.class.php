@@ -165,9 +165,9 @@ class Point extends Geometry {
 
 			}
 
-			// we may have a route way point.
+			// A route way point will have metadata in the form of a Point geometry
 
-			if ( array_key_exists( 'extensions', $metadata ) ) {
+			if ( array_key_exists( 'properties', $metadata ) ) {
 
 				// && array_key_exists( 'gpxx_routepointextension', $metadata[ 'extensions' ] )) {
 
