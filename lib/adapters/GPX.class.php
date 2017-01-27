@@ -489,6 +489,14 @@ class GPX extends GeoAdapter {
 
 					$meta_data[ 'gpxx_routepointextension' ] = $this->parseRoutepointExtension( $child );
 
+					break;
+
+				case 'mbymc_extension':
+
+					$meta_data[ 'mbymc_extension' ] = $this->parseMbymcExtension( $child );
+		
+					break;				
+
 			}
 
 		}
@@ -703,6 +711,40 @@ class GPX extends GeoAdapter {
 	return $meta_data;
 
 	} // end of parseRoutepointExtensions
+
+	// -------------------------------------------------
+
+	/**  
+	* parse Garmin meta data extensions
+	*/
+
+	protected function parseMbymcExtension( $node ) {
+
+		$meta_data = [];
+
+		foreach ($node->childNodes as $child) {
+
+			switch( strtolower( $child->nodeName )) {
+
+				case 'object_type_name' :
+
+					$meta_data[ 'object_type_name' ] = $child->nodeValue;
+
+					break;
+
+				case 'object_guid':
+
+					$meta_data[ 'object_guid' ] = $child->nodeValue;
+
+					break;
+
+			}
+
+		}
+
+	return $meta_data;
+
+	} // end of parseMbymcExtension
 
 	// -------------------------------------------------
 
@@ -1193,6 +1235,19 @@ class GPX extends GeoAdapter {
 					$gpx .= '<' . $this->nss . 'gpxx:RoutepointExtension>' . $routepoint . '</' . $this->nss . 'gpxx:RoutepointExtension>';
 
 				break;
+
+				case 'mbymc_extension':
+
+					if (( $mbymc = $this->mbymcExtensionToGPX( $data )) == '' ) {
+						break;
+					}
+
+					$blank = false;
+
+					$gpx .= '<' . $this->nss . 'mbymc_extension>' . $mbymc . '</' . $this->nss . 'mbymc_extension>';
+
+				break;
+
 			}
 
 		}
@@ -1269,6 +1324,54 @@ class GPX extends GeoAdapter {
 		return $gpx;
 
 	} // end of waypointExtensionsToGPX()
+
+	// -------------------------------------------------
+
+	/**  
+	* generate mbymc extension
+	*/
+
+	protected function mbymcExtensionToGPX( $meta_data ) {
+
+		$gpx = '';
+
+		$blank = true;
+
+		foreach ( $meta_data as $key => $data ) {
+
+			if (( is_array( $data ) && ( count( $data ) == 0 )) || ( $data == '' )) {
+				continue;
+			}
+
+			switch( $key ) {
+
+				case 'object_type_name' :
+
+					$blank = false;
+
+					$gpx .= '<' . $this->nss . 'object_type_name>' . $data . '</' . $this->nss . 'object_type_name>';
+
+					break;
+
+				case 'object_guid':
+
+					$blank = false;
+
+					$gpx .= '<' . $this->nss . 'object_guid>' . $data . '</' . $this->nss . 'object_guid>';
+
+					break;
+
+			}
+
+		}
+
+		if ( $blank ) {
+			return '';
+		}
+
+		return $gpx;
+
+	} // end of mbymcExtensionToGPX()
 
 	// -------------------------------------------------
 
