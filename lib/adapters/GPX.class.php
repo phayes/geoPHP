@@ -312,7 +312,12 @@ class GPX extends GeoAdapter {
 					unset( $meta_data[ 'elevation' ] );
 				}
 
-				$components[] = new Point($lon, $lat, $elevation, $meta_data );
+				// for routes we store a complete Feature object under 
+				// the waypoint.
+
+				$pointFeature = $this->metaDataToWayPointFeature( $meta_data, $lat, $lon );
+
+				$components[] = new Point($lon, $lat, $elevation, $pointFeature );
 			}
 
 		$meta_data = $this->parseMetaDataChildren( $rte );
@@ -325,6 +330,31 @@ class GPX extends GeoAdapter {
 	return $lines;
 
 	} // end of parseRoutes()
+
+	// -------------------------------------------------
+
+	/**
+	* given GPX metadata create a Point Feature
+	*
+	* Route waypoints are stored in the fourth position of the route 
+	* coordinate array. These waypoints are stored as complete GeoJSON 
+	* Feature objects.
+	*/
+
+	function metaDataToWayPointFeature( $meta_data, $lat, $lon ) {
+
+		$feature = array( 
+			'type' => 'Feature',
+			'properties' => $meta_data,
+			'geometry' => array(
+				'type' => 'Point',
+				'lat' => $lat,
+				'lon' => $lon
+			)
+		);
+
+		return $feature;
+	}
 
 	// -------------------------------------------------
 
@@ -992,13 +1022,22 @@ class GPX extends GeoAdapter {
 	/**
 	* parse features metadata child nodes 
 	*
-	* @param $node DOMNode root 
-	* @return array list of meta data values
+	* There are two formats for metadata. The first is a straight properties list
+	* used by routes, tracks, and waypoints. 
+	*
+	* The second is a special case used by route waypoints in which case it's formatted
+	* as a complete GeoJSON Feature object.
 	*/
 
 	protected function metaDataToGPX( $meta_data ) {
 
 		$gpx = '';
+
+		// are we dealing with a route waypoint object in a route point object?? 
+
+		if ( array_key_exists( 'type', $meta_data ) && (  @$meta_data[ 'type' ] == 'Feature' )) { 
+			$meta_data = $meta_data[ 'properties' ];
+		}
 
 		foreach ( $meta_data as $key => $data ) {
 
@@ -1124,22 +1163,42 @@ class GPX extends GeoAdapter {
 
 		$gpx = '<' . $this->nss . 'extensions>';
 
+		$blank = true;
+
 		foreach ( $meta_data as $key => $data ) {
 
 			switch( $key ) {
 
 				case 'gpxx_waypointextension':
 
-					$gpx .= '<' . $this->nss . 'gpxx:WaypointExtension>' . $this->waypointExtensionToGPX( $data ) . '</' . $this->nss . 'gpxx:WaypointExtension>';
+
+					if (( $waypoint = $this->waypointExtensionToGPX( $data )) == '' ) {
+						break;
+					}
+
+					$blank = false;
+
+					$gpx .= '<' . $this->nss . 'gpxx:WaypointExtension>' . $waypoint  . '</' . $this->nss . 'gpxx:WaypointExtension>';
 
 					break;
 
 				case 'gpxx_routepointextension':
 
-					$gpx .= '<' . $this->nss . 'gpxx:RoutepointExtension>' . $this->routepointExtensionToGPX( $data ) . '</' . $this->nss . 'gpxx:RoutepointExtension>';
+					if (( $routepoint = $this->routepointExtensionToGPX( $data )) == '' ) {
+						break;
+					}
 
+					$blank = false;
+
+					$gpx .= '<' . $this->nss . 'gpxx:RoutepointExtension>' . $routepoint . '</' . $this->nss . 'gpxx:RoutepointExtension>';
+
+				break;
 			}
 
+		}
+
+		if ( $blank ) { 
+			return '';
 		}
 
 		$gpx .= '</' . $this->nss . 'extensions>'; 
