@@ -732,12 +732,6 @@ class GPX extends GeoAdapter {
 
 					break;
 
-				case 'object_guid':
-
-					$meta_data[ 'object_guid' ] = $child->nodeValue;
-
-					break;
-
 			}
 
 		}
