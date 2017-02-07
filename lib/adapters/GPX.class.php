@@ -1381,6 +1381,8 @@ class GPX extends GeoAdapter {
 
 		foreach ( $meta_data as $offset => $array ) {
 
+			// geoJSON and geoPHP put lon before lat 
+
 			$gpx .= '<' . $this->nss . 'gpxx:rpt lat="' . $array[1] . '" lon="' . $array[0] . '" />';
 
 		}
