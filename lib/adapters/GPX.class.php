@@ -1381,7 +1381,7 @@ class GPX extends GeoAdapter {
 
 		foreach ( $meta_data as $offset => $array ) {
 
-			$gpx .= '<' . $this->nss . 'gpxx:rpt lat="' . $array[0] . '" lon="' . $array[1] . '" />';
+			$gpx .= '<' . $this->nss . 'gpxx:rpt lat="' . $array[1] . '" lon="' . $array[0] . '" />';
 
 		}
 
