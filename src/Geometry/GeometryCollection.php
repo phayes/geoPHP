@@ -2,8 +2,6 @@
 
 namespace Phayes\GeoPHP\Geometry;
 
-use Phayes\GeoPHP\Geometry\Collection;
-
 class GeometryCollection extends Collection
 {
   protected $geom_type = 'GeometryCollection';

@@ -3,7 +3,6 @@
 namespace Phayes\GeoPHP\Adapters;
 
 use Phayes\GeoPHP\GeoPHP;
-use Phayes\GeoPHP\Adapters\GeoAdapter;
 use Phayes\GeoPHP\Geometry\Point;
 use Phayes\GeoPHP\Geometry\Polygon;
 use Phayes\GeoPHP\Geometry\LineString;
@@ -196,7 +195,6 @@ class WKT extends GeoAdapter
       return new GeometryCollection();
     }
     $geometries = [];
-    $matches = [];
     $str = preg_replace('/,\s*([A-Za-z])/', '|$1', $data_string);
     $components = explode('|', trim($str));
 
@@ -276,7 +274,7 @@ class WKT extends GeoAdapter
    *
    * @return string
    */
-  public function extractData($geometry)
+  public function extractData(Geometry $geometry)
   {
     $parts = [];
 

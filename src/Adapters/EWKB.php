@@ -2,29 +2,19 @@
 
 namespace Phayes\GeoPHP\Adapters;
 
-use Phayes\GeoPHP\GeoPHP;
-use Phayes\GeoPHP\Adapters\GeoAdapter;
-use Phayes\GeoPHP\Adapters\WKB;
-use Phayes\GeoPHP\Geometry\Point;
-use Phayes\GeoPHP\Geometry\Polygon;
-use Phayes\GeoPHP\Geometry\LineString;
-use Phayes\GeoPHP\Geometry\MultiPoint;
-use Phayes\GeoPHP\Geometry\MultiPolygon;
-use Phayes\GeoPHP\Geometry\MultiLineString;
 use Phayes\GeoPHP\Geometry\Geometry;
-use Phayes\GeoPHP\Geometry\GeometryCollection;
-use Exception;
 
 class EWKB extends WKB
 {
 
-  /**
-   * Read WKB binary string into geometry objects
-   *
-   * @param string $wkb An Extended-WKB binary string
-   *
-   * @return Geometry
-   */
+    /**
+     * Read WKB binary string into geometry objects
+     *
+     * @param string $wkb An Extended-WKB binary string
+     * @param bool   $is_hex_string
+     *
+     * @return Geometry
+     */
    public function read($wkb, $is_hex_string = false)
    {
      if ($is_hex_string) {
@@ -56,13 +46,14 @@ class EWKB extends WKB
      return $geom;
    }
 
-   /**
-    * Serialize geometries into an EWKB binary string.
-    *
-    * @param Geometry $geometry
-    *
-    * @return string The Extended-WKB binary string representation of the input geometries
-    */
+    /**
+     * Serialize geometries into an EWKB binary string.
+     *
+     * @param Geometry $geometry
+     * @param bool     $write_as_hex
+     *
+     * @return string The Extended-WKB binary string representation of the input geometries
+     */
    public function write(Geometry $geometry, $write_as_hex = false)
    {
      // We always write into NDR (little endian)

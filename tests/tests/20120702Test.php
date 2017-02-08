@@ -1,5 +1,5 @@
 <?php
-require_once('../geoPHP.inc');
+
 class Tests_20120702 extends PHPUnit_Framework_TestCase {
 
   function setUp() {
@@ -9,7 +9,7 @@ class Tests_20120702 extends PHPUnit_Framework_TestCase {
   function testMethods() {
     $format = 'gpx';
     $value = file_get_contents('./input/20120702.gpx');
-    $geometry = geoPHP::load($value, $format);
+    $geometry = \Phayes\GeoPHP\GeoPHP::load($value, $format);
 
     $methods = array(
       array('name' => 'area'),

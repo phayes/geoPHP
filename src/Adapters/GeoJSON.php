@@ -2,8 +2,8 @@
 
 namespace Phayes\GeoPHP\Adapters;
 
+use Phayes\GeoPHP\Geometry\Collection;
 use Phayes\GeoPHP\GeoPHP;
-use Phayes\GeoPHP\Adapters\GeoAdapter;
 use Phayes\GeoPHP\Geometry\Point;
 use Phayes\GeoPHP\Geometry\Polygon;
 use Phayes\GeoPHP\Geometry\LineString;
@@ -142,21 +142,22 @@ class GeoJSON extends GeoAdapter
     return new GeometryCollection($geoms);
   }
 
-  /**
-   * Serializes an object into a geojson string
-   *
-   *
-   * @param Geometry $obj The object to serialize
-   *
-   * @return string The GeoJSON string
-   */
+    /**
+     * Serializes an object into a geojson string
+     *
+     *
+     * @param Geometry $geometry The object to serialize
+     * @param bool     $return_array
+     *
+     * @return string The GeoJSON string
+     */
   public function write(Geometry $geometry, $return_array = false)
   {
 
     return ($return_array) ? $this->getArray($geometry) : json_encode($this->getArray($geometry));
   }
 
-  public function getArray($geometry)
+  public function getArray(Collection $geometry)
   {
     if ($geometry->getGeomType() == 'GeometryCollection') {
       $component_array = [];

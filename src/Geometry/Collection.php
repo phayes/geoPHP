@@ -9,6 +9,7 @@ use Exception;
 
 abstract class Collection extends Geometry
 {
+    /** @var Geometry[] */
   public $components = [];
 
   /**
@@ -34,7 +35,7 @@ abstract class Collection extends Geometry
   /**
    * Returns Collection component geometries
    *
-   * @return array
+   * @return Geometry[]
    */
   public function getComponents() {
     return $this->components;

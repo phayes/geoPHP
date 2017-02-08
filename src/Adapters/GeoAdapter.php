@@ -3,6 +3,7 @@
 namespace Phayes\GeoPHP\Adapters;
 
 use Phayes\GeoPHP\Geometry\Geometry;
+use Phayes\GeoPHP\Geometry\GeometryCollection;
 
 /**
  * GeoAdapter : abstract class which represents an adapter

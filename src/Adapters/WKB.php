@@ -2,8 +2,7 @@
 
 namespace Phayes\GeoPHP\Adapters;
 
-use Phayes\GeoPHP\GeoPHP;
-use Phayes\GeoPHP\Adapters\GeoAdapter;
+use Phayes\GeoPHP\Geometry\Collection;
 use Phayes\GeoPHP\Geometry\Point;
 use Phayes\GeoPHP\Geometry\Polygon;
 use Phayes\GeoPHP\Geometry\LineString;
@@ -215,7 +214,7 @@ class WKB extends GeoAdapter
     }
   }
 
-  function writePoint($point)
+  function writePoint(Point $point)
   {
     // Set the coords
     if (!$point->isEmpty()) {
@@ -226,7 +225,7 @@ class WKB extends GeoAdapter
     }
   }
 
-  function writeLineString($line)
+  function writeLineString(LineString $line)
   {
     // Set the number of points in this line
     $wkb = pack('L',$line->numPoints());
@@ -239,7 +238,7 @@ class WKB extends GeoAdapter
     return $wkb;
   }
 
-  function writePolygon($poly)
+  function writePolygon(Polygon $poly)
   {
     // Set the number of lines in this poly
     $wkb = pack('L',$poly->numGeometries());
@@ -252,7 +251,7 @@ class WKB extends GeoAdapter
     return $wkb;
   }
 
-  function writeMulti($geometry)
+  function writeMulti(Collection $geometry)
   {
     // Set the number of components
     $wkb = pack('L',$geometry->numGeometries());
@@ -261,7 +260,7 @@ class WKB extends GeoAdapter
     foreach ($geometry->getComponents() as $component) {
       $wkb .= $this->write($component);
     }
-    
+
     return $wkb;
   }
 }

@@ -1,5 +1,6 @@
 <?php
-require_once ('../geoPHP.inc');
+
+use Phayes\GeoPHP\Adapters\GeoHash;
 
 class GeoHashTest extends PHPUnit_Framework_TestCase {
 

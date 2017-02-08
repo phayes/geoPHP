@@ -2,17 +2,10 @@
 
 namespace Phayes\GeoPHP\Adapters;
 
-use Phayes\GeoPHP\GeoPHP;
-use Phayes\GeoPHP\Adapters\GeoAdapter;
 use Phayes\GeoPHP\Geometry\Point;
 use Phayes\GeoPHP\Geometry\Polygon;
 use Phayes\GeoPHP\Geometry\LineString;
-use Phayes\GeoPHP\Geometry\MultiPoint;
-use Phayes\GeoPHP\Geometry\MultiPolygon;
-use Phayes\GeoPHP\Geometry\MultiLineString;
 use Phayes\GeoPHP\Geometry\Geometry;
-use Phayes\GeoPHP\Geometry\GeometryCollection;
-use Exception;
 
 /**
  * PHP Geometry GeoHash encoder/decoder.
