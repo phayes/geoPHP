@@ -224,7 +224,7 @@ class KML extends GeoAdapter
         }
     }
 
-    private function pointToKML(Collection $geom)
+    private function pointToKML(Geometry $geom)
     {
         $out = '<' . $this->nss . 'Point>';
 

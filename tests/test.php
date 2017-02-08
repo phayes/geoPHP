@@ -1,14 +1,16 @@
 <?php
 
+require __DIR__ . '/../vendor/autoload.php';
+
 // Uncomment to test
 use Phayes\GeoPHP\GeoPHP;
 
-if (getenv("GEOPHP_RUN_TESTS") == 1) {
+//if (getenv("GEOPHP_RUN_TESTS") == 1) {
   run_test();
-}
-else {
-  print "Skipping tests. Please set GEOPHP_RUN_TESTS=1 environment variable if you wish to run tests\n";
-}
+//}
+//else {
+//  print "Skipping tests. Please set GEOPHP_RUN_TESTS=1 environment variable if you wish to run tests\n";
+//}
 
 function run_test() {
   set_time_limit(0);
@@ -125,6 +127,7 @@ function test_adapters(\Phayes\GeoPHP\Geometry\Geometry $geometry, $format, $inp
     if ($adapter_key != 'google_geocode') { //Don't test google geocoder regularily. Uncomment to test
       $output = $geometry->out($adapter_key);
       if ($output) {
+        $adapter_class = '\Phayes\GeoPHP\Adapters\\' . $adapter_class;
         $adapter_loader = new $adapter_class();
         $test_geom_1 = $adapter_loader->read($output);
         $test_geom_2 = $adapter_loader->read($test_geom_1->out($adapter_key));

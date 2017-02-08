@@ -157,7 +157,12 @@ class GeoJSON extends GeoAdapter
     return ($return_array) ? $this->getArray($geometry) : json_encode($this->getArray($geometry));
   }
 
-  public function getArray(Collection $geometry)
+    /**
+     * @param Geometry|Collection|Point $geometry
+     *
+     * @return array
+     */
+  public function getArray(Geometry $geometry)
   {
     if ($geometry->getGeomType() == 'GeometryCollection') {
       $component_array = [];
