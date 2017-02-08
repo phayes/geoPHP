@@ -1,5 +1,7 @@
 <?php
-require_once('../geoPHP.inc');
+
+use Phayes\GeoPHP\GeoPHP;
+
 class GeosTests extends PHPUnit_Framework_TestCase {
 
   function setUp() {
@@ -7,7 +9,7 @@ class GeosTests extends PHPUnit_Framework_TestCase {
   }
 
   function testGeos() {
-    if (!geoPHP::geosInstalled()) {
+    if (!GeoPHP::geosInstalled()) {
       echo "Skipping GEOS -- not installed";
       return;
     }

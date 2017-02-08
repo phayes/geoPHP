@@ -1,14 +1,17 @@
 <?php
 
-/**
- * Point: The most basic geometry type. All other geometries
- * are built out of Points.
- */
+namespace Phayes\GeoPHP\Geometry;
+
+use Phayes\GeoPHP\GeoPHP;
+use Phayes\GeoPHP\Geometry\Geometry;
+use Exception;
+
 class Point extends Geometry
 {
-  public $coords = array(2);
   protected $geom_type = 'Point';
   protected $dimension = 2;
+  public $coords = [2];
+
 
   /**
    * Constructor
@@ -17,11 +20,12 @@ class Point extends Geometry
    * @param numeric $y The y coordinate (or latitude)
    * @param numeric $z The z coordinate (or altitude) - optional
    */
-  public function __construct($x = NULL, $y = NULL, $z = NULL) {
+  public function __construct($x = null, $y = null, $z = null)
+  {
 
     // Check if it's an empty point
-    if ($x === NULL && $y === NULL) {
-      $this->coords = array(NULL, NULL);
+    if ($x === null && $y === null) {
+      $this->coords = [null, null];
       $this->dimension = 0;
       return;
     }
@@ -32,7 +36,7 @@ class Point extends Geometry
     }
 
     // Check to see if this is a 3D point
-    if ($z !== NULL) {
+    if ($z !== null) {
       if (!is_numeric($z)) {
        throw new Exception("Cannot construct Point. z should be numeric");
       }
@@ -46,10 +50,10 @@ class Point extends Geometry
 
     // Add poitional elements
     if ($this->dimension == 2) {
-      $this->coords = array($x, $y);
+      $this->coords = [$x, $y];
     }
     if ($this->dimension == 3) {
-      $this->coords = array($x, $y, $z);
+      $this->coords = [$x, $y, $z];
     }
   }
 
@@ -58,7 +62,8 @@ class Point extends Geometry
    *
    * @return float The X coordinate
    */
-  public function x() {
+  public function x()
+  {
     return $this->coords[0];
   }
 
@@ -67,7 +72,8 @@ class Point extends Geometry
    *
    * @return float The Y coordinate
    */
-  public function y() {
+  public function y()
+  {
     return $this->coords[1];
   }
 
@@ -76,11 +82,13 @@ class Point extends Geometry
    *
    * @return float The Z coordinate or NULL is not a 3D point
    */
-  public function z() {
+  public function z()
+  {
     if ($this->dimension == 3) {
       return $this->coords[2];
+    } else {
+      return null;
     }
-    else return NULL;
   }
 
   /**
@@ -92,27 +100,30 @@ class Point extends Geometry
    * */
   public function invertxy()
   {
-	$x=$this->coords[0];
-	$this->coords[0]=$this->coords[1];
-	$this->coords[1]=$x;
+	   $x = $this->coords[0];
+
+	   $this->coords[0] = $this->coords[1];
+	   $this->coords[1] = $x;
   }
 
-
   // A point's centroid is itself
-  public function centroid() {
+  public function centroid()
+  {
     return $this;
   }
 
-  public function getBBox() {
-    return array(
+  public function getBBox()
+  {
+    return [
       'maxy' => $this->getY(),
       'miny' => $this->getY(),
       'maxx' => $this->getX(),
       'minx' => $this->getX(),
-    );
+    ];
   }
 
-  public function asArray($assoc = FALSE) {
+  public function asArray($assoc = false)
+  {
     return $this->coords;
   }
 
@@ -120,48 +131,58 @@ class Point extends Geometry
     return 0;
   }
 
-  public function length() {
+  public function length()
+  {
     return 0;
   }
 
-  public function greatCircleLength() {
+  public function greatCircleLength()
+  {
     return 0;
   }
 
-  public function haversineLength() {
+  public function haversineLength()
+  {
     return 0;
   }
 
   // The boundary of a point is itself
-  public function boundary() {
+  public function boundary()
+  {
     return $this;
   }
 
-  public function dimension() {
+  public function dimension()
+  {
     return 0;
   }
 
-  public function isEmpty() {
+  public function isEmpty()
+  {
     if ($this->dimension == 0) {
-      return TRUE;
+      return true;
     }
     else {
-      return FALSE;
+      return false;
     }
   }
 
-  public function numPoints() {
+  public function numPoints()
+  {
     return 1;
   }
 
-  public function getPoints() {
-    return array($this);
+  public function getPoints()
+  {
+    return [$this];
   }
 
-  public function equals($geometry) {
+  public function equals($geometry)
+  {
     if (get_class($geometry) != 'Point') {
-      return FALSE;
+      return false;
     }
+
     if (!$this->isEmpty() && !$geometry->isEmpty()) {
       /**
        * @see: http://php.net/manual/en/function.bccomp.php
@@ -170,30 +191,32 @@ class Point extends Geometry
        */
       return (abs($this->x() - $geometry->x()) <= 1.0E-9 && abs($this->y() - $geometry->y()) <= 1.0E-9);
     }
+
     else if ($this->isEmpty() && $geometry->isEmpty()) {
-      return TRUE;
+      return true;
     }
+
     else {
-      return FALSE;
+      return false;
     }
   }
 
-  public function isSimple() {
-    return TRUE;
+  public function isSimple()
+  {
+    return true;
   }
 
   // Not valid for this geometry type
-  public function numGeometries()    { return NULL; }
-  public function geometryN($n)      { return NULL; }
-  public function startPoint()       { return NULL; }
-  public function endPoint()         { return NULL; }
-  public function isRing()           { return NULL; }
-  public function isClosed()         { return NULL; }
-  public function pointN($n)         { return NULL; }
-  public function exteriorRing()     { return NULL; }
-  public function numInteriorRings() { return NULL; }
-  public function interiorRingN($n)  { return NULL; }
-  public function pointOnSurface()   { return NULL; }
-  public function explode()          { return NULL; }
+  public function numGeometries()    { return null; }
+  public function geometryN($n)      { return null; }
+  public function startPoint()       { return null; }
+  public function endPoint()         { return null; }
+  public function isRing()           { return null; }
+  public function isClosed()         { return null; }
+  public function pointN($n)         { return null; }
+  public function exteriorRing()     { return null; }
+  public function numInteriorRings() { return null; }
+  public function interiorRingN($n)  { return null; }
+  public function pointOnSurface()   { return null; }
+  public function explode()          { return null; }
 }
-

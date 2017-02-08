@@ -1,12 +1,16 @@
 <?php
 
+require __DIR__ . '/../vendor/autoload.php';
+
 // Uncomment to test
-if (getenv("GEOPHP_RUN_TESTS") == 1) {
+use Phayes\GeoPHP\GeoPHP;
+
+//if (getenv("GEOPHP_RUN_TESTS") == 1) {
   run_test();
-}
-else {
-  print "Skipping tests. Please set GEOPHP_RUN_TESTS=1 environment variable if you wish to run tests\n";
-}
+//}
+//else {
+//  print "Skipping tests. Please set GEOPHP_RUN_TESTS=1 environment variable if you wish to run tests\n";
+//}
 
 function run_test() {
   set_time_limit(0);
@@ -15,9 +19,7 @@ function run_test() {
 
   header("Content-type: text");
 
-  include_once('../geoPHP.inc');
-
-  if (geoPHP::geosInstalled()) {
+  if (GeoPHP::geosInstalled()) {
     print "GEOS is installed.\n";
   }
   else {
@@ -40,7 +42,7 @@ function run_test() {
   print "\e[32m" . "PASS". "\e[39m\n";
 }
 
-function test_geometry($geometry) {
+function test_geometry(Phayes\GeoPHP\Geometry\Geometry $geometry) {
 
   // Test common functions
   $geometry->area();
@@ -119,12 +121,13 @@ function test_geometry($geometry) {
   $geometry->m();
 }
 
-function test_adapters($geometry, $format, $input) {
+function test_adapters(\Phayes\GeoPHP\Geometry\Geometry $geometry, $format, $input) {
   // Test adapter output and input. Do a round-trip and re-test
   foreach (geoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
     if ($adapter_key != 'google_geocode') { //Don't test google geocoder regularily. Uncomment to test
       $output = $geometry->out($adapter_key);
       if ($output) {
+        $adapter_class = '\Phayes\GeoPHP\Adapters\\' . $adapter_class;
         $adapter_loader = new $adapter_class();
         $test_geom_1 = $adapter_loader->read($output);
         $test_geom_2 = $adapter_loader->read($test_geom_1->out($adapter_key));
@@ -141,7 +144,7 @@ function test_adapters($geometry, $format, $input) {
 
   // Test to make sure adapter work the same wether GEOS is ON or OFF
   // Cannot test methods if GEOS is not intstalled
-  if (!geoPHP::geosInstalled()) return;
+  if (!GeoPHP::geosInstalled()) return;
 
   foreach (geoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
     if ($adapter_key != 'google_geocode') { //Don't test google geocoder regularily. Uncomment to test
@@ -174,7 +177,7 @@ function test_adapters($geometry, $format, $input) {
 
 function test_methods($geometry) {
   // Cannot test methods if GEOS is not intstalled
-  if (!geoPHP::geosInstalled()) return;
+  if (!GeoPHP::geosInstalled()) return;
 
   $methods = array(
     //'boundary', //@@TODO: Uncomment this and fix errors

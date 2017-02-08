@@ -35,10 +35,11 @@ Example usage
 
 ```php
 <?php
-include_once('geoPHP.inc');
+
+using Phayser\GeoPHP\GeoPHP;
 
 // Polygon WKT example
-$polygon = geoPHP::load('POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2))','wkt');
+$polygon = GeoPHP::load('POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2,2 3,3 3,3 2,2 2))','wkt');
 $area = $polygon->getArea();
 $centroid = $polygon->getCentroid();
 $centX = $centroid->getX();
@@ -56,7 +57,7 @@ $json =
    ]
 }';
 
-$multipoint = geoPHP::load($json, 'json');
+$multipoint = GeoPHP::load($json, 'json');
 $multipoint_points = $multipoint->getComponents();
 $first_wkt = $multipoint_points[0]->out('wkt');
 
@@ -69,17 +70,17 @@ More Examples
 	
 The Well Known Text (WKT) and Well Known Binary (WKB) support is ideal for integrating with MySQL's or PostGIS's spatial capability. 
 Once you have SELECTed your data with `'AsText('geo_field')'` or `'AsBinary('geo_field')'`, you can put it straight into 
-geoPHP (can be wkt or wkb, but must be the same as how you extracted it from your database):
+GeoPHP (can be wkt or wkb, but must be the same as how you extracted it from your database):
 
-    $geom = geoPHP::load($dbRow,'wkt');
+    $geom = GeoPHP::load($dbRow,'wkt');
 
 You can collect multiple geometries into one (note that you must use wkt for this):
 
-    $geom = geoPHP::load("GEOMETRYCOLLECTION(".$dbString1.",".$dbString2.")",'wkt');
+    $geom = GeoPHP::load("GEOMETRYCOLLECTION(".$dbString1.",".$dbString2.")",'wkt');
 
 Calling get components returns the sub-geometries within a geometry as an array.
 
-    $geom2 = geoPHP::load("GEOMETRYCOLLECTION(LINESTRING(1 1,5 1,5 5,1 5,1 1),LINESTRING(2 2,2 3,3 3,3 2,2 2))");
+    $geom2 = GeoPHP::load("GEOMETRYCOLLECTION(LINESTRING(1 1,5 1,5 5,1 5,1 1),LINESTRING(2 2,2 3,3 3,3 2,2 2))");
     $geomComponents = $geom2->getComponents();    //an array of the two linestring geometries
     $linestring1 = $geomComponents[0]->getComponents();	//an array of the first linestring's point geometries
     $linestring2 = $geomComponents[1]->getComponents();
@@ -101,7 +102,9 @@ geoPHP, through it's EWKB adapter, has good integration with postGIS. Here's an 
 
 ```php
 <?php
-include_once('geoPHP.inc');
+
+using Phayser\GeoPHP\GeoPHP;
+
 $host =     'localhost';
 $database = 'phayes';
 $table =    'test';
@@ -118,7 +121,7 @@ $connection = pg_connect("host=$host dbname=$database user=$user password=$pass"
 $result = pg_fetch_all(pg_query($connection, "SELECT asBinary($column) as geom FROM $table"));
 foreach ($result as $item) {
   $wkb = pg_unescape_bytea($item['geom']); // Make sure to unescape the hex blob
-  $geom = geoPHP::load($wkb, 'ewkb'); // We now a full geoPHP Geometry object
+  $geom = GeoPHP::load($wkb, 'ewkb'); // We now a full GeoPHP Geometry object
   
   // Let's insert it back into the database
   $insert_string = pg_escape_bytea($geom->out('ewkb'));
@@ -129,7 +132,7 @@ foreach ($result as $item) {
 $result = pg_fetch_all(pg_query($connection, "SELECT $column as geom FROM $table"));
 foreach ($result as $item) {
   $wkb = pack('H*',$item['geom']);   // Unpacking the hex blob
-  $geom = geoPHP::load($wkb, 'ewkb'); // We now have a geoPHP Geometry
+  $geom = GeoPHP::load($wkb, 'ewkb'); // We now have a GeoPHP Geometry
   
   // To insert directly into postGIS we need to unpack the WKB
   $unpacked = unpack('H*', $geom->out('ewkb'));

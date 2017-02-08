@@ -1,5 +1,7 @@
 <?php
-require_once('../geoPHP.inc');
+
+use Phayes\GeoPHP\GeoPHP;
+
 class MethodsTests extends PHPUnit_Framework_TestCase {
 
   function setUp() {
@@ -13,7 +15,7 @@ class MethodsTests extends PHPUnit_Framework_TestCase {
         $format = $parts[1];
         $value = file_get_contents('./input/'.$file);
         echo "\nloading: " . $file . " for format: " . $format;
-        $geometry = geoPHP::load($value, $format);
+        $geometry = GeoPHP::load($value, $format);
 
         $methods = array(
           array('name' => 'area'),
