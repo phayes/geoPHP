@@ -234,7 +234,7 @@ class WKT extends GeoAdapter
     $parts = array();
     switch ($geometry->geometryType()) {
       case 'Point':
-        return $geometry->getX().', '.$geometry->getY();
+        return $geometry->getX().' '.$geometry->getY();
       case 'LineString':
         foreach ($geometry->getComponents() as $component) {
           $parts[] = $this->extractData($component);
