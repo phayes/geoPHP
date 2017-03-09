@@ -1,4 +1,9 @@
 <?php
+
+namespace geoPHP\Adapter;
+
+use geoPHP\Geometry\Geometry;
+
 /*
  * (c) Patrick Hayes 2011
  *
@@ -8,24 +13,25 @@
  */
 
 /**
- * GeoAdapter : abstract class which represents an adapter
- * for reading and writing to and from Geomtry objects
- * 
+ * GeoAdapter : Interface of adapters
+ * for reading and writing to and from Geometry objects
+ *
  */
-abstract class GeoAdapter
-{
-  /**
-   * Read input and return a Geomtry or GeometryCollection
-   * 
-   * @return Geometry|GeometryCollection
-   */
-  abstract public function read($input);
-  
-  /**
-   * Write out a Geomtry or GeometryCollection in the adapter's format
-   * 
-   * @return mixed
-   */
-  abstract public function write(Geometry $geometry);
-  
+interface GeoAdapter {
+
+    /**
+     * Read input and return a Geometry
+     *
+     * @param string $input
+     * @return Geometry
+     */
+    public function read($input);
+
+    /**
+     * Write out a Geometry in the adapter's format
+     *
+     * @param Geometry $geometry
+     * @return string
+     */
+    public function write(Geometry $geometry);
 }

@@ -1,4 +1,14 @@
 <?php
+
+namespace geoPHP\Adapter;
+
+use geoPHP\Geometry\Collection;
+use geoPHP\geoPHP;
+use geoPHP\Geometry\Geometry;
+use geoPHP\Geometry\GeometryCollection;
+use geoPHP\Geometry\Point;
+use geoPHP\Geometry\LineString;
+
 /*
  * Copyright (c) Patrick Hayes
  *
@@ -10,171 +20,234 @@
 /**
  * PHP Geometry/GPX encoder/decoder
  */
-class GPX extends GeoAdapter
-{
-  private $namespace = FALSE;
-  private $nss = ''; // Name-space string. eg 'georss:'
+class GPX implements GeoAdapter {
+    /**
+     * @var \DOMDocument
+     */
+    protected $xmlObject;
 
-  /**
-   * Read GPX string into geometry objects
-   *
-   * @param string $gpx A GPX string
-   *
-   * @return Geometry|GeometryCollection
-   */
-  public function read($gpx) {
-    return $this->geomFromText($gpx);
-  }
+    private $namespace = false;
+    private $nss = ''; // Name-space string. eg 'georss:'
 
-  /**
-   * Serialize geometries into a GPX string.
-   *
-   * @param Geometry $geometry
-   *
-   * @return string The GPX string representation of the input geometries
-   */
-  public function write(Geometry $geometry, $namespace = FALSE) {
-    if ($geometry->isEmpty()) return NULL;
-    if ($namespace) {
-      $this->namespace = $namespace;
-      $this->nss = $namespace.':';    
-    }
-    return '<'.$this->nss.'gpx creator="geoPHP" version="1.0">'.$this->geometryToGPX($geometry).'</'.$this->nss.'gpx>';
-  }
-  
-  public function geomFromText($text) {
-    // Change to lower-case and strip all CDATA
-    $text = strtolower($text);
-    $text = preg_replace('/<!\[cdata\[(.*?)\]\]>/s','',$text);
-    
-    // Load into DOMDocument
-    $xmlobj = new DOMDocument();
-    @$xmlobj->loadXML($text);
-    if ($xmlobj === false) {
-      throw new Exception("Invalid GPX: ". $text);
-    }
-    
-    $this->xmlobj = $xmlobj;
-    try {
-      $geom = $this->geomFromXML();
-    } catch(InvalidText $e) {
-        throw new Exception("Cannot Read Geometry From GPX: ". $text);
-    } catch(Exception $e) {
-        throw $e;
+    /**
+     * Read GPX string into geometry objects
+     *
+     * @param string $gpx A GPX string
+     *
+     * @return Geometry|GeometryCollection
+     */
+    public function read($gpx) {
+        return $this->geomFromText($gpx);
     }
 
-    return $geom;
-  }
-  
-  protected function geomFromXML() {
-    $geometries = array();
-    $geometries = array_merge($geometries, $this->parseWaypoints());
-    $geometries = array_merge($geometries, $this->parseTracks());
-    $geometries = array_merge($geometries, $this->parseRoutes());
-    
-    if (empty($geometries)) {
-      throw new Exception("Invalid / Empty GPX");
-    }
-    
-    return geoPHP::geometryReduce($geometries); 
-  }
-  
-  protected function childElements($xml, $nodename = '') {
-    $children = array();
-    foreach ($xml->childNodes as $child) {
-      if ($child->nodeName == $nodename) {
-        $children[] = $child;
-      }
-    }
-    return $children;
-  }
-  
-  protected function parseWaypoints() {
-    $points = array();
-    $wpt_elements = $this->xmlobj->getElementsByTagName('wpt');
-    foreach ($wpt_elements as $wpt) {
-      $lat = $wpt->attributes->getNamedItem("lat")->nodeValue;
-      $lon = $wpt->attributes->getNamedItem("lon")->nodeValue;
-      $points[] = new Point($lon, $lat);
-    }
-    return $points;
-  }
-  
-  protected function parseTracks() {
-    $lines = array();
-    $trk_elements = $this->xmlobj->getElementsByTagName('trk');
-    foreach ($trk_elements as $trk) {
-      $components = array();
-      foreach ($this->childElements($trk, 'trkseg') as $trkseg) {
-        foreach ($this->childElements($trkseg, 'trkpt') as $trkpt) {
-          $lat = $trkpt->attributes->getNamedItem("lat")->nodeValue;
-          $lon = $trkpt->attributes->getNamedItem("lon")->nodeValue;
-          $components[] = new Point($lon, $lat);
+    public function geomFromText($text) {
+        // Change to lower-case and strip all CDATA
+        $text = strtolower($text);
+        $text = preg_replace('/<!\[cdata\[(.*?)\]\]>/s', '', $text);
+
+        // Load into DOMDocument
+		//ignore error
+		libxml_use_internal_errors(true);
+		$xmObject = new \DOMDocument('1.0', 'UTF-8');
+        @$xmObject->loadXML($text);
+        if ($xmObject === false) {
+            throw new \Exception("Invalid GPX: " . $text);
         }
-      }
-      if ($components) {$lines[] = new LineString($components);}
+
+        $this->xmlObject = $xmObject;
+        try {
+            $geom = $this->geomFromXML();
+        } catch (\Exception $e) {
+            throw new \Exception("Cannot Read Geometry From GPX: " . $text);
+        }
+
+        return $geom;
     }
-    return $lines;
-  }
-  
-  protected function parseRoutes() {
-    $lines = array();
-    $rte_elements = $this->xmlobj->getElementsByTagName('rte');
-    foreach ($rte_elements as $rte) {
-      $components = array();
-      foreach ($this->childElements($rte, 'rtept') as $rtept) {
-        $lat = $rtept->attributes->getNamedItem("lat")->nodeValue;
-        $lon = $rtept->attributes->getNamedItem("lon")->nodeValue;
-        $components[] = new Point($lon, $lat);
-      }
-      $lines[] = new LineString($components);
+
+    protected function geomFromXML() {
+        /** @var Geometry[] $geometries */
+        $geometries = array();
+        $geometries = array_merge($geometries, $this->parseWaypoints());
+        $geometries = array_merge($geometries, $this->parseTracks());
+        $geometries = array_merge($geometries, $this->parseRoutes());
+
+        if (empty($geometries)) {
+            // TODO: use EmptyGeometryException
+            return new GeometryCollection();
+            //throw new \Exception("Invalid / Empty GPX");
+        }
+
+        return geoPHP::geometryReduce($geometries);
     }
-    return $lines;
-  }
-  
-  protected function geometryToGPX($geom) {
-    $type = strtolower($geom->getGeomType());
-    switch ($type) {
-      case 'point':
-        return $this->pointToGPX($geom);
-        break;
-      case 'linestring':
-        return $this->linestringToGPX($geom);
-        break;
-      case 'polygon':
-      case 'multipoint':
-      case 'multilinestring':
-      case 'multipolygon':
-      case 'geometrycollection':
-        return $this->collectionToGPX($geom);
-        break;
+
+    protected function childElements($xml, $nodeName = '') {
+        $children = array();
+        foreach ($xml->childNodes as $child) {
+            if ($child->nodeName == $nodeName) {
+                $children[] = $child;
+            }
+        }
+        return $children;
     }
-  }
-  
-  private function pointToGPX($geom) {
-    return '<'.$this->nss.'wpt lat="'.$geom->getY().'" lon="'.$geom->getX().'" />';
-  }
-  
-  private function linestringToGPX($geom) {
-    $gpx = '<'.$this->nss.'trk><'.$this->nss.'trkseg>';
-    
-    foreach ($geom->getComponents() as $comp) {
-      $gpx .= '<'.$this->nss.'trkpt lat="'.$comp->getY().'" lon="'.$comp->getX().'" />';
+
+	/**
+	 * @param \DOMElement $node
+	 * @return Point
+	 */
+	protected function pointNode($node) {
+		$lat = $node->attributes->getNamedItem("lat")->nodeValue;
+		$lon = $node->attributes->getNamedItem("lon")->nodeValue;
+		$elevation = null;
+		$ele = $node->getElementsByTagName('ele');
+		if ( $ele->length ) {
+			$elevation = $ele->item(0)->nodeValue;
+		}
+		return new Point($lon, $lat, $elevation);
+	}
+
+    protected function parseWaypoints() {
+        $points = array();
+        $wpt_elements = $this->xmlObject->getElementsByTagName('wpt');
+        foreach ($wpt_elements as $wpt) {
+			$points[] = $this->pointNode($wpt);
+        }
+        return $points;
     }
-    
-    $gpx .= '</'.$this->nss.'trkseg></'.$this->nss.'trk>';
-    
-    return $gpx;
-  }
-  
-  public function collectionToGPX($geom) {
-    $gpx = '';
-    $components = $geom->getComponents();
-    foreach ($geom->getComponents() as $comp) {
-      $gpx .= $this->geometryToGPX($comp);
+
+    protected function parseTracks() {
+        $lines = array();
+        $trk_elements = $this->xmlObject->getElementsByTagName('trk');
+        foreach ($trk_elements as $trk) {
+            $components = array();
+            /** @noinspection SpellCheckingInspection */
+            foreach ($this->childElements($trk, 'trkseg') as $trackSegment) {
+                /** @noinspection SpellCheckingInspection */
+                foreach ($this->childElements($trackSegment, 'trkpt') as $trkpt) {
+					/** @noinspection SpellCheckingInspection */
+					$components[] = $this->pointNode($trkpt);
+                }
+            }
+            if ($components) {
+                $lines[] = new LineString($components);
+            }
+        }
+        return $lines;
     }
-    
-    return $gpx;
-  }
+
+    protected function parseRoutes() {
+        $lines = array();
+        $rte_elements = $this->xmlObject->getElementsByTagName('rte');
+        foreach ($rte_elements as $rte) {
+            $components = array();
+            /** @noinspection SpellCheckingInspection */
+            foreach ($this->childElements($rte, 'rtept') as $routePoint) {
+                $lat = $routePoint->attributes->getNamedItem("lat")->nodeValue;
+                $lon = $routePoint->attributes->getNamedItem("lon")->nodeValue;
+                $components[] = new Point($lon, $lat);
+            }
+            $lines[] = new LineString($components);
+        }
+        return $lines;
+    }
+
+
+    /**
+     * Serialize geometries into a GPX string.
+     *
+     * @param Geometry|GeometryCollection $geometry
+     * @param bool $namespace
+     * @return string The GPX string representation of the input geometries
+     */
+    public function write(Geometry $geometry, $namespace = false) {
+        if ($namespace) {
+            $this->namespace = $namespace;
+            $this->nss = $namespace . ':';
+        }
+        return
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".
+                "<" . $this->nss . "gpx creator=\"geoPHP\" version=\"1.0\"\n" .
+                "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" .
+                "  xmlns=\"http://www.topografix.com/GPX/1/0\" \n" .
+                "  xsi:schemaLocation=\"http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd\" >\n" .
+                $this->geometryToGPX($geometry) .
+                "</" . $this->nss . "gpx>\n";
+    }
+
+    /**
+     * @param Geometry|Collection $geometry
+     * @return string
+     */
+    protected function geometryToGPX($geometry) {
+        if ($geometry->isEmpty()) {
+            return null;
+        }
+        $type = strtolower($geometry->geometryType());
+        switch ($type) {
+            case 'point':
+                return $this->pointToGPX($geometry);
+            case 'linestring':
+                /** @var LineString $geometry */
+                return $this->linestringToGPX($geometry);
+            case 'polygon':
+            case 'multipoint':
+            case 'multilinestring':
+            case 'multipolygon':
+            case 'geometrycollection':
+                return $this->collectionToGPX($geometry);
+        }
+        return '';
+    }
+
+    /**
+     * @param Geometry $geom
+     * @param bool $is_trackPoint Is geom a track point or way point
+     * @return string
+     */
+	private function pointToGPX($geom, $is_trackPoint = false) {
+		if ($geom->isEmpty()) {
+			return '';
+		}
+		/** @noinspection SpellCheckingInspection */
+		$tag = $is_trackPoint ? "trkpt" : "wpt";
+		if ( $geom->hasZ() ) {
+			$c = "\t\t<".$this->nss . $tag ." lat=\"".$geom->y()."\" lon=\"".$geom->x()."\">";
+			$c .= "<ele>".$geom->z()."</ele>";
+			$c .= "</".$this->nss. $tag . ">\n";
+			return $c;
+		}
+		return "\t\t<".$this->nss. $tag . " lat=\"".$geom->y()."\" lon=\"".$geom->x()."\" />\n";
+	}
+
+	/**
+	 * @param LineString $geom
+	 * @return string
+	 */
+	private function linestringToGPX($geom) {
+		/** @noinspection SpellCheckingInspection */
+		$gpx = "<".$this->nss."trk>\n\t<".$this->nss."trkseg>\n";
+
+		foreach ($geom->getComponents() as $comp) {
+			$gpx .= $this->pointToGPX($comp, true);
+		}
+
+		/** @noinspection SpellCheckingInspection */
+		$gpx .= "\t</".$this->nss."trkseg>\n</".$this->nss."trk>";
+
+		return $gpx;
+	}
+
+    /**
+     * @param Collection $geometry
+     * @return string
+     */
+    public function collectionToGPX($geometry) {
+        $gpx = '';
+        $components = $geometry->getComponents();
+        foreach ($components as $comp) {
+            $gpx .= $this->geometryToGPX($comp);
+        }
+
+        return $gpx;
+    }
 
 }

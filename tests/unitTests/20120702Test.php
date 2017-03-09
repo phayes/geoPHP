@@ -1,5 +1,10 @@
 <?php
-require_once('../geoPHP.inc');
+
+require '../vendor/autoload.php';
+
+use \geoPHP\geoPHP;
+use \geoPHP\Geometry\Geometry;
+
 class Tests_20120702 extends PHPUnit_Framework_TestCase {
 
   function setUp() {
@@ -48,6 +53,11 @@ class Tests_20120702 extends PHPUnit_Framework_TestCase {
     }
   }
 
+  /**
+   * @param Geometry $geometry
+   * @param $method_name
+   * @param $argument
+   */
   function _methods_tester($geometry, $method_name, $argument) {
 
     if (!method_exists($geometry, $method_name)) {

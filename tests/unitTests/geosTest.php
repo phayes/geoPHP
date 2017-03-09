@@ -1,5 +1,9 @@
 <?php
-require_once('../geoPHP.inc');
+
+require '../vendor/autoload.php';
+
+use \geoPHP\geoPHP;
+
 class GeosTests extends PHPUnit_Framework_TestCase {
 
   function setUp() {
@@ -11,9 +15,17 @@ class GeosTests extends PHPUnit_Framework_TestCase {
       echo "Skipping GEOS -- not installed";
       return;
     }
+
     foreach (scandir('./input') as $file) {
       $parts = explode('.',$file);
       if ($parts[0]) {
+        if ($parts[0] == 'countries_ne_110m') {
+          // Due to a bug in GEOS we have to skip some tests
+          // It drops TopologyException for valid geometries
+          // https://trac.osgeo.org/geos/ticket/737
+          continue;
+        }
+
         $format = $parts[1];
         $value = file_get_contents('./input/'.$file);
         echo "\nloading: " . $file . " for format: " . $format;
@@ -22,7 +34,7 @@ class GeosTests extends PHPUnit_Framework_TestCase {
         $geosMethods = array(
           array('name' => 'geos'),
           array('name' => 'setGeos', 'argument' => $geometry->geos()),
-          array('name' => 'PointOnSurface'),
+          array('name' => 'pointOnSurface'),
           array('name' => 'equals', 'argument' => $geometry),
           array('name' => 'equalsExact', 'argument' => $geometry),
           array('name' => 'relate', 'argument' => $geometry),
@@ -54,31 +66,58 @@ class GeosTests extends PHPUnit_Framework_TestCase {
           if (isset($method['argument'])) {
             $argument = $method['argument'];
           }
+          $error_message = 'Failed on "' . $method_name .'" method with test file "' . $file . '"';
+          
+          // GEOS don't like empty points
+          if ($geometry->geometryType() == 'Point' && $geometry->isEmpty()) {
+            continue;
+          }
 
           switch ($method_name) {
-            case 'isSimple':
-            case 'equals':
             case 'geos':
-              if ($geometry->geometryType() == 'Point') {
-                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
-              }
-              if ($geometry->geometryType() == 'LineString') {
-                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
-              }
-              if ($geometry->geometryType() == 'MultiLineString') {
-                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
+              $this->assertInstanceOf('GEOSGeometry', $geometry->$method_name($argument), $error_message);
+              break;
+            case 'equals':
+            case 'equalsExact':
+            case 'disjoint':
+            case 'touches':
+            case 'intersects':
+            case 'crosses':
+            case 'within':
+            case 'contains':
+            case 'overlaps':
+            case 'covers':
+            case 'coveredBy':
+              $this->assertInternalType('bool', $geometry->$method_name($argument), $error_message);
+              break;
+            case 'pointOnSurface':
+            case 'buffer':
+            case 'intersection':
+            case 'convexHull':
+            case 'difference':
+            case 'symDifference':
+            case 'union':
+            case 'simplify':
+              $this->assertInstanceOf('geoPHP\\Geometry\\Geometry', $geometry->$method_name($argument), $error_message);
+              break;
+            case 'distance':
+            case 'hausdorffDistance':
+              $this->assertInternalType('double', $geometry->$method_name($argument), $error_message);
+              break;
+            case 'relate':
+              $this->assertRegExp('/[0-9TF]{9}/', $geometry->$method_name($argument), $error_message);
+              break;
+            case 'checkValidity':
+              $this->assertArrayHasKey('valid', $geometry->$method_name($argument), $error_message);
+              break;
+            case 'isSimple':
+              if ($geometry->geometryType() == 'GeometryCollection') {
+                $this->assertNull($geometry->$method_name($argument), $error_message);
+              } else {
+                $this->assertNotNull($geometry->$method_name($argument), $error_message);
               }
               break;
             default:
-              if ($geometry->geometryType() == 'Point') {
-                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
-              }
-              if ($geometry->geometryType() == 'LineString') {
-                $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
-              }
-              if ($geometry->geometryType() == 'MultiLineString') {
-                $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name .' (test file: ' . $file . ')');
-              }
           }
         }
 

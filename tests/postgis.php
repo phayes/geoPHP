@@ -1,25 +1,32 @@
-<?
+<?php
+
+require '../vendor/autoload.php';
+
+use \geoPHP\geoPHP;
+
 // Uncomment to test
-# run_test();
+ run_test();
 
 function run_test() {
 
   header("Content-type: text");
   
-  include_once('../geoPHP.inc');
-  
   // Your database test table should contain 3 columns: name (text), type (text), geom (geometry)
   $host =     'localhost';
-  $database = 'phayes';
-  $table =    'test';
+  $database = 'test';
+  $table =    'geophp';
   $column =   'geom';
-  $user =     'phayes';
-  $pass =     'supersecret';
+  $user =     'bp';
+  $pass =     'asdfasdf';
   
   $connection = pg_connect("host=$host dbname=$database user=$user password=$pass");
   
+  if (!$connection) {
+    die("Failed to connect to database. Test has been aborted.\n");
+  }
+  
   // Truncate
-  pg_query($connection, "DELETE FROM $table");
+  pg_query($connection, "TRUNCATE TABLE $table");
   
   // Working with PostGIS and EWKB
   // ----------------------------
@@ -27,29 +34,29 @@ function run_test() {
   foreach (scandir('./input') as $file) {
     $parts = explode('.',$file);
     if ($parts[0]) {
-      $name = $parts[0];
+      $name = $file;
       $format = $parts[1];
       $value = file_get_contents('./input/'.$file);
       print '---- Testing '.$file."\n";
       flush();
       $geometry = geoPHP::load($value, $format);
-      test_postgis($name, $format, $geometry, $connection, 'wkb');
+      test_postgis($table, $name, $format, $geometry, $connection, 'wkb');
       $geometry->setSRID(4326);
-      test_postgis($name, $format, $geometry, $connection, 'ewkb');
+      test_postgis($table, $name, $format, $geometry, $connection, 'ewkb');
     }
   }
   print "Testing Done!";
 }
 
-function test_postgis($name, $type, $geom, $connection, $format) {
-  global $table;
+function test_postgis($table, $name, $type, $geom, $connection, $format) {
   
   // Let's insert into the database using GeomFromWKB
   $insert_string = pg_escape_bytea($geom->out($format));
-  pg_query($connection, "INSERT INTO $table (name, type, geom) values ('$name', '$type', GeomFromWKB('$insert_string'))");
+
+  pg_query($connection, "INSERT INTO $table (name, type, geom) values ('$name', '$type', ST_GeomFromWKB('$insert_string'))");
   
   // SELECT using asBinary PostGIS
-  $result = pg_fetch_all(pg_query($connection, "SELECT asBinary(geom) as geom FROM $table WHERE name='$name'"));
+  $result = pg_fetch_all(pg_query($connection, "SELECT ST_AsBinary(geom) as geom FROM $table WHERE name='$name'"));
   foreach ($result as $item) {
     $wkb = pg_unescape_bytea($item['geom']); // Make sure to unescape the hex blob
     $geom = geoPHP::load($wkb, $format); // We now a full geoPHP Geometry object

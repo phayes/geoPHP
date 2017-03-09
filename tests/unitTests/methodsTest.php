@@ -1,5 +1,9 @@
 <?php
-require_once('../geoPHP.inc');
+
+require '../vendor/autoload.php';
+
+use \geoPHP\geoPHP;
+
 class MethodsTests extends PHPUnit_Framework_TestCase {
 
   function setUp() {
@@ -12,7 +16,7 @@ class MethodsTests extends PHPUnit_Framework_TestCase {
       if ($parts[0]) {
         $format = $parts[1];
         $value = file_get_contents('./input/'.$file);
-        echo "\nloading: " . $file . " for format: " . $format;
+        //echo "\nloading: " . $file . " for format: " . $format;
         $geometry = geoPHP::load($value, $format);
 
         $methods = array(

@@ -1,5 +1,9 @@
 <?php
-require_once('../geoPHP.inc');
+
+require '../vendor/autoload.php';
+
+use \geoPHP\geoPHP;
+
 class AdaptersTests extends PHPUnit_Framework_TestCase {
 
   function setUp() {
@@ -12,7 +16,7 @@ class AdaptersTests extends PHPUnit_Framework_TestCase {
       if ($parts[0]) {
         $format = $parts[1];
         $input = file_get_contents('./input/'.$file);
-        echo "\nloading: " . $file . " for format: " . $format;
+        //echo "\nloading: " . $file . " for format: " . $format;
         $geometry = geoPHP::load($input, $format);
 
         // Test adapter output and input. Do a round-trip and re-test
@@ -21,7 +25,8 @@ class AdaptersTests extends PHPUnit_Framework_TestCase {
             $output = $geometry->out($adapter_key);
             $this->assertNotNull($output, "Empty output on "  . $adapter_key);
             if ($output) {
-              $adapter_loader = new $adapter_class();
+              $adapter_name = 'geoPHP\\Adapter\\' . $adapter_class;
+              $adapter_loader = new $adapter_name();
               $test_geom_1 = $adapter_loader->read($output);
               $test_geom_2 = $adapter_loader->read($test_geom_1->out($adapter_key));
               $this->assertEquals($test_geom_1->out('wkt'), $test_geom_2->out('wkt'), "Mismatched adapter output in ".$adapter_class  .' (test file: ' . $file . ')');
@@ -40,7 +45,8 @@ class AdaptersTests extends PHPUnit_Framework_TestCase {
 
             $output = $geometry->out($adapter_key);
             if ($output) {
-              $adapter_loader = new $adapter_class();
+              $adapter_name = 'geoPHP\\Adapter\\' . $adapter_class;
+              $adapter_loader = new $adapter_name();
 
               $test_geom_1 = $adapter_loader->read($output);
 
