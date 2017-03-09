@@ -178,8 +178,11 @@ class KML implements GeoAdapter {
         $geom_types = geoPHP::getGeometryList();
         foreach ($xml->childNodes as $child) {
             /** @noinspection SpellCheckingInspection */
-            $nodeName = ($child->nodeName == 'linearring') ? 'linestring' : $child->nodeName;
-            $nodeName = ($child->nodeName == 'multigeometry') ? 'geometrycollection' : $child->nodeName;
+            $nodeName = ($child->nodeName == 'linearring')
+                    ? 'linestring'
+                    : ($child->nodeName == 'multigeometry'
+                            ? 'geometrycollection'
+                            : $child->nodeName);
             if (array_key_exists($nodeName, $geom_types)) {
                 $function = 'parse' . $geom_types[$nodeName];
                 $components[] = $this->$function($child);

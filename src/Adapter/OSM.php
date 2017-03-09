@@ -68,6 +68,7 @@ class OSM implements GeoAdapter
 		// Processing OSM Nodes
 		$nodes = [];
 		foreach ($this->xmlObj->getElementsByTagName('node') as $node) {
+			/** @var \DOMElement $node */
 			$lat = $node->attributes->getNamedItem('lat')->nodeValue;
 			$lon = $node->attributes->getNamedItem('lon')->nodeValue;
 			$id = intval($node->attributes->getNamedItem('id')->nodeValue);
@@ -92,6 +93,7 @@ class OSM implements GeoAdapter
 		// Processing OSM Ways
 		$ways = [];
 		foreach ($this->xmlObj->getElementsByTagName('way') as $way) {
+			/** @var \DOMElement $way */
 			$id = intval($way->attributes->getNamedItem('id')->nodeValue);
 			$wayNodes = [];
 			foreach ($way->getElementsByTagName('nd') as $node) {
@@ -122,11 +124,12 @@ class OSM implements GeoAdapter
 
 		// Processing OSM Relations
 		foreach ($this->xmlObj->getElementsByTagName('relation') as $relation) {
-			/** @var Point[] $relationPoints */
+			/** @var \DOMElement $relation */
+			/** @var Point[] */
 			$relationPoints = [];
-			/** @var LineString[] $relationLines */
+			/** @var LineString[] */
 			$relationLines = [];
-			/** @var Polygon[] $relationPolygons */
+			/** @var Polygon[] */
 			$relationPolygons = [];
 
             static $polygonalTypes = ['multipolygon', 'boundary'];

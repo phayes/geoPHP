@@ -2,7 +2,6 @@
 
 namespace geoPHP\Adapter;
 
-use geoPHP\geoPHP;
 use geoPHP\Geometry\Geometry;
 use geoPHP\Geometry\GeometryCollection;
 use geoPHP\Geometry\Point;
