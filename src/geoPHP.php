@@ -8,28 +8,28 @@
  */
 
 // Adapters
-include_once("lib/adapters/GeoAdapter.class.php"); // Abtract class
-include_once("lib/adapters/GeoJSON.class.php");
-include_once("lib/adapters/WKT.class.php");
-include_once("lib/adapters/EWKT.class.php");
-include_once("lib/adapters/WKB.class.php");
-include_once("lib/adapters/EWKB.class.php");
-include_once("lib/adapters/KML.class.php");
-include_once("lib/adapters/GPX.class.php");
-include_once("lib/adapters/GeoRSS.class.php");
-include_once("lib/adapters/GoogleGeocode.class.php");
-include_once("lib/adapters/GeoHash.class.php");
+include_once("Adapter/GeoAdapter.php"); // Abtract class
+include_once("Adapter/GeoJSON.php");
+include_once("Adapter/WKT.php");
+include_once("Adapter/EWKT.php");
+include_once("Adapter/WKB.php");
+include_once("Adapter/EWKB.php");
+include_once("Adapter/KML.php");
+include_once("Adapter/GPX.php");
+include_once("Adapter/GeoRSS.php");
+include_once("Adapter/GoogleGeocode.php");
+include_once("Adapter/GeoHash.php");
 
 // Geometries
-include_once("lib/geometry/Geometry.class.php"); // Abtract class
-include_once("lib/geometry/Point.class.php");
-include_once("lib/geometry/Collection.class.php"); // Abtract class
-include_once("lib/geometry/LineString.class.php");
-include_once("lib/geometry/MultiPoint.class.php");
-include_once("lib/geometry/Polygon.class.php");
-include_once("lib/geometry/MultiLineString.class.php");
-include_once("lib/geometry/MultiPolygon.class.php");
-include_once("lib/geometry/GeometryCollection.class.php");
+include_once("Geometry/Geometry.php"); // Abtract class
+include_once("Geometry/Point.php");
+include_once("Geometry/Collection.php"); // Abtract class
+include_once("Geometry/LineString.php");
+include_once("Geometry/MultiPoint.php");
+include_once("Geometry/Polygon.php");
+include_once("Geometry/MultiLineString.php");
+include_once("Geometry/MultiPolygon.php");
+include_once("Geometry/GeometryCollection.php");
 
 class geoPHP
 {
