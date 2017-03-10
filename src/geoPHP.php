@@ -13,9 +13,6 @@ namespace geoPHP;
 use geoPHP\Adapter\GeoHash;
 use geoPHP\Geometry\Geometry;
 use geoPHP\Geometry\GeometryCollection;
-use geoPHP\Geometry\MultiLineString;
-use geoPHP\Geometry\MultiPoint;
-use geoPHP\Geometry\MultiPolygon;
 
 class geoPHP {
 
@@ -76,12 +73,7 @@ class geoPHP {
         $args = func_get_args();
 
         $data = array_shift($args);
-        $type = strtolower(array_shift($args));
-
-        if ($type && !@array_key_exists($type, self::$adapterMap)) {
-            array_unshift($args, $type);
-            $type = null;
-        }
+        $type = count($args) && @array_key_exists($args[0], self::$adapterMap) ? strtolower(array_shift($args)) : null;
 
         // Auto-detect type if needed
         if (!$type) {
@@ -159,84 +151,132 @@ class geoPHP {
      * A multi-point containing a single point will return a point.
      * An array of geometries can be passed and they will be compiled into a single geometry
      *
-     * @param Geometry|Geometry[]|GeometryCollection|GeometryCollection[] $geometry
+     * @param Geometry|Geometry[]|GeometryCollection|GeometryCollection[] $geometries
      * @return bool|GeometryCollection
      */
-    static function geometryReduce($geometry) {
-        // If it's an array of one, then just parse the one
-        if (is_array($geometry)) {
-            if (empty($geometry)) {
-                return false;
-            }
-            if (count($geometry) == 1) {
-                return geoPHP::geometryReduce(array_shift($geometry));
-            }
+    static function geometryReduce($geometries) {
+        if (empty($geometries)) {
+            return false;
         }
-
-        if (gettype($geometry) == 'object') {
+        /*
+         * If it is a single geometry
+         */
+        if ($geometries instanceof Geometry) {
+            /** @var Geometry|GeometryCollection $geometries */
             // If the geometry cannot even theoretically be reduced more, then pass it back
-            $single_geometries = array('Point', 'LineString', 'Polygon');
-            if (in_array($geometry->geometryType(), $single_geometries)) {
-                return $geometry;
+            $single_geometries = ['Point', 'LineString', 'Polygon'];
+            if (in_array($geometries->geometryType(), $single_geometries)) {
+                return $geometries;
             }
 
             // If it is a multi-geometry, check to see if it just has one member
             // If it does, then pass the member, if not, then just pass back the geometry
-            $simple_collections = array('MultiPoint', 'MultiLineString', 'MultiPolygon');
-            if (in_array($geometry->geometryType(), $simple_collections)) {
-                /** @var MultiPoint|MultiLineString|MultiPolygon $geometry */
-                $components = $geometry->getComponents();
+            if (strpos($geometries->geometryType(), 'Multi') === 0) {
+                $components = $geometries->getComponents();
                 if (count($components) == 1) {
                     return $components[0];
                 } else {
-                    return $geometry;
+                    return $geometries;
                 }
             }
+        } else if (is_array($geometries) && count($geometries) == 1) {
+            // If it's an array of one, then just parse the one
+            return geoPHP::geometryReduce(array_shift($geometries));
         }
 
-		/**
-		 * So now we either have an array of geometries, a GeometryCollection, or an array of GeometryCollections
-		 * @var Geometry[]|GeometryCollection[] $geometry
-		 */
-        if (!is_array($geometry)) {
-            $geometry = array($geometry);
+        if (!is_array($geometries)) {
+            $geometries = [$geometries];
         }
+        /**
+         * So now we either have an array of geometries
+         * @var Geometry[]|GeometryCollection[] $geometries
+         */
 
-        $geometries = array();
-        $geom_types = array();
+        $reducedGeometries = [];
+        $geometryTypes = [];
+        self::_explodeCollections($geometries, $reducedGeometries, $geometryTypes);
 
-        $collectionTypes = array('MultiPoint', 'MultiLineString', 'MultiPolygon', 'GeometryCollection');
-
-        foreach ($geometry as $item) {
-            if ($item) {
-                if (in_array($item->geometryType(), $collectionTypes)) {
-                    foreach ($item->getComponents() as $component) {
-                        $geometries[] = $component;
-                        $geom_types[] = $component->geometryType();
-                    }
-                } else {
-                    $geometries[] = $item;
-                    $geom_types[] = $item->geometryType();
-                }
-            }
-        }
-
-        $geom_types = array_unique($geom_types);
-
-        if (empty($geom_types)) {
+        $geometryTypes = array_unique($geometryTypes);
+        if (empty($geometryTypes)) {
             return false;
         }
+        if (count($geometryTypes) == 1) {
+            if (count($reducedGeometries) == 1) {
+                return $reducedGeometries[0];
+            } else {
+                $class = self::CLASS_NAMESPACE . 'Geometry\\' . (strstr($geometryTypes[0], 'Multi') ? '' : 'Multi')  . $geometryTypes[0];
+                return new $class($reducedGeometries);
+            }
+        } else {
+            return new GeometryCollection($reducedGeometries);
+        }
+    }
 
-        if (count($geom_types) == 1) {
+    /**
+     * @param Geometry[]|GeometryCollection[] $unreduced
+     */
+    private static function _explodeCollections($unreduced, &$reduced, &$types) {
+        foreach ($unreduced as $item) {
+            if ($item->geometryType() == 'GeometryCollection' || strpos($item->geometryType(), 'Multi') === 0) {
+                self::_explodeCollections($item->getComponents(), $reduced, $types);
+            } else {
+                $reduced[] = $item;
+                $types[] = $item->geometryType();
+            }
+        }
+    }
+
+    /**
+     * Build an appropriate Geometry, MultiGeometry, or GeometryCollection to contain the Geometries in it.
+     *
+     * @see geos::geom::GeometryFactory::buildGeometry
+     *
+     * @param Geometry|Geometry[]|GeometryCollection|GeometryCollection[] $geometries
+     * @return GeometryCollection|null A Geometry of the "smallest", "most type-specific" class that can contain the elements.
+     */
+    static function buildGeometry($geometries) {
+        if (empty($geometries)) {
+            return new GeometryCollection();
+        }
+
+        /*
+         * If it is a single geometry
+         */
+        if ($geometries instanceof Geometry) {
+            return $geometries;
+        } else if (!is_array($geometries)) {
+            return null;
+        } else if (count($geometries) == 1) {
+            // If it's an array of one, then just parse the one
+            return geoPHP::buildGeometry(array_shift($geometries));
+        }
+
+        /**
+         * So now we either have an array of geometries
+         * @var Geometry[]|GeometryCollection[] $geometries
+         */
+
+        $geometryTypes = [];
+        foreach ($geometries as $item) {
+            if ($item) {
+                $geometryTypes[] = $item->geometryType();
+            }
+        }
+        $geometryTypes = array_unique($geometryTypes);
+        if (empty($geometryTypes)) {
+            return null;
+        }
+        if (count($geometryTypes) == 1) {
             if (count($geometries) == 1) {
                 return $geometries[0];
             } else {
-                $class = self::CLASS_NAMESPACE . 'Geometry\\' . (strstr($geom_types[0], 'Multi') ? '' : 'Multi')  . $geom_types[0];
-                return new $class($geometries);
+                if (strpos($geometryTypes[0], 'Multi') !== false) {
+                    $class = self::CLASS_NAMESPACE . 'Geometry\\' . $geometryTypes[0];
+                    return new $class($geometries);
+                }
             }
-        } else {
-            return new GeometryCollection($geometries);
         }
+        return new GeometryCollection($geometries);
     }
 
     // Detect a format given a value. This function is meant to be SPEEDY.
@@ -339,7 +379,6 @@ class geoPHP {
 
         // What do you get when you cross an elephant with a rhino?
         // http://youtu.be/RCBn5J83Poc
-        return false;
     }
 
 }
