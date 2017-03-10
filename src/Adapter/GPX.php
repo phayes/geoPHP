@@ -108,7 +108,7 @@ class GPX implements GeoAdapter {
 		$geometry = geoPHP::buildGeometry($geometries);
 		if (in_array('metadata', $this->gpxTypes->get('gpxType')) && $xmlObject->getElementsByTagName('metadata')->length === 1) {
 			$metadata = self::parseNodeProperties(
-					$xmlObject->getElementsByTagName('metadata')[0], $this->gpxTypes->get('metadataType')
+					$xmlObject->getElementsByTagName('metadata')->item(0), $this->gpxTypes->get('metadataType')
 			);
 			if ($geometry->getData() !== null && $metadata !== null) {
 				$geometry = new GeometryCollection([$geometry]);
