@@ -33,7 +33,6 @@ abstract class Collection extends Geometry {
         for ($i=0; $i < $componentCount; ++$i) { // foreach is too memory-intensive here
             if ($components[$i] instanceof Geometry) {
                 if ($components[$i]->isEmpty()) {
-                    var_dump($components[0]);
                     throw new \Exception('Cannot create a collection with empty ' . $components[$i]->getGeomType() . 's (' . ($i+1) . '. component)');
                 }
                 if ($components[$i]->hasZ()) {

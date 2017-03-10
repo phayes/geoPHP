@@ -111,7 +111,7 @@ class GPX implements GeoAdapter {
 					$xmlObject->getElementsByTagName('metadata')[0], $this->gpxTypes->get('metadataType')
 			);
 			if ($geometry->getData() !== null && $metadata !== null) {
-				$geometry = new GeometryCollection($geometry);
+				$geometry = new GeometryCollection([$geometry]);
 			}
 			$geometry->setData($metadata);
 		}
@@ -239,14 +239,14 @@ class GPX implements GeoAdapter {
 		foreach($node->childNodes as $childNode) {
 			/** @var \DOMNode $childNode */
 			if ($childNode->hasChildNodes()) {
-				if ($tagList === null || in_array($childNode->nodeName, $tagList)) {
+				if ($tagList === null || in_array($childNode->nodeName, $tagList ?: [])) {
 					if ($node->firstChild->nodeName == $node->lastChild->nodeName && $node->childNodes->length > 1) {
 						$result[$childNode->nodeName][] = self::parseNodeProperties($childNode);
 					} else {
 						$result[$childNode->nodeName] = self::parseNodeProperties($childNode);
 					}
 				}
-			} else if ($childNode->nodeType === 1 && in_array($childNode->nodeName, $tagList)) {
+			} else if ($childNode->nodeType === 1 && in_array($childNode->nodeName, $tagList ?: [])) {
 				$result[$childNode->nodeName] = self::parseNodeProperties($childNode);
 			} else if ($childNode->nodeType === 3) {
 				$result = $childNode->nodeValue;
