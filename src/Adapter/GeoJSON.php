@@ -2,6 +2,7 @@
 
 namespace geoPHP\Adapter;
 
+use geoPHP\geoPHP;
 use geoPHP\Geometry\Geometry;
 use geoPHP\Geometry\GeometryCollection;
 use geoPHP\Geometry\Point;
@@ -43,14 +44,12 @@ class GeoJSON implements GeoAdapter {
             foreach ($input->features as $feature) {
                 $geometries[] = $this->read($feature);
             }
-            //Geometry reduction can produce invalid (self intersecting) multi geometries
-            //return geoPHP::geometryReduce($geometries);
-            return new GeometryCollection($geometries);
+            return geoPHP::buildGeometry($geometries);
         }
 
         // Check to see if it's a Feature
         if ($input->type == 'Feature') {
-            return $this->read($input->geometry);
+            return $this->geoJSONFeatureToGeometry($input);
         }
 
         // It's a geometry - process it
@@ -68,6 +67,22 @@ class GeoJSON implements GeoAdapter {
             return isset($m[1]) ? $m[1]: null;
         }
         return null;
+    }
+
+    /**
+     * @param $obj
+     * @return Geometry
+     * @throws \Exception
+     */
+    private function geoJSONFeatureToGeometry($obj) {
+        $geometry = $this->read($obj->geometry);
+        if (isset($obj->properties)) {
+            foreach($obj->properties as $property => $value) {
+                $geometry->setData($property, $value);
+            }
+        }
+
+        return $geometry;
     }
 
     /**
@@ -89,7 +104,7 @@ class GeoJSON implements GeoAdapter {
     }
 
     /**
-     * @param $coordinates array of coordinates
+     * @param [] $coordinates Array of coordinates
      * @return Point
      */
     private function arrayToPoint($coordinates) {
@@ -198,42 +213,68 @@ class GeoJSON implements GeoAdapter {
         }
     }
 
+
+
     /**
-     * @param Geometry $geometry
+     * Creates a geoJSON array
+     *
+     * If the root geometry is a GeometryCollection, and any of its geometries has data,
+     * the root element will be a FeatureCollection with Feature elements (with the data)
+     * If the root geometry has data, it will be included in a Feature object that contains the data
+     *
+     * The geometry should have geographical coordinates since CRS support has been removed from from geoJSON specification (RFC 7946)
+     * The geometry should'nt be measured, since geoJSON specification (RFC 7946) only supports the dimensional positions
+     *
+     * @param Geometry|GeometryCollection $geometry
+     * @param bool|null $isRoot Is geometry the root geometry?
      * @return array
      */
-    public function getArray($geometry) {
-        if ($geometry->geometryType() == 'GeometryCollection') {
-            /** @var GeometryCollection $geometry */
-            $component_array = array();
+    public function getArray($geometry, $isRoot = true) {
+        if ($geometry->geometryType() === 'GeometryCollection') {
+            $components = [];
+            $isFeatureCollection = false;
             foreach ($geometry->getComponents() as $component) {
-                $object = [
-                        'type'        => $component->geometryType(),
-                        'coordinates' => $component->asArray(),
-                ];
-                if ($component->getSRID()) {
-                    $object['crs'] = ["type" => "name", "properties" => ["name" => "EPSG:" . $component->getSRID()] ];
+                if ($component->getData() !== null) {
+                    $isFeatureCollection = true;
                 }
-                $component_array[] = $object;
+                $components[] = $this->getArray($component, false);
             }
-            $object = [
-                    'type'       => 'GeometryCollection',
-                    'geometries' => $component_array
-            ];
-            if ($geometry->getSRID()) {
-                $object['crs'] = ["type" => "name", "properties" => ["name" => "EPSG:" . $geometry->getSRID()] ];
+            if (!$isFeatureCollection || !$isRoot) {
+                return [
+                        'type'       => 'GeometryCollection',
+                        'geometries' => $components
+                ];
+            } else {
+                $features = [];
+                foreach ($geometry->getComponents() as $i => $component) {
+                    $features[] = [
+                            'type'       => 'Feature',
+                            'properties' => $component->getData(),
+                            'geometry'   => $components[$i],
+                    ];
+                }
+                return [
+                        'type'     => 'FeatureCollection',
+                        'features' => $features
+                ];
             }
-            return $object;
-        } else {
-            $object = [
-                    'type'        => $geometry->geometryType(),
-                    'coordinates' => $geometry->isEmpty() ? [] : $geometry->asArray()
-            ];
-            if ($geometry->getSRID()) {
-                $object['crs'] = ["type" => "name", "properties" => ["name" => "EPSG:" . $geometry->getSRID()]];
-            }
-            return $object;
         }
+
+        if ($isRoot && $geometry->getData() !== null) {
+            return [
+                    'type'       => 'Feature',
+                    'properties' => $geometry->getData(),
+                    'geometry'   => [
+                            'type'        => $geometry->geometryType(),
+                            'coordinates' => $geometry->isEmpty() ? [] : $geometry->asArray()
+                    ]
+            ];
+        }
+        $object = [
+                'type'        => $geometry->geometryType(),
+                'coordinates' => $geometry->isEmpty() ? [] : $geometry->asArray()
+        ];
+        return $object;
     }
 
 }
