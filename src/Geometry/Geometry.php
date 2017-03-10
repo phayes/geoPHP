@@ -13,6 +13,11 @@ abstract class Geometry {
     /** @var int|null $srid Spatial Reference System Identifier (http://en.wikipedia.org/wiki/SRID) */
     protected $srid = null;
 
+    /**
+     * @var mixed|null Custom (meta)data
+     */
+    protected $data;
+
 
     abstract public function geometryType();
 
@@ -180,6 +185,43 @@ abstract class Geometry {
         $this->srid = $srid;
     }
 
+    /**
+     * Adds custom data to the geometry
+     *
+     * @param string|array $property The name of the data or an associative array
+     * @param mixed|null $value The data. Can be any type (string, integer, array, etc.)
+     */
+    public function setData($property, $value = null) {
+        if (is_array($property)) {
+            $this->data = $property;
+        } else {
+            $this->data[$property] = $value;
+        }
+    }
+
+    /**
+     * Returns the requested data by property name, or all data of the geometry
+     *
+     * @param string|null $property The name of the data. If omitted, all data will be returned
+     * @return mixed|null The data or null if not exists
+     */
+    public function getData($property = null) {
+        if ($property) {
+            return $this->hasDataProperty($property) ? $this->data[$property] : null;
+        } else {
+            return $this->data;
+        }
+    }
+
+    /**
+     * Tells whether the geometry has data with the specified name
+     * @param string $property The name of the property
+     * @return bool True if the geometry has data with the specified name
+     */
+    public function hasDataProperty($property) {
+        return array_key_exists($property, $this->data ?: []);
+    }
+
     public function envelope() {
         if ($this->isEmpty()) {
             $type = geoPHP::CLASS_NAMESPACE . 'Geometry\\' . $this->geometryType();
@@ -317,7 +359,7 @@ abstract class Geometry {
     /**
      * Returns the GEOS representation of Geometry if GEOS is installed
      *
-     * @return GEOSGeometry|false
+     * @return \GEOSGeometry|false
      */
     public function getGeos() {
         // If it's already been set, just return it
