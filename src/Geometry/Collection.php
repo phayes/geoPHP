@@ -264,7 +264,7 @@ abstract class Collection extends Geometry {
 
     public function zDifference() {
         $startPoint = $this->startPoint();
-        $endPoint = $this->startPoint();
+        $endPoint = $this->endPoint();
         if ($startPoint && $endPoint && $startPoint->hasZ() && $endPoint->hasZ()) {
             return abs($startPoint->z() - $endPoint->z());
         } else {
@@ -504,10 +504,6 @@ abstract class Collection extends Geometry {
         return null;
     }
 
-    /**
-     * @param $n
-     * @return null
-     */
     public function pointN($n) {
         return null;
     }

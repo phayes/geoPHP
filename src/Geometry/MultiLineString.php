@@ -12,7 +12,7 @@ use geoPHP\geoPHP;
 class MultiLineString extends Collection {
 
     public function geometryType() {
-        return 'MultiLineString';
+        return Geometry::MULTI_LINE_STRING;
     }
 
     public function dimension() {

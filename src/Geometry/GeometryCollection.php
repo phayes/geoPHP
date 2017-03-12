@@ -39,7 +39,7 @@ class GeometryCollection extends Collection {
 	    }
 
 	public function geometryType() {
-		return 'GeometryCollection';
+		return Geometry::GEOMETRY_COLLECTION;
 	}
 
 	public function centroid() {
@@ -55,17 +55,17 @@ class GeometryCollection extends Collection {
 		// Returns a single geometry if possible, or a geometry collection
 		$reducedGeometries = geoPHP::geometryReduce($this->getComponents());
 		// For a single geometry we can calculate centroid
-		if ($reducedGeometries->geometryType() !== 'GeometryCollection') {
+		if ($reducedGeometries->geometryType() !== Geometry::GEOMETRY_COLLECTION) {
 			return $reducedGeometries->centroid();
 		}
 
 		// Otherwise collect the set of components of highest spatial dimension
 		// TODO: rewrite with using dimension()
 		$typeDimensions = [
-				'MultiPolygon' => 3, 'Polygon' => 3,
-				'MultiLineString' => 2, 'LineString' => 2,
-				'MultiPoint' => 1, 'Point' => 1,
-				'GeometryCollection' => 0 // FIXME: geometryReduce cant handle nested GeomCollections. Now we ignoring them
+				Geometry::MULTI_POLYGON => 3, Geometry::POLYGON => 3,
+				Geometry::MULTI_LINE_STRING => 2, Geometry::LINE_STRING => 2,
+				Geometry::MULTI_POINT => 1, Geometry::POINT => 1,
+				Geometry::GEOMETRY_COLLECTION => 0 // FIXME: geometryReduce cant handle nested GeomCollections. Now we ignoring them
 		];
 		$dimension = 0;
 		foreach ($reducedGeometries->getComponents() as $geometry) {

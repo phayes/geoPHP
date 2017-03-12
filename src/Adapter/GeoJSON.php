@@ -230,7 +230,7 @@ class GeoJSON implements GeoAdapter {
      * @return array
      */
     public function getArray($geometry, $isRoot = true) {
-        if ($geometry->geometryType() === 'GeometryCollection') {
+        if ($geometry->geometryType() === Geometry::GEOMETRY_COLLECTION) {
             $components = [];
             $isFeatureCollection = false;
             foreach ($geometry->getComponents() as $component) {

@@ -231,22 +231,22 @@ class KML implements GeoAdapter {
      * @return string
      */
     private function geometryToKML($geometry) {
-        $type = strtolower($geometry->geometryType());
+        $type = $geometry->geometryType();
         switch ($type) {
-            case 'point':
-                /** @noinspection PhpParamsInspection */
+            case Geometry::POINT:
+                /** @var Point $geometry */
                 return $this->pointToKML($geometry);
-            case 'linestring':
-                /** @noinspection PhpParamsInspection */
+            case Geometry::LINE_STRING:
+                /** @var LineString $geometry */
                 return $this->linestringToKML($geometry);
-            case 'polygon':
-                /** @noinspection PhpParamsInspection */
+            case Geometry::POLYGON:
+                /** @var Polygon $geometry */
                 return $this->polygonToKML($geometry);
-            case 'multipoint':
-            case 'multilinestring':
-            case 'multipolygon':
-            case 'geometrycollection':
-            /** @noinspection PhpParamsInspection */
+            case Geometry::MULTI_POINT:
+            case Geometry::MULTI_LINE_STRING:
+            case Geometry::MULTI_POLYGON:
+            case Geometry::GEOMETRY_COLLECTION:
+            /** @var Collection $geometry */
                 return $this->collectionToKML($geometry);
         }
         return '';

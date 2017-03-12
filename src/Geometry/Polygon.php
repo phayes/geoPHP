@@ -42,7 +42,7 @@ class Polygon extends Collection {
     }
 
     public function geometryType() {
-        return 'Polygon';
+        return Geometry::POLYGON;
     }
 
     public function dimension() {
@@ -125,17 +125,14 @@ class Polygon extends Collection {
 
     /**
      * @param LineString $ring
-     * @return int
+     * @return array
      */
     protected function getRingCentroidAndArea($ring) {
         $area = (new Polygon([$ring]))->area(true, true);
 
         $points = $ring->getPoints();
         $pointCount = count($points);
-        if ($pointCount === 0) {
-            return 0;
-        }
-        if ($area == 0.0) {
+        if ($pointCount === 0 || $area == 0.0) {
             return ['area' => 0, 'x' => null, 'y' => null];
         }
         $x=0;
@@ -313,8 +310,8 @@ class Polygon extends Collection {
             return false;
         }
 
-        if ($geometry->geometryType() == 'LineString') {
-        } else if ($geometry->geometryType() == 'Polygon') {
+        if ($geometry->geometryType() == Geometry::LINE_STRING) {
+        } else if ($geometry->geometryType() == Geometry::POLYGON) {
             $geometry = $geometry->exteriorRing();
         } else {
 

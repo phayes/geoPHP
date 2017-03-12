@@ -44,8 +44,8 @@ class WKT implements GeoAdapter {
      * @throws \Exception
      */
     public function read($wkt) {
-        $this->hasZ      = false;
-        $this->measured  = false;
+        $this->hasZ = false;
+        $this->measured = false;
 
         $wkt = trim($wkt);
         $srid = NULL;
@@ -293,7 +293,7 @@ class WKT implements GeoAdapter {
     public function extractData($geometry) {
         $parts = array();
         switch ($geometry->geometryType()) {
-            case 'Point':
+            case Geometry::POINT:
                 $p = $geometry->x().' '.$geometry->y();
                 if ( $geometry->hasZ() ) {
                     $p .= ' ' . $geometry->getZ();
@@ -304,20 +304,20 @@ class WKT implements GeoAdapter {
                     $this->measured = $this->measured || $geometry->isMeasured();
                 }
                 return $p;
-            case 'LineString':
+            case Geometry::LINE_STRING:
                 foreach ($geometry->getComponents() as $component) {
                     $parts[] = $this->extractData($component);
                 }
                 return implode(', ', $parts);
-            case 'Polygon':
-            case 'MultiPoint':
-            case 'MultiLineString':
-            case 'MultiPolygon':
+            case Geometry::POLYGON:
+            case Geometry::MULTI_POINT:
+            case Geometry::MULTI_LINE_STRING:
+            case Geometry::MULTI_POLYGON:
                 foreach ($geometry->getComponents() as $component) {
                     $parts[] = '(' . $this->extractData($component) . ')';
                 }
                 return implode(', ', $parts);
-            case 'GeometryCollection':
+            case Geometry::GEOMETRY_COLLECTION:
                 foreach ($geometry->getComponents() as $component) {
                     $this->hasZ = $this->hasZ || $geometry->hasZ();
                     $this->measured = $this->measured || $geometry->isMeasured();

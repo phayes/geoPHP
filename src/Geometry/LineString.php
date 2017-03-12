@@ -31,7 +31,7 @@ class LineString extends Collection {
     }
 
     public function geometryType() {
-        return 'LineString';
+        return Geometry::LINE_STRING;
     }
 
     public function dimension() {
@@ -415,13 +415,13 @@ class LineString extends Collection {
             return $this->getGeos()->distance($geometry->getGeos());
         }
 
-        if ($geometry->geometryType() == 'Point') {
+        if ($geometry->geometryType() == Geometry::POINT) {
             // This is defined in the Point class nicely
             return $geometry->distance($this);
         }
-        if ($geometry->geometryType() == 'LineString') {
+        if ($geometry->geometryType() == Geometry::LINE_STRING) {
             $distance = NULL;
-			$geometrySegments = $geometry->explode();
+            $geometrySegments = $geometry->explode();
             foreach ($this->explode() as $seg1) {
                 /** @var LineString $seg2 */
                 foreach ($geometrySegments as $seg2) {

@@ -12,7 +12,7 @@ use geoPHP\geoPHP;
 class MultiPolygon extends Collection {
 
     public function geometryType() {
-        return 'MultiPolygon';
+        return Geometry::MULTI_POLYGON;
     }
 
     public function dimension() {
@@ -32,8 +32,7 @@ class MultiPolygon extends Collection {
         $x = 0;
         $y = 0;
         $totalArea = 0;
-        $components = $this->getComponents();
-        foreach($components as $component) {
+        foreach($this->getComponents() as $component) {
             if ($component->isEmpty()) {
                 continue;
             }

@@ -54,16 +54,16 @@ class TWKB implements GeoAdapter {
 	private $reader;
 	/** @var  BinaryWriter $writer */
 	private $writer;
-	protected static $mapType = array(
-			'Geometry'           => 0,
-			'Point'              => 1,
-			'LineString'         => 2,
-			'Polygon'            => 3,
-			'MultiPoint'         => 4,
-			'MultiLineString'    => 5,
-			'MultiPolygon'       => 6,
-			'GeometryCollection' => 7
-	);
+    /** @var array Maps Geometry types to TWKB type codes */
+	protected static $typeMap = [
+			Geometry::POINT               => 1,
+			Geometry::LINE_STRING         => 2,
+			Geometry::POLYGON             => 3,
+			Geometry::MULTI_POINT         => 4,
+			Geometry::MULTI_LINE_STRING   => 5,
+			Geometry::MULTI_POLYGON       => 6,
+			Geometry::GEOMETRY_COLLECTION => 7
+    ];
 
 	/**
 	 * Read TWKB into geometry objects
@@ -171,7 +171,7 @@ class TWKB implements GeoAdapter {
 				break;
 			default:
 				throw new \Exception('Geometry type ' . $geometryType .
-						' (' . (array_search($geometryType, self::$mapType) ?: 'unknown') . ') not supported');
+						' (' . (array_search($geometryType, self::$typeMap) ?: 'unknown') . ') not supported');
 		}
 
 		return $geometry;
@@ -314,7 +314,7 @@ class TWKB implements GeoAdapter {
 		$this->writeOptions['hasM'] = $geometry->isMeasured();
 
 		// Type and precision
-		$type = self::$mapType[$geometry->geometryType()] +
+		$type = self::$typeMap[$geometry->geometryType()] +
 				(BinaryWriter::ZigZagEncode($this->writeOptions['decimalDigitsXY']) << 4);
 		$twkbHead = $this->writer->writeUInt8($type);
 
@@ -337,22 +337,22 @@ class TWKB implements GeoAdapter {
 			$this->lastPoint = new Point(0, 0, 0, 0);
 
 			switch ($geometry->geometryType()) {
-				case 'Point':
+				case Geometry::POINT:
 					/** @var Point $geometry */
 					$twkbGeom .= $this->writePoint($geometry);
 					break;
-				case 'LineString':
+				case Geometry::LINE_STRING:
 					/** @var LineString $geometry */
 					$twkbGeom .= $this->writeLineString($geometry);
 					break;
-				case 'Polygon':
+				case Geometry::POLYGON:
 					/** @var Polygon $geometry */
 					$twkbGeom .= $this->writePolygon($geometry);
 					break;
-				case 'MultiPoint':
-				case 'MultiLineString':
-				case 'MultiPolygon':
-				case 'GeometryCollection':
+				case Geometry::MULTI_POINT:
+				case Geometry::MULTI_LINE_STRING:
+				case Geometry::MULTI_POLYGON:
+				case Geometry::GEOMETRY_COLLECTION:
 					/** @var Collection $geometry */
 					$twkbGeom .= $this->writeMulti($geometry);
 					break;
@@ -459,7 +459,7 @@ class TWKB implements GeoAdapter {
 		//	}
 		//}
 		foreach ($geometry->getComponents() as $component) {
-			if ($geometry->geometryType() !== 'GeometryCollection') {
+			if ($geometry->geometryType() !== Geometry::GEOMETRY_COLLECTION) {
 				$func = 'write' . $component->geometryType();
 				$twkb .= $this->$func($component);
 			} else {

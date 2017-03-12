@@ -154,7 +154,7 @@ class geoPHP {
      * @param Geometry|Geometry[]|GeometryCollection|GeometryCollection[] $geometries
      * @return bool|GeometryCollection
      */
-    static function geometryReduce($geometries) {
+    public static function geometryReduce($geometries) {
         if (empty($geometries)) {
             return false;
         }
@@ -234,7 +234,7 @@ class geoPHP {
      * @param Geometry|Geometry[]|GeometryCollection|GeometryCollection[] $geometries
      * @return GeometryCollection|null A Geometry of the "smallest", "most type-specific" class that can contain the elements.
      */
-    static function buildGeometry($geometries) {
+    public static function buildGeometry($geometries) {
         if (empty($geometries)) {
             return new GeometryCollection();
         }
@@ -281,7 +281,7 @@ class geoPHP {
 
     // Detect a format given a value. This function is meant to be SPEEDY.
     // It could make a mistake in XML detection if you are mixing or using namespaces in weird ways (ie, KML inside an RSS feed)
-    static function detectFormat(&$input) {
+    public static function detectFormat(&$input) {
         $mem = fopen('php://memory', 'x+');
         fwrite($mem, $input, 11); // Write 11 bytes - we can detect the vast majority of formats in the first 11 bytes
         fseek($mem, 0);
@@ -303,7 +303,7 @@ class geoPHP {
         // Detect WKB or EWKB -- first byte is 1 (little endian indicator)
         if ($bytes[1] == 1 || $bytes[1] == 0) {
             $wkbType = current(unpack($bytes[1] == 1 ? 'V' : 'N', substr($bin, 1, 4)));
-            if (array_search($wkbType & 0xF, Adapter\WKB::$mapType)) {
+            if (array_search($wkbType & 0xF, Adapter\WKB::$typeMap)) {
                 // If SRID byte is TRUE (1), it's EWKB
                 if ($wkbType & Adapter\WKB::SRID_MASK == Adapter\WKB::SRID_MASK) {
                     return 'ewkb';

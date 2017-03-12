@@ -78,7 +78,7 @@ class GeoHash implements GeoAdapter {
      *
      * @param string $hash a GeoHash
      * @param boolean $as_grid Return the center point of hash grid or the grid cell as Polygon
-     * @return Point the converted GeoHash
+     * @return Point|Polygon the converted GeoHash
      */
     public function read($hash, $as_grid = false) {
         $decodedHash = $this->decode($hash);
@@ -109,7 +109,7 @@ class GeoHash implements GeoAdapter {
             return '';
         }
 
-        if ($geometry->geometryType() === 'Point') {
+        if ($geometry->geometryType() === Geometry::POINT) {
             /** @var Point $geometry */
             return $this->encodePoint($geometry, $precision);
         } else {

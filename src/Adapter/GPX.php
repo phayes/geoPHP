@@ -229,7 +229,7 @@ class GPX implements GeoAdapter {
 	 *
 	 * @param \DOMNode $node
 	 * @param string[]|null $tagList
-	 * @return array
+	 * @return array|string
 	 */
 	protected static function parseNodeProperties($node, $tagList = null) {
 		if ($node->nodeType === XML_TEXT_NODE) {
@@ -305,17 +305,17 @@ class GPX implements GeoAdapter {
      * @return string
      */
     protected function geometryToGPX($geometry) {
-        switch (strtolower($geometry->geometryType())) {
-            case 'point':
+        switch ($geometry->geometryType()) {
+            case Geometry::POINT:
                 return $this->pointToGPX($geometry);
-            case 'linestring':
-            case 'multilinestring':
+            case Geometry::LINE_STRING:
+            case Geometry::MULTI_LINE_STRING:
                 /** @var LineString $geometry */
                 return $this->linestringToGPX($geometry);
-            case 'polygon':
-            case 'multipoint':
-            case 'multipolygon':
-            case 'geometrycollection':
+            case Geometry::POLYGON:
+            case Geometry::MULTI_POINT:
+            case Geometry::MULTI_POLYGON:
+            case Geometry::GEOMETRY_COLLECTION:
                 return $this->collectionToGPX($geometry);
         }
         return '';
@@ -549,7 +549,7 @@ class GpxTypes {
 		$this->allowedTrkptTypeElements = self::$trkTypeElements;
 		$this->allowedRteptTypeElements = self::$rteptTypeElements;
 		$this->allowedMetadataTypeElements = self::$metadataTypeElements;
-		
+
 		if (is_array($allowedElements)) {
 			foreach ($allowedElements as $type => $elements) {
 				$elements = is_array($elements) ? $elements : [$elements];

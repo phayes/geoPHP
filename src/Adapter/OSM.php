@@ -431,22 +431,22 @@ class OSM implements GeoAdapter
 	protected function processGeometry($geometry) {
 		if (!$geometry->isEmpty()) {
 			switch ($geometry->geometryType()) {
-				case 'Point':
+				case Geometry::POINT:
 					/** @var Point $geometry */
 					$this->processPoint($geometry);
 					break;
-				case 'LineString':
+				case Geometry::LINE_STRING:
 					/** @var LineString $geometry */
 					$this->processLineString($geometry);
 					break;
-				case 'Polygon':
+				case Geometry::POLYGON:
 					/** @var Polygon $geometry */
 					$this->processPolygon($geometry);
 					break;
-				case 'MultiPoint':
-				case 'MultiLineString':
-				case 'MultiPolygon':
-				case 'GeometryCollection':
+				case Geometry::MULTI_POINT:
+				case Geometry::MULTI_LINE_STRING:
+				case Geometry::MULTI_POLYGON:
+				case Geometry::GEOMETRY_COLLECTION:
 					/** @var Collection $geometry */
 					$this->processCollection($geometry);
 					break;

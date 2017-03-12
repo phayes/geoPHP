@@ -183,20 +183,20 @@ class GeoRSS implements GeoAdapter {
      * @return string
      */
     protected function geometryToGeoRSS($geometry) {
-        $type = strtolower($geometry->geometryType());
+        $type = $geometry->geometryType();
         switch ($type) {
-            case 'point':
+            case Geometry::POINT:
                 return $this->pointToGeoRSS($geometry);
-            case 'linestring':
+            case Geometry::LINE_STRING:
                 /** @noinspection PhpParamsInspection */
                 return $this->linestringToGeoRSS($geometry);
-            case 'polygon':
+            case Geometry::POLYGON:
                 /** @noinspection PhpParamsInspection */
                 return $this->PolygonToGeoRSS($geometry);
-            case 'multipoint':
-            case 'multilinestring':
-            case 'multipolygon':
-            case 'geometrycollection':
+            case Geometry::MULTI_POINT:
+            case Geometry::MULTI_LINE_STRING:
+            case Geometry::MULTI_POLYGON:
+            case Geometry::GEOMETRY_COLLECTION:
             /** @noinspection PhpParamsInspection */
                 return $this->collectionToGeoRSS($geometry);
         }

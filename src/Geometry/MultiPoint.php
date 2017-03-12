@@ -18,7 +18,7 @@ class MultiPoint extends Collection {
     }
 
     public function geometryType() {
-        return 'MultiPoint';
+        return Geometry::MULTI_POINT;
     }
 
     public function dimension() {

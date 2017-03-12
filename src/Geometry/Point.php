@@ -55,7 +55,7 @@ class Point extends Geometry {
     }
 
     public function geometryType() {
-        return 'Point';
+        return Geometry::POINT;
     }
 
     /**
@@ -266,11 +266,11 @@ class Point extends Geometry {
             /** @noinspection PhpUndefinedMethodInspection */
             return $this->getGeos()->distance($geometry->getGeos());
         }
-        if ($geometry->geometryType() == 'Point') {
+        if ($geometry->geometryType() == Geometry::POINT) {
             return sqrt(pow(($this->x() - $geometry->x()), 2) + pow(($this->y() - $geometry->y()), 2));
         }
         if ($geometry->isEmpty()) return NULL;
-        if ($geometry->geometryType() == 'MultiPoint' || $geometry->geometryType() == 'GeometryCollection') {
+        if ($geometry->geometryType() == Geometry::MULTI_POINT || $geometry->geometryType() == Geometry::GEOMETRY_COLLECTION) {
             $distance = NULL;
             foreach ($geometry->getComponents() as $component) {
                 $check_distance = $this->distance($component);

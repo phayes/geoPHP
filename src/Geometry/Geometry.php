@@ -8,7 +8,29 @@ use geoPHP\geoPHP;
  * Geometry abstract class
  */
 abstract class Geometry {
-    private $geos = null;
+
+    /**
+     * Type constants
+     */
+    const POINT = 'Point';
+    const LINE_STRING = 'LineString';
+    const POLYGON = 'Polygon';
+    const MULTI_POINT = 'MultiPoint';
+    const MULTI_LINE_STRING = 'MultiLineString';
+    const MULTI_POLYGON = 'MultiPolygon';
+    const GEOMETRY_COLLECTION = 'GeometryCollection';
+
+    /* Not implemented yet */
+    const CIRCULAR_STRING = 'CircularString';
+    const COMPOUND_CURVE = 'CompoundCurve';
+    const CURVE_POLYGON = 'CurvePolygon';
+    const MULTI_CURVE = 'MultiCurve';
+    const MULTI_SURFACE = 'MultiSurface';
+    const CURVE = 'Curve';
+    const SURFACE = 'Surface';
+    const POLYHEDRAL_SURFACE = 'PolyhedralSurface';
+    const TIN = 'TIN';
+    const TRIANGLE = 'Triangle';
 
     /** @var int|null $srid Spatial Reference System Identifier (http://en.wikipedia.org/wiki/SRID) */
     protected $srid = null;
@@ -17,6 +39,11 @@ abstract class Geometry {
      * @var mixed|null Custom (meta)data
      */
     protected $data;
+
+    /**
+     * @var \GEOSGeometry|null
+     */
+    private $geos = null;
 
 
     abstract public function geometryType();
@@ -95,7 +122,7 @@ abstract class Geometry {
     abstract public function numPoints();
 
     /**
-     * @param $n
+     * @param int $n Nth point
      * @return Point|null
      */
     abstract public function pointN($n);
@@ -227,7 +254,7 @@ abstract class Geometry {
             $type = geoPHP::CLASS_NAMESPACE . 'Geometry\\' . $this->geometryType();
             return new $type();
         }
-        if ($this->geometryType() === 'Point') {
+        if ($this->geometryType() === Geometry::POINT) {
             return $this;
         }
 
