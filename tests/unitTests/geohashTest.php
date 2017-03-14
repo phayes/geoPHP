@@ -1,8 +1,5 @@
 <?php
 
-require '../vendor/autoload.php';
-
-use \geoPHP\geoPHP;
 use \geoPHP\Adapter\GeoHash;
 
 class GeoHashTest extends PHPUnit_Framework_TestCase {
@@ -14,11 +11,10 @@ class GeoHashTest extends PHPUnit_Framework_TestCase {
    * test cases for adjacent geohashes.
    */
   function testAdjacent() {
-    $geohash = new GeoHash();
-    $this->assertEquals ( 'xne', $geohash->adjacent ( 'xn7', 'top' ), 'Did not find correct top adjacent geohash for xn7' );
-    $this->assertEquals ( 'xnk', $geohash->adjacent ( 'xn7', 'right' ), 'Did not find correct right adjacent geohash for xn7' );
-    $this->assertEquals ( 'xn5', $geohash->adjacent ( 'xn7', 'bottom' ), 'Did not find correct bottom adjacent geohash for xn7' );
-    $this->assertEquals ( 'xn6', $geohash->adjacent ( 'xn7', 'left' ), 'Did not find correct left adjacent geohash for xn7' );
-    $this->assertEquals ( 'xnd', $geohash->adjacent ( $geohash->adjacent ( 'xn7', 'left' ), 'top' ), 'Did not find correct top-left adjacent geohash for xn7' );
+    $this->assertEquals ( 'xne', GeoHash::adjacent ( 'xn7', 'top' ), 'Did not find correct top adjacent geohash for xn7' );
+    $this->assertEquals ( 'xnk', GeoHash::adjacent ( 'xn7', 'right' ), 'Did not find correct right adjacent geohash for xn7' );
+    $this->assertEquals ( 'xn5', GeoHash::adjacent ( 'xn7', 'bottom' ), 'Did not find correct bottom adjacent geohash for xn7' );
+    $this->assertEquals ( 'xn6', GeoHash::adjacent ( 'xn7', 'left' ), 'Did not find correct left adjacent geohash for xn7' );
+    $this->assertEquals ( 'xnd', GeoHash::adjacent ( GeoHash::adjacent ( 'xn7', 'left' ), 'top' ), 'Did not find correct top-left adjacent geohash for xn7' );
   }
 }

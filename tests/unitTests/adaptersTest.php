@@ -1,7 +1,5 @@
 <?php
 
-require '../vendor/autoload.php';
-
 use \geoPHP\geoPHP;
 
 class AdaptersTests extends PHPUnit_Framework_TestCase {
@@ -26,6 +24,7 @@ class AdaptersTests extends PHPUnit_Framework_TestCase {
             $this->assertNotNull($output, "Empty output on "  . $adapter_key);
             if ($output) {
               $adapter_name = 'geoPHP\\Adapter\\' . $adapter_class;
+              /** @var \geoPHP\Adapter\GeoAdapter $adapter_loader */
               $adapter_loader = new $adapter_name();
               $test_geom_1 = $adapter_loader->read($output);
               $test_geom_2 = $adapter_loader->read($test_geom_1->out($adapter_key));

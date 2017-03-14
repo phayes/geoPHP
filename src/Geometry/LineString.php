@@ -70,11 +70,16 @@ class LineString extends Collection {
     }
 
     /**
-     * @param int $n
-     * @return null|Point
+	 * Returns the 1-based Nth point of the LineString.
+	 * Negative values are counted backwards from the end of the LineString.
+	 *
+     * @param int $n Nth point of the LineString
+     * @return Point|null
      */
     public function pointN($n) {
-        return $this->geometryN($n);
+        return $n >= 0
+				? $this->geometryN($n)
+				: $this->geometryN(count($this->components) - abs($n + 1));
     }
 
     public function area() {
@@ -274,10 +279,6 @@ class LineString extends Collection {
 		return $max > ~PHP_INT_MAX ? $max : null;
 	}
 
-	public function zRange() {
-		return abs($this->maximumZ() - $this->minimumZ());
-	}
-
 	public function zDifference() {
 		if ($this->startPoint()->hasZ() && $this->endPoint()->hasZ()) {
 			return abs($this->startPoint()->z() - $this->endPoint()->z());
@@ -286,29 +287,49 @@ class LineString extends Collection {
 		}
 	}
 
-	public function elevationGain($vertical_tolerance) {
-		$gain = 0;
-		$last_ele = $this->startPoint()->z();
-		foreach ($this->getPoints() as $point) {
-			if (abs($point->z() - $last_ele) > $vertical_tolerance) {
-				if ($point->z() > $last_ele) {
-					$gain += $point->z() - $last_ele;
+	/**
+	 * Returns the cumulative elevation gain of the LineString
+	 *
+	 * @param int $verticalTolerance Smoothing factor filtering noisy elevation data.
+	 *      Its unit equals to the z-coordinates unit (meters for geographical coordinates)
+	 *      If the elevation data comes from a DEM, a value around 3.5 can be acceptable.
+	 *
+	 * @return float
+	 */
+	public function elevationGain($verticalTolerance = 0) {
+		$gain = 0.0;
+		$lastEle = $this->startPoint()->z();
+		$pointCount = $this->numPoints();
+		foreach ($this->getPoints() as $i => $point) {
+			if (abs($point->z() - $lastEle) > $verticalTolerance || $i === $pointCount-1) {
+				if ($point->z() > $lastEle) {
+					$gain += $point->z() - $lastEle;
 				}
-				$last_ele = $point->z();
+				$lastEle = $point->z();
 			}
 		}
 		return $gain;
 	}
 
-	public function elevationLoss($vertical_tolerance) {
-		$loss = 0;
-		$last_ele = $this->startPoint()->z();
-		foreach ($this->getPoints() as $point) {
-			if (abs($point->z() - $last_ele) > $vertical_tolerance) {
-				if ($point->z() < $last_ele) {
-					$loss += $last_ele - $point->z();
+	/**
+	 * Returns the cumulative elevation loss of the LineString
+	 *
+	 * @param int $verticalTolerance Smoothing factor filtering noisy elevation data.
+	 *      Its unit equals to the z-coordinates unit (meters for geographical coordinates)
+	 *      If the elevation data comes from a DEM, a value around 3.5 can be acceptable.
+	 *
+	 * @return float
+	 */
+	public function elevationLoss($verticalTolerance = 0) {
+		$loss = 0.0;
+		$lastEle = $this->startPoint()->z();
+		$pointCount = $this->numPoints();
+		foreach ($this->getPoints() as $i => $point) {
+			if (abs($point->z() - $lastEle) > $verticalTolerance || $i === $pointCount-1) {
+				if ($point->z() < $lastEle) {
+					$loss += $lastEle - $point->z();
 				}
-				$last_ele = $point->z();
+				$lastEle = $point->z();
 			}
 		}
 		return $loss;

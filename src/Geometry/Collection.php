@@ -164,6 +164,7 @@ abstract class Collection extends Geometry {
     }
 
     // By default, the boundary of a collection is the boundary of it's components
+    // FIXME this implementation doesn't follow the OGC specification
     public function boundary() {
         if ($this->isEmpty()) {
             return new LineString();
@@ -186,9 +187,10 @@ abstract class Collection extends Geometry {
     }
 
     /**
-     * Note that the standard is 1 based indexing
-     * @param int $n
-     * @return null|Geometry
+     * Returns the 1-based Nth geometry.
+     *
+     * @param int $n 1-based geometry number
+     * @return Geometry|null
      */
     public function geometryN($n) {
         return isset($this->components[$n - 1]) ? $this->components[$n - 1] : null;
@@ -258,10 +260,6 @@ abstract class Collection extends Geometry {
         return $max > ~PHP_INT_MAX ? $max : null;
     }
 
-    public function zRange() {
-        return abs($this->maximumZ() - $this->minimumZ());
-    }
-
     public function zDifference() {
         $startPoint = $this->startPoint();
         $endPoint = $this->endPoint();
@@ -272,7 +270,7 @@ abstract class Collection extends Geometry {
         }
     }
 
-    public function elevationGain($vertical_tolerance = 3.5) {
+    public function elevationGain($vertical_tolerance = 0) {
         $gain = null;
         foreach ($this->components as $component) {
             $gain += $component->elevationGain($vertical_tolerance);
@@ -280,7 +278,7 @@ abstract class Collection extends Geometry {
         return $gain;
     }
 
-    public function elevationLoss($vertical_tolerance = 3.5) {
+    public function elevationLoss($vertical_tolerance = 0) {
         $loss = null;
         foreach ($this->components as $component) {
             $loss += $component->elevationLoss($vertical_tolerance);

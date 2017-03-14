@@ -1,7 +1,5 @@
 <?php
 
-require '../vendor/autoload.php';
-
 use \geoPHP\geoPHP;
 
 class PlaceholdersTests extends PHPUnit_Framework_TestCase {

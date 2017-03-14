@@ -301,13 +301,13 @@ class GeoHash implements GeoAdapter {
      * @param string $direction the direction of the neighbor (top, bottom, left or right)
      * @return string the geohash of the adjacent cell
      */
-    public function adjacent($hash, $direction){
+    public static function adjacent($hash, $direction){
         $last = substr($hash, -1);
         $type = (strlen($hash) % 2)? 'odd': 'even';
         $base = substr($hash, 0, strlen($hash) - 1);
         if(strpos((self::$borders[$direction][$type]), $last) !== false){
-            $base = $this->adjacent($base, $direction);
+            $base = self::adjacent($base, $direction);
         }
-        return $base.self::$characterTable[strpos(self::$neighbours[$direction][$type], $last)];
+        return $base . self::$characterTable[strpos(self::$neighbours[$direction][$type], $last)];
     }
 }

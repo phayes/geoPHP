@@ -1,7 +1,5 @@
 <?php
 
-require '../vendor/autoload.php';
-
 use \geoPHP\geoPHP;
 
 class GeosTests extends PHPUnit_Framework_TestCase {

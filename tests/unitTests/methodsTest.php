@@ -1,7 +1,5 @@
 <?php
 
-require '../vendor/autoload.php';
-
 use \geoPHP\geoPHP;
 
 class MethodsTests extends PHPUnit_Framework_TestCase {
@@ -61,6 +59,12 @@ class MethodsTests extends PHPUnit_Framework_TestCase {
     }
   }
 
+  /**
+   * @param \geoPHP\Geometry\Geometry $geometry
+   * @param string $method_name
+   * @param array $argument
+   * @param $file
+   */
   function _methods_tester($geometry, $method_name, $argument, $file) {
 
     if (!method_exists($geometry, $method_name)) {
@@ -286,6 +290,10 @@ class MethodsTests extends PHPUnit_Framework_TestCase {
 
   }
 
+  /**
+   * @param \geoPHP\Geometry\Geometry $geometry
+   * @throws Exception
+   */
   function _methods_tester_with_geos($geometry) {
     // Cannot test methods if GEOS is not intstalled
     if (!geoPHP::geosInstalled()) return;

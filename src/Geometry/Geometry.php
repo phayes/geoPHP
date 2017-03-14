@@ -185,8 +185,6 @@ abstract class Geometry {
 
     abstract public function maximumM();
 
-	abstract public function zRange();
-
 	abstract public function zDifference();
 
 	abstract public function elevationGain($vertical_tolerance);

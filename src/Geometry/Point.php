@@ -190,10 +190,6 @@ class Point extends Geometry {
 		return 0;
 	}
 
-	public function zRange() {
-		return 0;
-	}
-
 	public function elevationGain($vertical_tolerance) {
 		return 0;
 	}

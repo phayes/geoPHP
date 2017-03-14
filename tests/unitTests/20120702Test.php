@@ -1,9 +1,9 @@
 <?php
 
-require '../vendor/autoload.php';
-
 use \geoPHP\geoPHP;
 use \geoPHP\Geometry\Geometry;
+
+// FIXME file 20120702.gpx contains one GeometryCollection but _method_tester() only tests Points and LineStrings (ie does nothing)
 
 class Tests_20120702 extends PHPUnit_Framework_TestCase {
 
@@ -65,119 +65,119 @@ class Tests_20120702 extends PHPUnit_Framework_TestCase {
       return;
     }
 
+    $failedOnMessage = $geometry->geometryType() . ' failed on ' . $method_name ;
+
     switch ($method_name) {
       case 'y':
       case 'x':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'geometryN':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'startPoint':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          //TODO: Add a method startPoint() to MultiLineString.
-          //$this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'endPoint':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          //TODO: Add a method endPoint() to MultiLineString.
-          //$this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          var_dump($geometry->$method_name($argument));
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'isRing':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'isClosed':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'pointN':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          //TODO: Add a method pointN() to MultiLineString.
-          //$this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'exteriorRing':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'numInteriorRings':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'interiorRingN':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'setSRID':
@@ -185,112 +185,112 @@ class Tests_20120702 extends PHPUnit_Framework_TestCase {
         break;
       case 'SRID':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'getBBox':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'centroid':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'length':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertEquals($geometry->$method_name($argument), 0, $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertEquals($geometry->$method_name($argument), (float) '0.11624637315233', 'Failed on ' . $method_name);
+          $this->assertEquals($geometry->$method_name($argument), (float) '0.11624637315233', $failedOnMessage);
         }
         break;
       case 'numGeometries':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'numPoints':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertEquals($geometry->$method_name($argument), 1, $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'dimension':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertEquals($geometry->$method_name($argument), 0, $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertEquals($geometry->$method_name($argument), 1, $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertEquals($geometry->$method_name($argument), 1, $failedOnMessage);
         }
         break;
       case 'boundary':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'greatCircleLength':
         if ($geometry->geometryType() == 'Point') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertEquals($geometry->$method_name($argument), 0, $failedOnMessage);
         }
         if ($geometry->geometryType() == 'LineString') {
-          $this->assertNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertNotEquals($geometry->$method_name($argument), '9500.9359867418', 'Failed on ' . $method_name);
+          $this->assertNotEquals($geometry->$method_name($argument), '9500.9359867418', $failedOnMessage);
         }
         break;
       case 'haversineLength':
       case 'area':
-        $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+        $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         break;
       case 'geometryType':
-        $this->assertNotNull($geometry->$method_name($argument), 'Failed on ' . $method_name);
+        $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         break;
       default:
-        $this->assertTrue($geometry->$method_name($argument), 'Failed on ' . $method_name);
+        $this->assertTrue($geometry->$method_name($argument), $failedOnMessage);
     }
   }
 }

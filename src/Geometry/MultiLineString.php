@@ -53,7 +53,7 @@ class MultiLineString extends Collection {
             $totalLength += $componentLength;
         }
         if ($totalLength == 0) {
-            return $this->startPoint();
+            return $this->getPoints()[0];
         }
         return new Point($x / $totalLength, $y / $totalLength);
     }
