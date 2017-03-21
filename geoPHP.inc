@@ -166,6 +166,7 @@ class geoPHP
       if (in_array(get_class($geometry),$passbacks)) {
         $components = $geometry->getComponents();
         if (count($components) == 1) {
+          $components[0]->mergeAttributes($geometry->attributes);
           return $components[0];
         }
         else {
@@ -183,11 +184,12 @@ class geoPHP
     $geom_types = array();
 
     $collections = array('MultiPoint','MultiLineString','MultiPolygon','GeometryCollection');
-
     foreach ($geometry as $item) {
       if ($item) {
         if (in_array(get_class($item), $collections)) {
           foreach ($item->getComponents() as $component) {
+            if ($item->numGeometries() == 1)
+		$component->mergeAttributes($item);
             $geometries[] = $component;
             $geom_types[] = $component->geometryType();
           }
