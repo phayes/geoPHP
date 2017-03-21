@@ -8,6 +8,8 @@ abstract class Geometry
   private   $geos = NULL;
   protected $srid = NULL;
   protected $geom_type;
+  
+  public $attributes = array();
 
   // Abtract: Standard
   // -----------------
@@ -344,4 +346,8 @@ abstract class Geometry
     return NULL;
   }
 
+  public function mergeAttributes($mergeWith)
+  {
+    $this->attributes = array_merge($mergeWith->attributes, $this->attributes);
+  }
 }
