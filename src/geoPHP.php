@@ -1,16 +1,15 @@
 <?php
 /*
- * (c) Patrick Hayes
+ * This file is part of the GeoPHP package.
+ * Copyright (c) 2011 - 2016 Patrick Hayes and contributors
  *
- * This code is open-source and licenced under the Modified BSD License.
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- *
- * @since 2014-07-08 (Added to funiQ project)
  */
 namespace geoPHP;
 
 use geoPHP\Adapter\GeoHash;
+use geoPHP\Geometry\Collection;
 use geoPHP\Geometry\Geometry;
 use geoPHP\Geometry\GeometryCollection;
 
@@ -22,14 +21,25 @@ class geoPHP {
 
     // Earth radius constants in meters
 
-    /** WGS84 semi-major axis */
-    const EARTH_EQUATORIAL_RADIUS = 6378137;
-    /** WGS84 semi-minor axis */
-    const EARTH_POLAR_RADIUS       = 6356752.314;
+    /** WGS84 semi-major axis (a), aka equatorial radius */
+    const EARTH_WGS84_SEMI_MAJOR_AXIS = 6378137.0;
+    /** WGS84 semi-minor axis (b), aka polar radius */
+    const EARTH_WGS84_SEMI_MINOR_AXIS = 6356752.314245;
+    /** WGS84 inverse flattening */
+    const EARTH_WGS84_FLATTENING      = 298.257223563;
+
+    /** WGS84 semi-major axis (a), aka equatorial radius */
+    const EARTH_GRS80_SEMI_MAJOR_AXIS = 6378137.0;
+    /** GRS80 semi-minor axis */
+    const EARTH_GRS80_SEMI_MINOR_AXIS = 6356752.314140;
+    /** GRS80 inverse flattening */
+    const EARTH_GRS80_FLATTENING      = 298.257222100882711;
+
     /** IUGG mean radius R1 = (2a + b) / 3 */
-    const EARTH_MEAN_RADIUS        = 6371008.8;
-    /** IUGG R2: Earth's authalic ("equal area") radius is the radius of a hypothetical perfect sphere which has the same surface area as the reference ellipsoid. */
-    const EARTH_AUTHALIC_RADIUS    = 6371007.2;
+    const EARTH_MEAN_RADIUS           = 6371008.8;
+    /** IUGG R2: Earth's authalic ("equal area") radius is the radius of a hypothetical perfect sphere
+     * which has the same surface area as the reference ellipsoid. */
+    const EARTH_AUTHALIC_RADIUS       = 6371007.2;
 
     const CLASS_NAMESPACE = 'geoPHP\\';
 
@@ -67,9 +77,19 @@ class geoPHP {
         return self::$geometryList;
     }
 
-    // geoPHP::load($data, $type, $other_args);
-    // if $data is an array, all passed in values will be combined into a single geometry
-    static function load() {
+    /**
+     * Converts data to Geometry using geo adapters
+     *
+     * If $data is an array, all passed in values will be combined into a single geometry
+     *
+     * @param mixed $data The data in any supported format, including geoPHP Geometry
+     * @var null|string $type Data type. Tries to detect if omitted
+     * @var mixed|null $other_args Arguments will be passed to the geo adapter
+     *
+     * @return Collection|Geometry
+     * @throws \Exception
+     */
+    static function load($data) {
         $args = func_get_args();
 
         $data = array_shift($args);
@@ -86,6 +106,7 @@ class geoPHP {
 
             $detected = geoPHP::detectFormat($data);
             if (!$detected) {
+                // FIXME exception instead
                 return false;
             }
             $format = explode(':', $detected);
@@ -96,20 +117,20 @@ class geoPHP {
         if (!array_key_exists($type, self::$adapterMap)) {
             throw new \Exception('geoPHP could not find an adapter of type ' . htmlentities($type));
         }
-        $processor_type = self::CLASS_NAMESPACE . 'Adapter\\' . self::$adapterMap[$type];
+        $adapterType = self::CLASS_NAMESPACE . 'Adapter\\' . self::$adapterMap[$type];
 
-        $processor = new $processor_type();
+        $adapter = new $adapterType();
 
         // Data is not an array, just pass it normally
         if (!is_array($data)) {
-            $result = call_user_func_array(array($processor, "read"), array_merge(array($data), $args));
+            $result = call_user_func_array([$adapter, "read"], array_merge([$data], $args));
         } // Data is an array, combine all passed in items into a single geometry
         else {
-            $geometries = array();
+            $geometries = [];
             foreach ($data as $item) {
-                $geometries[] = call_user_func_array(array($processor, "read"), array_merge($item, $args));
+                $geometries[] = call_user_func_array([$adapter, "read"], array_merge($item, $args));
             }
-            $result = geoPHP::geometryReduce($geometries);
+            $result = geoPHP::buildGeometry($geometries);
         }
 
         return $result;
@@ -120,6 +141,9 @@ class geoPHP {
         if ($force !== null) {
             $geos_installed = $force;
         }
+        if (getenv('GEOS_DISABLED') == 1) {
+            $geos_installed = false;
+        }
         if ($geos_installed !== null) {
             return $geos_installed;
         }
@@ -128,6 +152,11 @@ class geoPHP {
         return $geos_installed;
     }
 
+    /**
+     * @param $geos
+     * @return Geometry|null
+     * @throws \Exception
+     */
     static function geosToGeometry($geos) {
         if (!geoPHP::geosInstalled()) {
             return null;
@@ -270,10 +299,14 @@ class geoPHP {
             if (count($geometries) == 1) {
                 return $geometries[0];
             } else {
-                if (strpos($geometryTypes[0], 'Multi') !== false) {
-                    $class = self::CLASS_NAMESPACE . 'Geometry\\' . $geometryTypes[0];
-                    return new $class($geometries);
+                $newType = (strpos($geometryTypes[0], 'Multi') !== false ? '' : 'Multi') . $geometryTypes[0];
+                foreach ($geometries as $geometry) {
+                    if ($geometry->isEmpty()) {
+                        return new GeometryCollection($geometries);
+                    }
                 }
+                $class = self::CLASS_NAMESPACE . 'Geometry\\' . $newType;
+                return new $class($geometries);
             }
         }
         return new GeometryCollection($geometries);
