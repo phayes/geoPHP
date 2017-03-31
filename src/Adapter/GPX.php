@@ -307,6 +307,7 @@ class GPX implements GeoAdapter {
     protected function geometryToGPX($geometry) {
         switch ($geometry->geometryType()) {
             case Geometry::POINT:
+				/** @var Point $geometry */
                 return $this->pointToGPX($geometry);
             case Geometry::LINE_STRING:
             case Geometry::MULTI_LINE_STRING:
@@ -322,7 +323,7 @@ class GPX implements GeoAdapter {
     }
 
     /**
-     * @param Geometry $geom
+     * @param Point $geom
      * @param string $tag Can be "wpt", "trkpt" or "rtept"
      * @return string
      */

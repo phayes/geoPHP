@@ -15,7 +15,7 @@ class UnsupportedMethodException extends \Exception {
      * @param string|null $message Additional message
      */
     public function __construct($method, $code = 0, $message = null) {
-        $message = 'The method ' . $method . '() is not supported yet.' . ($message) ? ' ' . $message : '';
+        $message = 'The method ' . $method . '() is not supported yet.' . ($message ? ' ' . $message : '');
         parent::__construct($message, $code);
     }
 

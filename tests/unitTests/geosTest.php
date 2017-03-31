@@ -10,7 +10,7 @@ class GeosTests extends PHPUnit_Framework_TestCase {
 
   function testGeos() {
     if (!geoPHP::geosInstalled()) {
-      echo "Skipping GEOS -- not installed";
+      $this->markTestSkipped('GEOS not installed');
       return;
     }
 

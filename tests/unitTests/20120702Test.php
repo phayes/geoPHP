@@ -3,7 +3,7 @@
 use \geoPHP\geoPHP;
 use \geoPHP\Geometry\Geometry;
 
-// FIXME file 20120702.gpx contains one GeometryCollection but _method_tester() only tests Points and LineStrings (ie does nothing)
+// FIXME file 20120702.gpx contains one MultiLineString but _method_tester() also wants to test Points and LineStrings (ie does nothing)
 
 class Tests_20120702 extends PHPUnit_Framework_TestCase {
 
@@ -110,7 +110,6 @@ class Tests_20120702 extends PHPUnit_Framework_TestCase {
           $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          var_dump($geometry->$method_name($argument));
           $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
@@ -144,7 +143,7 @@ class Tests_20120702 extends PHPUnit_Framework_TestCase {
           $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
         }
         if ($geometry->geometryType() == 'MultiLineString') {
-          $this->assertNotNull($geometry->$method_name($argument), $failedOnMessage);
+          $this->assertNull($geometry->$method_name($argument), $failedOnMessage);
         }
         break;
       case 'exteriorRing':
