@@ -204,6 +204,74 @@ class LineString extends Curve {
         return $distance;
     }
 
+    /**
+     * @source https://github.com/mjaschen/phpgeo/blob/master/src/Location/Distance/Vincenty.php
+     * @author Marcus Jaschen <mjaschen@gmail.com>
+     * @license https://opensource.org/licenses/GPL-3.0 GPL
+     * (note: geoPHP uses "GPL version 2 (or later)" license which is compatible with GPLv3)
+     *
+     * @return float Length in meters
+     */
+    function vincentyLength() {
+        $length = 0;
+        $rad = M_PI / 180;
+        $points = $this->getPoints();
+        $numPoints = $this->numPoints() - 1;
+        for ($i = 0; $i < $numPoints; ++$i) {
+            // Inverse Vincenty formula
+            $lat1 = $points[$i]->y() * $rad;
+            $lat2 = $points[$i+1]->y() * $rad;
+            $lng1 = $points[$i]->x() * $rad;
+            $lng2 = $points[$i+1]->x() * $rad;
+
+            $a = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS;
+            $b = geoPHP::EARTH_WGS84_SEMI_MINOR_AXIS;
+            $f = 1 / geoPHP::EARTH_WGS84_FLATTENING;
+            $L  = $lng2 - $lng1;
+            $U1 = atan((1 - $f) * tan($lat1));
+            $U2 = atan((1 - $f) * tan($lat2));
+            $iterationLimit = 100;
+            $lambda         = $L;
+            $sinU1 = sin($U1);
+            $sinU2 = sin($U2);
+            $cosU1 = cos($U1);
+            $cosU2 = cos($U2);
+            do {
+                $sinLambda = sin($lambda);
+                $cosLambda = cos($lambda);
+                $sinSigma = sqrt(
+                        ($cosU2 * $sinLambda) * ($cosU2 * $sinLambda) +
+                        ($cosU1 * $sinU2 - $sinU1 * $cosU2 * $cosLambda) * ($cosU1 * $sinU2 - $sinU1 * $cosU2 * $cosLambda)
+                );
+                if ($sinSigma == 0) {
+                    return 0.0;
+                }
+                $cosSigma = $sinU1 * $sinU2 + $cosU1 * $cosU2 * $cosLambda;
+                $sigma = atan2($sinSigma, $cosSigma);
+                $sinAlpha = $cosU1 * $cosU2 * $sinLambda / $sinSigma;
+                $cosSqAlpha = 1 - $sinAlpha * $sinAlpha;
+                $cos2SigmaM = 0;
+                if ($cosSqAlpha <> 0) {
+                    $cos2SigmaM = $cosSigma - 2 * $sinU1 * $sinU2 / $cosSqAlpha;
+                }
+                $C = $f / 16 * $cosSqAlpha * (4 + $f * (4 - 3 * $cosSqAlpha));
+                $lambdaP = $lambda;
+                $lambda = $L + (1 - $C) * $f * $sinAlpha * ($sigma + $C * $sinSigma * ($cos2SigmaM + $C * $cosSigma * (- 1 + 2 * $cos2SigmaM * $cos2SigmaM)));
+            } while (abs($lambda - $lambdaP) > 1e-12 && -- $iterationLimit > 0);
+            if ($iterationLimit == 0) {
+                return null; // not converging
+            }
+            $uSq        = $cosSqAlpha * ($a * $a - $b * $b) / ($b * $b);
+            $A          = 1 + $uSq / 16384 * (4096 + $uSq * (- 768 + $uSq * (320 - 175 * $uSq)));
+            $B          = $uSq / 1024 * (256 + $uSq * (- 128 + $uSq * (74 - 47 * $uSq)));
+            $deltaSigma = $B * $sinSigma * ($cos2SigmaM + $B / 4 * ($cosSigma * (- 1 + 2 * $cos2SigmaM * $cos2SigmaM) - $B / 6 * $cos2SigmaM * (- 3 + 4 * $sinSigma * $sinSigma) * (- 3 + 4 * $cos2SigmaM * $cos2SigmaM)));
+
+            $length += $b * $A * ($sigma - $deltaSigma);
+        }
+        // Returns length in meters.
+        return $length;
+    }
+
 	public function minimumZ() {
 		$min = PHP_INT_MAX;
 		foreach ($this->getPoints() as $point) {

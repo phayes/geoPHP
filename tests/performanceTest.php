@@ -124,6 +124,13 @@ for($i=1; $i <= 10; $i++) {
 }
 testEnd($res);
 
+testStart("Test LineString::vincentyLength() 10 times:");
+for($i=1; $i <= 10; $i++) {
+    $res = $lineString->vincentyLength();
+}
+testEnd($res);
+
+
 
 
 //////////////////////////////////////////////////////////////////////////
