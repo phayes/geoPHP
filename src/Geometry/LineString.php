@@ -1,18 +1,20 @@
 <?php
 
 namespace geoPHP\Geometry;
+use geoPHP\Exception\InvalidGeometryException;
 use geoPHP\geoPHP;
 
 /**
- * LineString. A collection of Points representing a line.
- * A line can have more than one segment.
+ * A LineString is defined by a sequence of points, (X,Y) pairs, which define the reference points of the line string.
+ * Linear interpolation between the reference points defines the resulting linestring.
  *
  * @method Point[] getComponents()
  */
-class LineString extends Collection {
+class LineString extends Curve {
 
-    private $startPoint = null;
-    private $endPoint = null;
+    public function geometryType() {
+        return Geometry::LINE_STRING;
+    }
 
     /**
      * Constructor
@@ -21,50 +23,28 @@ class LineString extends Collection {
      * which to build the LineString
      * @throws \Exception
      */
-    public function __construct($points = array()) {
-        if (count($points) == 1) {
-            throw new \Exception("Cannot construct a LineString with a single point");
-        }
-
+    public function __construct($points = []) {
         // Call the Collection constructor to build the LineString
         parent::__construct($points);
-    }
 
-    public function geometryType() {
-        return Geometry::LINE_STRING;
-    }
-
-    public function dimension() {
-        return 1;
-    }
-
-    // The boundary of a linestring is itself
-    public function boundary() {
-        return $this;
-    }
-
-    public function startPoint() {
-        if (!isset($this->startPoint)) {
-            $this->startPoint = $this->pointN(1);
+        if (count($points) == 1) {
+            throw new InvalidGeometryException("Cannot construct a LineString with a single point");
         }
-        return $this->startPoint;
     }
 
-    public function endPoint() {
-        if (!isset($this->endPoint)) {
-            $this->endPoint = $this->pointN($this->numPoints());
+    public static function fromArray($array) {
+        $points = [];
+        foreach ($array as $point) {
+            $points[] = Point::fromArray($point);
         }
-        return $this->endPoint;
+        return new static($points);
     }
 
-    public function isClosed() {
-        return ($this->startPoint() && $this->endPoint() ? $this->startPoint()->equals($this->endPoint()) : false);
-    }
-
-    public function isRing() {
-        return ($this->isClosed() && $this->isSimple());
-    }
-
+    /**
+     * Returns the number of points of the LineString
+     *
+     * @return int
+     */
     public function numPoints() {
         return count($this->components);
     }
@@ -82,17 +62,13 @@ class LineString extends Collection {
 				: $this->geometryN(count($this->components) - abs($n + 1));
     }
 
-    public function area() {
-        return 0;
-    }
-
     public function centroid() {
         return $this->getCentroidAndLength();
     }
 
     public function getCentroidAndLength(&$length=0) {
         if ($this->isEmpty()) {
-            return null;
+            return new Point();
         }
 
         if ($this->getGeos()) {
@@ -137,7 +113,7 @@ class LineString extends Collection {
         $length = 0;
         /** @var Point $previousPoint */
         $previousPoint = null;
-        foreach ($this->getPoints() as $delta => $point) {
+        foreach ($this->getPoints() as $point) {
             if ($previousPoint) {
 				$length += sqrt(
 						pow(($previousPoint->x() - $point->x()), 2) +
@@ -153,7 +129,7 @@ class LineString extends Collection {
         $length = 0;
 		/** @var Point $previousPoint */
 		$previousPoint = null;
-		foreach ($this->getPoints() as $delta => $point) {
+		foreach ($this->getPoints() as $point) {
 			if ($previousPoint) {
 				$length += sqrt(
 						pow(($previousPoint->x() - $point->x()), 2) +
@@ -167,39 +143,36 @@ class LineString extends Collection {
     }
 
 	/**
-	 * @param int $radius Earth radius
-	 * @return float Great Circle length in meters
+	 * @param float|null $radius Earth radius
+	 * @return float Length in meters
 	 */
-	public function greatCircleLength($radius = geoPHP::EARTH_EQUATORIAL_RADIUS) {
+	public function greatCircleLength($radius = geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS) {
 		$length = 0;
+        $rad = M_PI / 180;
 		$points = $this->getPoints();
-		for ($i = 0; $i < $this->numPoints() - 1; $i++) {
-			$point = $points[$i];
-			$nextPoint = $points[$i + 1];
-			if (!is_object($nextPoint)) {
-				continue;
-			}
-			// Great circle method
-			$lat1 = deg2rad($point->y());
-			$lat2 = deg2rad($nextPoint->y());
-			$lon1 = deg2rad($point->x());
-			$lon2 = deg2rad($nextPoint->x());
-			$dlon = $lon2 - $lon1;
+        $numPoints = $this->numPoints() - 1;
+		for ($i = 0; $i < $numPoints; ++$i) {
+			// Simplified Vincenty formula with equal major and minor axes (a sphere)
+			$lat1 = $points[$i]->y() * $rad;
+			$lat2 = $points[$i+1]->y() * $rad;
+			$lon1 = $points[$i]->x() * $rad;
+			$lon2 = $points[$i+1]->x() * $rad;
+			$deltaLon = $lon2 - $lon1;
 			$d =
 					$radius *
 					atan2(
 							sqrt(
-									pow(cos($lat2) * sin($dlon), 2) +
-									pow(cos($lat1) * sin($lat2) - sin($lat1) * cos($lat2) * cos($dlon), 2)
+									pow(cos($lat2) * sin($deltaLon), 2) +
+									pow(cos($lat1) * sin($lat2) - sin($lat1) * cos($lat2) * cos($deltaLon), 2)
 							)
 							,
 							sin($lat1) * sin($lat2) +
-							cos($lat1) * cos($lat2) * cos($dlon)
+							cos($lat1) * cos($lat2) * cos($deltaLon)
 					);
-			if ($point->hasZ() && $nextPoint->hasZ()) {
+			if ($points[$i]->is3D()) {
 				$d = sqrt(
 						pow($d, 2) +
-						pow($nextPoint->z() - $point->z(), 2)
+						pow($points[$i+1]->z() - $points[$i]->z(), 2)
 				);
 			}
 
@@ -213,48 +186,21 @@ class LineString extends Collection {
 	 * @return float Haversine length of geometry in degrees
 	 */
     public function haversineLength() {
-        $degrees = 0;
+        $distance = 0;
         $points = $this->getPoints();
-        for ($i = 0; $i < $this->numPoints() - 1; $i++) {
+        $numPoints = $this->numPoints() - 1;
+        for ($i = 0; $i < $numPoints; ++$i) {
             $point = $points[$i];
             $next_point = $points[$i + 1];
-            if (!is_object($next_point)) {
-                continue;
-            }
-            $degree = geoPHP::EARTH_EQUATORIAL_RADIUS * (
+            $degree = (geoPHP::EARTH_WGS84_SEMI_MAJOR_AXIS *
                     acos(
                             sin(deg2rad($point->y())) * sin(deg2rad($next_point->y())) +
                             cos(deg2rad($point->y())) * cos(deg2rad($next_point->y())) *
                             cos(deg2rad(abs($point->x() - $next_point->x())))
                     )
             );
-            $degrees += $degree;
+            $distance += $degree;
         }
-        // Returns degrees
-        return $degrees;
-    }
-
-    /**
-     * @return float Haversine length of geometry in degrees
-     */
-    public function haversineLength2() {
-        $distance = 0;
-        $points = $this->getPoints();
-        for ($i = 0; $i < $this->numPoints() - 1; $i++) {
-            $point = $points[$i];
-            $next_point = $points[$i + 1];
-            if (!is_object($next_point)) {
-                continue;
-            }
-            $distance = geoPHP::EARTH_EQUATORIAL_RADIUS *
-                    asin(sqrt(
-                            pow(sin((deg2rad($next_point->y()) - deg2rad($point->y())) / 2), 2) +
-                            cos(deg2rad($point->y())) * cos(deg2rad($next_point->y())) *
-                            pow(sin((deg2rad($next_point->x()) - deg2rad($point->x())) / 2), 2)
-                    ));
-            $distance += $distance;
-        }
-        // Returns degrees
         return $distance;
     }
 
@@ -356,7 +302,6 @@ class LineString extends Collection {
         return $max > ~PHP_INT_MAX ? $max : null;
     }
 
-
     /**
      * Get all line segments
      * @param bool $toArray return segments as LineString or array of start and end points
@@ -364,45 +309,40 @@ class LineString extends Collection {
      * @return LineString[]|array[Point]
      */
     public function explode($toArray=false) {
-        $parts = array();
         $points = $this->getPoints();
-        if (!$toArray) {
-            foreach ($points as $i => $point) {
-                if (isset($points[$i + 1])) {
-                    $parts[] = new LineString(array($point, $points[$i + 1]));
-                }
-            }
-        } else {
-            if (count($points) < 2) {
-                return [];
-            }
-            $lastPoint = $points[0];
-            for ($i=1; $i < count($points); $i++) {
-                $parts[] = [$lastPoint, $points[$i]];
-                $lastPoint = $points[$i];
-            }}
+        $numPoints = count($points);
+        if ($numPoints < 2) {
+            return [];
+        }
+        $parts = [];
+        for ($i = 1; $i < $numPoints; ++$i) {
+            $segment = [$points[$i - 1], $points[$i]];
+            $parts[] = $toArray ? $segment : new LineString($segment);
+        }
         return $parts;
     }
 
     /**
      * Checks that LineString is a Simple Geometry
-     * @return boolean
      *
-     * @see http://lists.osgeo.org/pipermail/postgis-devel/attachments/20041222/f8c95036/attachment.obj
+     * @return boolean
      */
     public function isSimple() {
         if ($this->getGeos()) {
-			/** @noinspection PhpUndefinedMethodInspection */
+            /** @noinspection PhpUndefinedMethodInspection */
             return $this->getGeos()->isSimple();
         }
 
-        if ($this->hasZ()
-                && $this->startPoint()->equals($this->endPoint())
-                && $this->startPoint()->z() !== $this->endPoint()->z()) {
-            return false;
-        }
+        // As of OGR specification a ring is simple only if its start and end points equals in all coordinates
+        // Neither GEOS, nor PostGIS support it
+//        if ($this->hasZ()
+//                && $this->startPoint()->equals($this->endPoint())
+//                && $this->startPoint()->z() !== $this->endPoint()->z()
+//        ) {
+//            return false;
+//        }
 
-		$segments = $this->explode(true);
+        $segments = $this->explode(true);
         foreach ($segments as $i => $segment) {
             foreach ($segments as $j => $check_segment) {
                 if ($i != $j) {
@@ -415,10 +355,10 @@ class LineString extends Collection {
         return true;
     }
 
-	/**
-	 * @param $segment LineString
-	 * @return bool
-	 */
+    /**
+     * @param $segment LineString
+     * @return bool
+     */
     public function lineSegmentIntersect($segment) {
         return Geometry::segmentIntersects(
                 $this->startPoint(), $this->endPoint(),

@@ -9,24 +9,15 @@ use geoPHP\geoPHP;
  *
  * @method LineString[] getComponents()
  */
-class MultiLineString extends Collection {
+class MultiLineString extends MultiCurve {
+
+    /**
+     * @var LineString[] The elements of a MultiLineString are LineStrings
+     */
+    protected $components = [];
 
     public function geometryType() {
         return Geometry::MULTI_LINE_STRING;
-    }
-
-    public function dimension() {
-        return 1;
-    }
-
-    // MultiLineString is closed if all it's components are closed
-    public function isClosed() {
-        foreach ($this->getComponents() as $line) {
-            if (!$line->isClosed()) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public function centroid() {
@@ -43,11 +34,11 @@ class MultiLineString extends Collection {
         $y = 0;
         $totalLength = 0;
         $components = $this->getComponents();
-        foreach($components as $component) {
-            if ($component->isEmpty()) {
+        foreach($components as $line) {
+            if ($line->isEmpty()) {
                 continue;
             }
-            $componentCentroid = $component->getCentroidAndLength($componentLength);
+            $componentCentroid = $line->getCentroidAndLength($componentLength);
             $x += $componentCentroid->x() * $componentLength;
             $y += $componentCentroid->y() * $componentLength;
             $totalLength += $componentLength;
@@ -56,6 +47,22 @@ class MultiLineString extends Collection {
             return $this->getPoints()[0];
         }
         return new Point($x / $totalLength, $y / $totalLength);
+    }
+
+    /**
+     * The boundary of a MultiLineString is a MultiPoint consists of the start and end points of its non-closed LineStrings
+     *
+     * @return MultiPoint
+     */
+    public function boundary() {
+        $points = [];
+        foreach ($this->components as $line) {
+            if (!$line->isEmpty() && !$line->isClosed()) {
+                $points[] = $line->startPoint();
+                $points[] = $line->endPoint();
+            }
+        }
+        return new MultiPoint($points);
     }
 
 }

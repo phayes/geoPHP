@@ -9,14 +9,10 @@ use geoPHP\geoPHP;
  *
  * @method Polygon[] getComponents()
  */
-class MultiPolygon extends Collection {
+class MultiPolygon extends MultiSurface {
 
     public function geometryType() {
         return Geometry::MULTI_POLYGON;
-    }
-
-    public function dimension() {
-        return 2;
     }
 
     public function centroid() {
@@ -43,5 +39,26 @@ class MultiPolygon extends Collection {
             $y += $componentCentroid->y() * $componentArea;
         }
         return new Point($x / $totalArea, $y / $totalArea);
+    }
+
+    public function area() {
+        if ($this->getGeos()) {
+            /** @noinspection PhpUndefinedMethodInspection */
+            return $this->getGeos()->area();
+        }
+
+        $area = 0;
+        foreach ($this->components as $component) {
+            $area += $component->area();
+        }
+        return $area;
+    }
+
+    public function boundary() {
+        $rings = [];
+        foreach ($this->getComponents() as $component) {
+            $rings = array_merge($rings, $component->components);
+        }
+        return new MultiLineString($rings);
     }
 }

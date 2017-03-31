@@ -2,6 +2,8 @@
 
 namespace geoPHP\Geometry;
 
+use geoPHP\Exception\InvalidGeometryException;
+use geoPHP\Exception\UnsupportedMethodException;
 use geoPHP\geoPHP;
 
 /**
@@ -10,7 +12,7 @@ use geoPHP\geoPHP;
  *
  * @method LineString[] getComponents()
  */
-class Polygon extends Collection {
+class Polygon extends Surface {
 
     /**
      * @param LineString[] $components
@@ -22,13 +24,13 @@ class Polygon extends Collection {
 
         foreach ($this->getComponents() as $i => $component) {
             if ($component->numPoints() < 4) {
-                throw new \Exception('Cannot create Polygon: Invalid number of points in LinearRing. Found ' . $component->numPoints() . ', expected more than 3 or 0');
+                throw new InvalidGeometryException('Cannot create Polygon: Invalid number of points in LinearRing. Found ' . $component->numPoints() . ', expected more than 3');
             }
             if (!$component->isClosed()) {
                 if ($forceCreate) {
                     $this->components[$i] = new LineString(array_merge($component->getComponents(), [$component->startPoint()]));
                 } else {
-                    throw new \Exception('Cannot create Polygon: contains non-closed ring (first point: '
+                    throw new InvalidGeometryException('Cannot create Polygon: contains non-closed ring (first point: '
                             . implode(' ', $component->startPoint()->asArray()) . ', last point: '
                             . implode(' ', $component->endPoint()->asArray()) .')');
                 }
@@ -92,9 +94,12 @@ class Polygon extends Collection {
         return (float) $area;
     }
 
+    /**
+     * @return Point
+     */
     public function centroid() {
         if ($this->isEmpty()) {
-            return null;
+            return new Point();
         }
 
         if ($this->getGeos()) {
@@ -333,8 +338,9 @@ class Polygon extends Collection {
         return $this->exteriorRing()->getBBox();
     }
 
-    public function length() {
-        return null;
+    public function boundary() {
+        // TODO: Implement boundary() method.
+        throw new UnsupportedMethodException(__METHOD__);
     }
 
 }
