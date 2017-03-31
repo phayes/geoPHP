@@ -14,7 +14,7 @@ install:
 
 script: 
   - cd tests
-  - ../vendor/bin/phpunit --verbose --colors --stderr unitTests
+  - GEOS_DISABLED=1 ../vendor/bin/phpunit
   - php test.php
 
 # run tests on the following versions
