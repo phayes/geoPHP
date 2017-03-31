@@ -88,6 +88,10 @@ class LineStringTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($line2->isEmpty());
     }
 
+    public function testDimension() {
+        $this->assertSame((new LineString())->dimension(), 1);
+    }
+
     /**
      * @dataProvider providerValidComponents
      *

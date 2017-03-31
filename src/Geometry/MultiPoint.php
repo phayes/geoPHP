@@ -70,7 +70,7 @@ class MultiPoint extends MultiGeometry {
 
     public function centroid() {
         if ($this->isEmpty()) {
-            return null;
+            return new Point();
         }
 
         if ($this->getGeos()) {
