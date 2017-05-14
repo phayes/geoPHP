@@ -23,7 +23,7 @@ message. Forks are also welcome, please issue pull requests and I will merge the
 Getting Started
 -----------------------
 
- * The lastest stable version can always be downloaded at: <https://phayes.github.io/bin/current/geoPHP/geoPHP.tar.gz>
+ * The latest stable version can always be downloaded at: <https://phayes.github.io/bin/current/geoPHP/geoPHP.tar.gz>
  * Read the API Reference at: <https://geophp.net/api.html>
  * Examples
    * Using geoPHP as a GIS format converter: <http://github.com/phayes/geoPHP/wiki/Example-format-converter>
