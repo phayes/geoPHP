@@ -1,27 +1,26 @@
 <?php
-require_once __DIR__ . '/../../geoPHP.inc';
 
-class GeosTest extends PHPUnit_Framework_TestCase
+namespace GeoPHPTests;
+
+use GeoPHP\GeoPHP;
+
+class GeoTest extends \PHPUnit_Framework_TestCase
 {
 
-    function setUp()
+    public function testGeos()
     {
-    }
-
-    function testGeos()
-    {
-        if (!geoPHP::geosInstalled()) {
+        if (!GeoPHP::geosInstalled()) {
             echo 'Skipping GEOS -- not installed';
 
             return;
         }
-        foreach (scandir(__DIR__.'/../input') as $file) {
+        foreach (scandir(__DIR__ . '/../input') as $file) {
             $parts = explode('.', $file);
             if ($parts[0]) {
                 $format = $parts[1];
-                $value = file_get_contents(__DIR__.'/../input/' . $file);
+                $value = file_get_contents(__DIR__ . '/../input/' . $file);
                 echo "\nloading: " . $file . " for format: " . $format;
-                $geometry = geoPHP::load($value, $format);
+                $geometry = GeoPHP::load($value, $format);
 
                 $geosMethods = [
                     ['name' => 'geos'],
@@ -101,9 +100,9 @@ class GeosTest extends PHPUnit_Framework_TestCase
                                     'Failed on ' . $method_name . ' (test file: ' . $file . ')'
                                 );
                             }
+                            break;
                     }
                 }
-
             }
         }
     }

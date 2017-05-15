@@ -1,4 +1,7 @@
 <?php
+
+namespace GeoPHP\Adapter;
+
 /*
  * Copyright (c) Patrick Hayes
  * Copyright (c) 2010-2011, Arnaud Renevier
@@ -7,6 +10,12 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\GeometryCollection;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\Point;
+use GeoPHP\Geometry\Polygon;
+use GeoPHP\GeoPHP;
 
 /**
  * PHP Geometry/KML encoder/decoder
@@ -57,18 +66,18 @@ class KML extends GeoAdapter
         $text = preg_replace('/<!\[cdata\[(.*?)\]\]>/s', '', $text);
 
         // Load into DOMDocument
-        $xmlobj = new DOMDocument();
+        $xmlobj = new \DOMDocument();
         @$xmlobj->loadXML($text);
         if ($xmlobj === false) {
-            throw new Exception("Invalid KML: " . $text);
+            throw new \Exception('Invalid KML: ' . $text);
         }
 
         $this->xmlobj = $xmlobj;
         try {
             $geom = $this->geomFromXML();
-        } catch (InvalidText $e) {
-            throw new Exception("Cannot Read Geometry From KML: " . $text);
-        } catch (Exception $e) {
+        } catch (\InvalidText $e) {
+            throw new \Exception('Cannot Read Geometry From KML: ' . $text);
+        } catch (\Exception $e) {
             throw $e;
         }
 
@@ -78,7 +87,7 @@ class KML extends GeoAdapter
     protected function geomFromXML()
     {
         $geometries = [];
-        $geom_types = geoPHP::geometryList();
+        $geom_types = GeoPHP::geometryList();
         $placemark_elements = $this->xmlobj->getElementsByTagName('placemark');
         if ($placemark_elements->length) {
             foreach ($placemark_elements as $placemark) {
@@ -100,7 +109,7 @@ class KML extends GeoAdapter
             }
         }
 
-        return geoPHP::geometryReduce($geometries);
+        return GeoPHP::geometryReduce($geometries);
     }
 
     protected function childElements($xml, $nodename = '')
@@ -122,9 +131,9 @@ class KML extends GeoAdapter
         $coordinates = $this->_extractCoordinates($xml);
         if (!empty($coordinates)) {
             return new Point($coordinates[0][0], $coordinates[0][1]);
-        } else {
-            return new Point();
         }
+
+        return new Point();
     }
 
     protected function parseLineString($xml)
@@ -152,7 +161,7 @@ class KML extends GeoAdapter
         $components[] = $this->parseLineString($outer_ring_element);
 
         if (count($components) != 1) {
-            throw new Exception("Invalid KML");
+            throw new \Exception("Invalid KML");
         }
 
         $inner_boundary_element_a = $this->childElements($xml, 'innerboundaryis');
@@ -170,7 +179,7 @@ class KML extends GeoAdapter
     protected function parseGeometryCollection($xml)
     {
         $components = [];
-        $geom_types = geoPHP::geometryList();
+        $geom_types = GeoPHP::geometryList();
         foreach ($xml->childNodes as $child) {
             $nodeName = ($child->nodeName == 'linearring') ? 'linestring' : $child->nodeName;
             if (array_key_exists($nodeName, $geom_types)) {
@@ -228,8 +237,8 @@ class KML extends GeoAdapter
     {
         $out = '<' . $this->nss . 'Point>';
         if (!$geom->isEmpty()) {
-            $out .= '<' . $this->nss . 'coordinates>' . $geom->getX() . "," . $geom->getY(
-                ) . '</' . $this->nss . 'coordinates>';
+            $out .= '<' . $this->nss . 'coordinates>' . $geom->getX() . ',' . $geom->getY()
+                . '</' . $this->nss . 'coordinates>';
         }
         $out .= '</' . $this->nss . 'Point>';
 

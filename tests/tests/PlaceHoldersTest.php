@@ -1,9 +1,12 @@
 <?php
-require_once __DIR__ . '/../../geoPHP.inc';
 
-class PlaceholdersTest extends PHPUnit_Framework_TestCase
+namespace GeoPHPTests;
+
+use GeoPHP\GeoPHP;
+
+class PlaceHoldersTest extends \PHPUnit_Framework_TestCase
 {
-    function testPlaceholders()
+    public function testPlaceholders()
     {
         foreach (scandir(__DIR__ . '/../input') as $file) {
             $parts = explode('.', $file);
@@ -11,7 +14,7 @@ class PlaceholdersTest extends PHPUnit_Framework_TestCase
                 $format = $parts[1];
                 $value = file_get_contents(__DIR__ . '/../input/' . $file);
                 echo "\nloading: " . $file . ' for format: ' . $format;
-                $geometry = geoPHP::load($value, $format);
+                $geometry = GeoPHP::load($value, $format);
 
                 $placeholders = [
                     ['name' => 'hasZ'],
@@ -59,7 +62,6 @@ class PlaceholdersTest extends PHPUnit_Framework_TestCase
                         case 'is3D':
                     }
                 }
-
             }
         }
     }

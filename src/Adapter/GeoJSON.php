@@ -1,5 +1,17 @@
 <?php
 
+namespace GeoPHP\Adapter;
+
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\GeometryCollection;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\MultiLineString;
+use GeoPHP\Geometry\MultiPoint;
+use GeoPHP\Geometry\MultiPolygon;
+use GeoPHP\Geometry\Point;
+use GeoPHP\Geometry\Polygon;
+use GeoPHP\GeoPHP;
+
 /**
  * GeoJSON class : a geojson reader/writer.
  * Note that it will always return a GeoJSON geometry. This
@@ -20,10 +32,10 @@ class GeoJSON extends GeoAdapter
             $input = json_decode($input);
         }
         if (!is_object($input)) {
-            throw new Exception('Invalid JSON');
+            throw new \Exception('Invalid JSON');
         }
         if (!is_string($input->type)) {
-            throw new Exception('Invalid JSON');
+            throw new \Exception('Invalid JSON');
         }
 
         // Check to see if it's a FeatureCollection
@@ -33,7 +45,7 @@ class GeoJSON extends GeoAdapter
                 $geoms[] = $this->read($feature);
             }
 
-            return geoPHP::geometryReduce($geoms);
+            return GeoPHP::geometryReduce($geoms);
         }
 
         // Check to see if it's a Feature
@@ -120,7 +132,7 @@ class GeoJSON extends GeoAdapter
     {
         $geoms = [];
         if (empty($obj->geometries)) {
-            throw new Exception('Invalid GeoJSON: GeometryCollection with no component geometries');
+            throw new \Exception('Invalid GeoJSON: GeometryCollection with no component geometries');
         }
         foreach ($obj->geometries as $comp_object) {
             $geoms[] = $this->objToGeom($comp_object);

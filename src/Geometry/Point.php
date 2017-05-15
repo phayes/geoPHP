@@ -1,5 +1,7 @@
 <?php
 
+namespace GeoPHP\Geometry;
+
 /**
  * Point: The most basic geometry type. All other geometries
  * are built out of Points.
@@ -32,13 +34,13 @@ class Point extends Geometry
 
         // Basic validation on x and y
         if (!is_numeric($x) || !is_numeric($y)) {
-            throw new Exception("Cannot construct Point. x and y should be numeric");
+            throw new \Exception('Cannot construct Point. x and y should be numeric');
         }
 
         // Check to see if this is a 3D point
         if ($z !== null) {
             if (!is_numeric($z)) {
-                throw new Exception("Cannot construct Point. z should be numeric");
+                throw new \Exception('Cannot construct Point. z should be numeric');
             }
             $this->dimension = 3;
         }
@@ -86,9 +88,9 @@ class Point extends Geometry
     {
         if ($this->dimension == 3) {
             return $this->coords[2];
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     /**
@@ -179,7 +181,7 @@ class Point extends Geometry
 
     public function equals($geometry)
     {
-        if (get_class($geometry) != 'Point') {
+        if (get_class($geometry) !== 'Point') {
             return false;
         }
         if (!$this->isEmpty() && !$geometry->isEmpty()) {
@@ -189,13 +191,12 @@ class Point extends Geometry
              * @see: http://tubalmartin.github.io/spherical-geometry-php/#LatLng
              */
             return (abs($this->x() - $geometry->x()) <= 1.0E-9 && abs($this->y() - $geometry->y()) <= 1.0E-9);
-        } else {
-            if ($this->isEmpty() && $geometry->isEmpty()) {
-                return true;
-            } else {
-                return false;
-            }
         }
+        if ($this->isEmpty() && $geometry->isEmpty()) {
+            return true;
+        }
+
+        return false;
     }
 
     public function isSimple()
@@ -264,4 +265,3 @@ class Point extends Geometry
         return null;
     }
 }
-

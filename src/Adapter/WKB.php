@@ -1,4 +1,7 @@
 <?php
+
+namespace GeoPHP\Adapter;
+
 /*
  * (c) Patrick Hayes
  *
@@ -6,6 +9,14 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\GeometryCollection;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\MultiLineString;
+use GeoPHP\Geometry\MultiPoint;
+use GeoPHP\Geometry\MultiPolygon;
+use GeoPHP\Geometry\Point;
+use GeoPHP\Geometry\Polygon;
 
 /**
  * PHP Geometry/WKB encoder/decoder
@@ -27,6 +38,7 @@ class WKB extends GeoAdapter
      * @param bool $is_hex_string
      *   If this is a hexedecimal string that is in need of packing
      * @return Geometry
+     * @throws \Exception
      */
     public function read($wkb, $is_hex_string = false)
     {
@@ -35,7 +47,7 @@ class WKB extends GeoAdapter
         }
 
         if (empty($wkb)) {
-            throw new Exception('Cannot read empty WKB geometry. Found ' . gettype($wkb));
+            throw new \Exception('Cannot read empty WKB geometry. Found ' . gettype($wkb));
         }
 
         $mem = fopen('php://memory', 'r+');
@@ -48,11 +60,16 @@ class WKB extends GeoAdapter
         return $geometry;
     }
 
-    function getGeometry(&$mem)
+    /**
+     * @param $mem
+     * @return GeometryCollection|MultiLineString|MultiPoint|MultiPolygon|Polygon
+     * @throws \Exception
+     */
+    public function getGeometry(&$mem)
     {
         $base_info = unpack("corder/ctype/cz/cm/cs", fread($mem, 5));
         if ($base_info['order'] !== 1) {
-            throw new Exception('Only NDR (little endian) SKB format is supported at the moment');
+            throw new \Exception('Only NDR (little endian) SKB format is supported at the moment');
         }
 
         if ($base_info['z']) {
@@ -87,17 +104,21 @@ class WKB extends GeoAdapter
         }
     }
 
-    function getPoint(&$mem)
+    /**
+     * @param $mem
+     * @return Point
+     */
+    public function getPoint(&$mem)
     {
-        $point_coords = unpack("d*", fread($mem, $this->dimension * 8));
+        $point_coords = unpack('d*', fread($mem, $this->dimension * 8));
         if (!empty($point_coords)) {
             return new Point($point_coords[1], $point_coords[2]);
-        } else {
-            return new Point(); // EMPTY point
         }
+
+        return new Point(); // EMPTY point
     }
 
-    function getLinstring(&$mem)
+    public function getLinstring(&$mem)
     {
         // Get the number of points expected in this string out of the first 4 bytes
         $line_length = unpack('L', fread($mem, 4));
@@ -122,7 +143,7 @@ class WKB extends GeoAdapter
         return new LineString($components);
     }
 
-    function getPolygon(&$mem)
+    public function getPolygon(&$mem)
     {
         // Get the number of linestring expected in this poly out of the first 4 bytes
         $poly_length = unpack('L', fread($mem, 4));
@@ -137,7 +158,7 @@ class WKB extends GeoAdapter
         return new Polygon($components);
     }
 
-    function getMulti(&$mem, $type)
+    public function getMulti(&$mem, $type)
     {
         // Get the number of items expected in this multi out of the first 4 bytes
         $multi_length = unpack('L', fread($mem, 4));
@@ -249,7 +270,7 @@ class WKB extends GeoAdapter
         return $wkb;
     }
 
-    function writeMulti($geometry)
+    public function writeMulti($geometry)
     {
         // Set the number of components
         $wkb = pack('L', $geometry->numGeometries());
@@ -261,5 +282,4 @@ class WKB extends GeoAdapter
 
         return $wkb;
     }
-
 }

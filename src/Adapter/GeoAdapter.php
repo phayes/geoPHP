@@ -7,6 +7,10 @@
  * file that was distributed with this source code.
  */
 
+namespace GeoPHP\Adapter;
+
+use GeoPHP\Geometry\Geometry;
+
 /**
  * GeoAdapter : abstract class which represents an adapter
  * for reading and writing to and from Geomtry objects
@@ -23,6 +27,7 @@ abstract class GeoAdapter
     /**
      * Write out a Geomtry or GeometryCollection in the adapter's format
      *
+     * @param Geometry $geometry
      * @return mixed
      */
     abstract public function write(Geometry $geometry);

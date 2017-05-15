@@ -1,5 +1,7 @@
 <?php
 
+namespace GeoPHP\Geometry;
+
 /**
  * LineString. A collection of Points representing a line.
  * A line can have more than one segment.
@@ -11,13 +13,13 @@ class LineString extends Collection
     /**
      * Constructor
      *
-     * @param array $points An array of at least two points with
-     * which to build the LineString
+     * @param array $points An array of at least two points with which to build the LineString
+     * @throws \Exception
      */
     public function __construct($points = [])
     {
         if (count($points) == 1) {
-            throw new Exception("Cannot construct a LineString with a single point");
+            throw new \Exception('Cannot construct a LineString with a single point');
         }
 
         // Call the Collection constructor to build the LineString

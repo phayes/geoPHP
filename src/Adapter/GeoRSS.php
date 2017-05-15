@@ -7,6 +7,14 @@
  * file that was distributed with this source code.
  */
 
+namespace GeoPHP\Adapter;
+
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\Point;
+use GeoPHP\Geometry\Polygon;
+use GeoPHP\GeoPHP;
+
 /**
  * PHP Geometry/GeoRSS encoder/decoder
  */
@@ -31,6 +39,7 @@ class GeoRSS extends GeoAdapter
      * Serialize geometries into a GeoRSS string.
      *
      * @param Geometry $geometry
+     * @param bool $namespace
      * @return string The georss string representation of the input geometries
      */
     public function write(Geometry $geometry, $namespace = false)
@@ -50,18 +59,18 @@ class GeoRSS extends GeoAdapter
         $text = preg_replace('/<!\[cdata\[(.*?)\]\]>/s', '', $text);
 
         // Load into DOMDOcument
-        $xmlobj = new DOMDocument();
+        $xmlobj = new \DOMDocument();
         @$xmlobj->loadXML($text);
         if ($xmlobj === false) {
-            throw new Exception("Invalid GeoRSS: " . $text);
+            throw new \Exception('Invalid GeoRSS: ' . $text);
         }
 
         $this->xmlobj = $xmlobj;
         try {
             $geom = $this->geomFromXML();
-        } catch (InvalidText $e) {
-            throw new Exception("Cannot Read Geometry From GeoRSS: " . $text);
-        } catch (Exception $e) {
+        } catch (\InvalidText $e) {
+            throw new \Exception('Cannot Read Geometry From GeoRSS: ' . $text);
+        } catch (\Exception $e) {
             throw $e;
         }
 
@@ -78,10 +87,10 @@ class GeoRSS extends GeoAdapter
         $geometries = array_merge($geometries, $this->parseCircles());
 
         if (empty($geometries)) {
-            throw new Exception("Invalid / Empty GeoRSS");
+            throw new \Exception('Invalid / Empty GeoRSS');
         }
 
-        return geoPHP::geometryReduce($geometries);
+        return GeoPHP::geometryReduce($geometries);
     }
 
     protected function getPointsFromCoords($string)
@@ -257,7 +266,6 @@ class GeoRSS extends GeoAdapter
     public function collectionToGeoRSS($geom)
     {
         $georss = '<' . $this->nss . 'where>';
-        $components = $geom->getComponents();
         foreach ($geom->getComponents() as $comp) {
             $georss .= $this->geometryToGeoRSS($comp);
         }

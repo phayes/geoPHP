@@ -1,13 +1,16 @@
 <?php
-require_once __DIR__ . '/../../geoPHP.inc';
 
-class BasicTest extends PHPUnit_Framework_TestCase
+namespace GeoPHPTests;
+
+use GeoPHP\GeoPHP;
+
+class BasicTest extends \PHPUnit_Framework_TestCase
 {
-    function testMethods()
+    public function testMethods()
     {
         $format = 'gpx';
         $value = file_get_contents(__DIR__ . '/../input/20120702.gpx');
-        $geometry = geoPHP::load($value, $format);
+        $geometry = GeoPHP::load($value, $format);
 
         $methods = [
             ['name' => 'area'],
@@ -46,7 +49,7 @@ class BasicTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    function _methods_tester($geometry, $method_name, $argument)
+    public function _methods_tester($geometry, $method_name, $argument)
     {
 
         if (!method_exists($geometry, $method_name)) {

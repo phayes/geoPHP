@@ -1,5 +1,12 @@
 <?php
 
+namespace GeoPHP\Adapter;
+
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\Point;
+use GeoPHP\Geometry\Polygon;
+
 /**
  * PHP Geometry GeoHash encoder/decoder.
  *
@@ -69,7 +76,7 @@ class GeoHash extends GeoAdapter
     /**
      * Convert the geohash to a Point. The point is 2-dimensional.
      *
-     * @return Point the converted geohash
+     * @return Polygon|Point
      * @param string $hash a geohash
      * @see GeoAdapter::read()
      */
@@ -78,21 +85,21 @@ class GeoHash extends GeoAdapter
         $ll = $this->decode($hash);
         if (!$as_grid) {
             return new Point($ll['medlon'], $ll['medlat']);
-        } else {
-            return new Polygon(
-                [
-                    new LineString(
-                        [
-                            new Point($ll['minlon'], $ll['maxlat']),
-                            new Point($ll['maxlon'], $ll['maxlat']),
-                            new Point($ll['maxlon'], $ll['minlat']),
-                            new Point($ll['minlon'], $ll['minlat']),
-                            new Point($ll['minlon'], $ll['maxlat']),
-                        ]
-                    ),
-                ]
-            );
         }
+
+        return new Polygon(
+            [
+                new LineString(
+                    [
+                        new Point($ll['minlon'], $ll['maxlat']),
+                        new Point($ll['maxlon'], $ll['maxlat']),
+                        new Point($ll['maxlon'], $ll['minlat']),
+                        new Point($ll['minlon'], $ll['minlat']),
+                        new Point($ll['minlon'], $ll['maxlat']),
+                    ]
+                ),
+            ]
+        );
     }
 
     /**

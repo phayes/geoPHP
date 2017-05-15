@@ -1,4 +1,7 @@
 <?php
+
+namespace GeoPHP\Adapter;
+
 /*
  * (c) Camptocamp <info@camptocamp.com>
  * (c) Patrick Hayes
@@ -7,6 +10,12 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\MultiPoint;
+use GeoPHP\Geometry\MultiPolygon;
+use GeoPHP\Geometry\Point;
+use GeoPHP\Geometry\Polygon;
 
 /**
  * PHP Google Geocoder Adapter
@@ -26,21 +35,20 @@ class GoogleGeocode extends GeoAdapter
      *                                by default geocoding "Cairo" will return the location of Cairo Egypt.
      *                                If you pass a polygon of illinois, it will return Cairo IL.
      * @param return_multiple - Return all results in a multipoint or multipolygon
-     * @return Geometry|GeometryCollection
+     * @return MultiPolygon
      */
     public function read($address, $return_type = 'point', $bounds = false, $return_multiple = false)
     {
         if (is_array($address)) {
-            $address = join(',', $address);
+            $address = implode(',', $address);
         }
 
-        if (gettype($bounds) == 'object') {
+        if (is_object($bounds)) {
             $bounds = $bounds->getBBox();
         }
+        $bounds_string = '';
         if (gettype($bounds) == 'array') {
             $bounds_string = '&bounds=' . $bounds['miny'] . ',' . $bounds['minx'] . '|' . $bounds['maxy'] . ',' . $bounds['maxx'];
-        } else {
-            $bounds_string = '';
         }
 
         $url = "http://maps.googleapis.com/maps/api/geocode/json";
@@ -78,12 +86,9 @@ class GoogleGeocode extends GeoAdapter
             }
         } else {
             if ($this->result->status) {
-                throw new Exception('Error in Google Geocoder: ' . $this->result->status);
-            } else {
-                throw new Exception('Unknown error in Google Geocoder');
+                throw new \Exception('Error in Google Geocoder: ' . $this->result->status);
             }
-
-            return false;
+            throw new \Exception('Unknown error in Google Geocoder');
         }
     }
 
@@ -121,12 +126,9 @@ class GoogleGeocode extends GeoAdapter
             }
         } else {
             if ($this->result->status) {
-                throw new Exception('Error in Google Reverse Geocoder: ' . $this->result->status);
-            } else {
-                throw new Exception('Unknown error in Google Reverse Geocoder');
+                throw new \Exception('Error in Google Reverse Geocoder: ' . $this->result->status);
             }
-
-            return false;
+            throw new \Exception('Unknown error in Google Reverse Geocoder');
         }
     }
 

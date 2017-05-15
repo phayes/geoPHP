@@ -1,5 +1,9 @@
 <?php
 
+namespace GeoPHP\Geometry;
+
+use GeoPHP\GeoPHP;
+
 /**
  * Geometry abstract class
  */
@@ -92,7 +96,7 @@ abstract class Geometry
         }
 
         if ($this->geos()) {
-            return geoPHP::geosToGeometry($this->geos()->envelope());
+            return GeoPHP::geosToGeometry($this->geos()->envelope());
         }
 
         $bbox = $this->getBBox();
@@ -123,8 +127,8 @@ abstract class Geometry
         $args = func_get_args();
 
         $format = array_shift($args);
-        $type_map = geoPHP::getAdapterMap();
-        $processor_type = $type_map[$format];
+        $type_map = GeoPHP::getAdapterMap();
+        $processor_type = '\GeoPHP\Adapter\\' . $type_map[$format];
         $processor = new $processor_type();
 
         array_unshift($args, $this);
@@ -186,11 +190,11 @@ abstract class Geometry
     public function geos()
     {
         // If it's already been set, just return it
-        if ($this->geos && geoPHP::geosInstalled()) {
+        if ($this->geos && GeoPHP::geosInstalled()) {
             return $this->geos;
         }
         // It hasn't been set yet, generate it
-        if (geoPHP::geosInstalled()) {
+        if (GeoPHP::geosInstalled()) {
             $reader = new GEOSWKBReader();
             $this->geos = $reader->readHEX($this->out('wkb', true));
         } else {
@@ -208,7 +212,7 @@ abstract class Geometry
     public function pointOnSurface()
     {
         if ($this->geos()) {
-            return geoPHP::geosToGeometry($this->geos()->pointOnSurface());
+            return GeoPHP::geosToGeometry($this->geos()->pointOnSurface());
         }
     }
 
@@ -240,35 +244,35 @@ abstract class Geometry
     public function buffer($distance)
     {
         if ($this->geos()) {
-            return geoPHP::geosToGeometry($this->geos()->buffer($distance));
+            return GeoPHP::geosToGeometry($this->geos()->buffer($distance));
         }
     }
 
     public function intersection(Geometry $geometry)
     {
         if ($this->geos()) {
-            return geoPHP::geosToGeometry($this->geos()->intersection($geometry->geos()));
+            return GeoPHP::geosToGeometry($this->geos()->intersection($geometry->geos()));
         }
     }
 
     public function convexHull()
     {
         if ($this->geos()) {
-            return geoPHP::geosToGeometry($this->geos()->convexHull());
+            return GeoPHP::geosToGeometry($this->geos()->convexHull());
         }
     }
 
     public function difference(Geometry $geometry)
     {
         if ($this->geos()) {
-            return geoPHP::geosToGeometry($this->geos()->difference($geometry->geos()));
+            return GeoPHP::geosToGeometry($this->geos()->difference($geometry->geos()));
         }
     }
 
     public function symDifference(Geometry $geometry)
     {
         if ($this->geos()) {
-            return geoPHP::geosToGeometry($this->geos()->symDifference($geometry->geos()));
+            return GeoPHP::geosToGeometry($this->geos()->symDifference($geometry->geos()));
         }
     }
 
@@ -282,9 +286,9 @@ abstract class Geometry
                     $geom = $geom->union($item->geos());
                 }
 
-                return geoPHP::geosToGeometry($geom);
+                return GeoPHP::geosToGeometry($geom);
             } else {
-                return geoPHP::geosToGeometry($this->geos()->union($geometry->geos()));
+                return GeoPHP::geosToGeometry($this->geos()->union($geometry->geos()));
             }
         }
     }
@@ -292,7 +296,7 @@ abstract class Geometry
     public function simplify($tolerance, $preserveTopology = false)
     {
         if ($this->geos()) {
-            return geoPHP::geosToGeometry($this->geos()->simplify($tolerance, $preserveTopology));
+            return GeoPHP::geosToGeometry($this->geos()->simplify($tolerance, $preserveTopology));
         }
     }
 
@@ -384,37 +388,37 @@ abstract class Geometry
     // ---------------------
     public function hasZ()
     {
-        // geoPHP does not support Z values at the moment
+        // GeoPHP does not support Z values at the moment
         return false;
     }
 
     public function is3D()
     {
-        // geoPHP does not support 3D geometries at the moment
+        // GeoPHP does not support 3D geometries at the moment
         return false;
     }
 
     public function isMeasured()
     {
-        // geoPHP does not yet support M values
+        // GeoPHP does not yet support M values
         return false;
     }
 
     public function coordinateDimension()
     {
-        // geoPHP only supports 2-dimensional space
+        // GeoPHP only supports 2-dimensional space
         return 2;
     }
 
     public function z()
     {
-        // geoPHP only supports 2-dimensional space
+        // GeoPHP only supports 2-dimensional space
         return null;
     }
 
     public function m()
     {
-        // geoPHP only supports 2-dimensional space
+        // GeoPHP only supports 2-dimensional space
         return null;
     }
 

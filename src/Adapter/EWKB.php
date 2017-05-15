@@ -1,5 +1,9 @@
 <?php
 
+namespace GeoPHP\Adapter;
+
+use GeoPHP\Geometry\Geometry;
+
 /**
  * EWKB (Extended Well Known Binary) Adapter
  */
@@ -54,31 +58,31 @@ class EWKB extends WKB
         $wkb = pack('c', 1);
 
         switch ($geometry->getGeomType()) {
-            case 'Point';
+            case 'Point':
                 $wkb .= pack('L', 1);
                 $wkb .= $this->writePoint($geometry);
                 break;
-            case 'LineString';
+            case 'LineString':
                 $wkb .= pack('L', 2);
                 $wkb .= $this->writeLineString($geometry);
                 break;
-            case 'Polygon';
+            case 'Polygon':
                 $wkb .= pack('L', 3);
                 $wkb .= $this->writePolygon($geometry);
                 break;
-            case 'MultiPoint';
+            case 'MultiPoint':
                 $wkb .= pack('L', 4);
                 $wkb .= $this->writeMulti($geometry);
                 break;
-            case 'MultiLineString';
+            case 'MultiLineString':
                 $wkb .= pack('L', 5);
                 $wkb .= $this->writeMulti($geometry);
                 break;
-            case 'MultiPolygon';
+            case 'MultiPolygon':
                 $wkb .= pack('L', 6);
                 $wkb .= $this->writeMulti($geometry);
                 break;
-            case 'GeometryCollection';
+            case 'GeometryCollection':
                 $wkb .= pack('L', 7);
                 $wkb .= $this->writeMulti($geometry);
                 break;

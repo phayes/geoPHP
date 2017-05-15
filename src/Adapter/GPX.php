@@ -1,4 +1,7 @@
 <?php
+
+namespace GeoPHP\Adapter;
+
 /*
  * Copyright (c) Patrick Hayes
  *
@@ -6,6 +9,10 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+use GeoPHP\Geometry\Geometry;
+use GeoPHP\Geometry\LineString;
+use GeoPHP\Geometry\Point;
+use GeoPHP\GeoPHP;
 
 /**
  * PHP Geometry/GPX encoder/decoder
@@ -31,6 +38,7 @@ class GPX extends GeoAdapter
      * Serialize geometries into a GPX string.
      *
      * @param Geometry $geometry
+     * @param bool $namespace
      * @return string The GPX string representation of the input geometries
      */
     public function write(Geometry $geometry, $namespace = false)
@@ -43,7 +51,7 @@ class GPX extends GeoAdapter
             $this->nss = $namespace . ':';
         }
 
-        return '<' . $this->nss . 'gpx creator="geoPHP" version="1.0">' . $this->geometryToGPX(
+        return '<' . $this->nss . 'gpx creator="GeoPHP" version="1.0">' . $this->geometryToGPX(
                 $geometry
             ) . '</' . $this->nss . 'gpx>';
     }
@@ -55,18 +63,18 @@ class GPX extends GeoAdapter
         $text = preg_replace('/<!\[cdata\[(.*?)\]\]>/s', '', $text);
 
         // Load into DOMDocument
-        $xmlobj = new DOMDocument();
+        $xmlobj = new \DOMDocument();
         @$xmlobj->loadXML($text);
         if ($xmlobj === false) {
-            throw new Exception("Invalid GPX: " . $text);
+            throw new \Exception("Invalid GPX: " . $text);
         }
 
         $this->xmlobj = $xmlobj;
         try {
             $geom = $this->geomFromXML();
-        } catch (InvalidText $e) {
-            throw new Exception("Cannot Read Geometry From GPX: " . $text);
-        } catch (Exception $e) {
+        } catch (\InvalidText $e) {
+            throw new \Exception('Cannot Read Geometry From GPX: ' . $text);
+        } catch (\Exception $e) {
             throw $e;
         }
 
@@ -81,10 +89,10 @@ class GPX extends GeoAdapter
         $geometries = array_merge($geometries, $this->parseRoutes());
 
         if (empty($geometries)) {
-            throw new Exception("Invalid / Empty GPX");
+            throw new \Exception("Invalid / Empty GPX");
         }
 
-        return geoPHP::geometryReduce($geometries);
+        return GeoPHP::geometryReduce($geometries);
     }
 
     protected function childElements($xml, $nodename = '')
@@ -191,12 +199,10 @@ class GPX extends GeoAdapter
     public function collectionToGPX($geom)
     {
         $gpx = '';
-        $components = $geom->getComponents();
         foreach ($geom->getComponents() as $comp) {
             $gpx .= $this->geometryToGPX($comp);
         }
 
         return $gpx;
     }
-
 }
