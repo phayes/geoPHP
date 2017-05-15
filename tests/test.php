@@ -9,6 +9,8 @@ if (getenv('GEOPHP_RUN_TESTS') == 1) {
     print "Skipping tests. Please set GEOPHP_RUN_TESTS=1 environment variable if you wish to run tests\n";
 }
 
+require_once __DIR__ . '../vendor/autoload.php';
+
 function run_test()
 {
     set_time_limit(0);
@@ -165,7 +167,7 @@ function test_adapters($geometry, $format, $input)
 
                 // Check to make sure a both are the same with geos and without
                 if ($test_geom_1->out('wkt') != $test_geom_2->out('wkt')) {
-                    print "Mismatched adapter output between GEOS and NORM in " . $adapter_class . "\n";
+                    print 'Mismatched adapter output between GEOS and NORM in ' . $adapter_class . "\n";
                 }
             }
         }
