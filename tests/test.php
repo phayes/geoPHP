@@ -1,22 +1,21 @@
 <?php
-
-// Uncomment to test
 use GeoPHP\GeoPHP;
 
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// Uncomment to test
 if (getenv('GEOPHP_RUN_TESTS') == 1) {
     run_test();
 } else {
     print "Skipping tests. Please set GEOPHP_RUN_TESTS=1 environment variable if you wish to run tests\n";
 }
 
-require_once __DIR__ . '../vendor/autoload.php';
 
 function run_test()
 {
     set_time_limit(0);
 
-    set_error_handler('FailOnError');
-
+    set_error_handler('failOnError');
     header('Content-type: text');
 
     if (GeoPHP::geosInstalled()) {
@@ -127,6 +126,8 @@ function test_adapters($geometry, $format, $input)
         if ($adapter_key != 'google_geocode') { //Don't test google geocoder regularily. Uncomment to test
             $output = $geometry->out($adapter_key);
             if ($output) {
+                $adapter_class = 'GeoPHP\Adapter\\' . $adapter_class;
+
                 $adapter_loader = new $adapter_class();
                 $test_geom_1 = $adapter_loader->read($output);
                 $test_geom_2 = $adapter_loader->read($test_geom_1->out($adapter_key));
@@ -140,8 +141,8 @@ function test_adapters($geometry, $format, $input)
         }
     }
 
-    // Test to make sure adapter work the same wether GEOS is ON or OFF
-    // Cannot test methods if GEOS is not intstalled
+    // Test to make sure adapter work the same weather GEOS is ON or OFF
+    // Cannot test methods if GEOS is not installed
     if (!GeoPHP::geosInstalled()) {
         return;
     }
@@ -177,7 +178,7 @@ function test_adapters($geometry, $format, $input)
 
 function test_methods($geometry)
 {
-    // Cannot test methods if GEOS is not intstalled
+    // Cannot test methods if GEOS is not installed
     if (!GeoPHP::geosInstalled()) {
         return;
     }
@@ -261,7 +262,14 @@ function test_detection($value, $format, $file)
     GeoPHP::load($value);
 }
 
-function FailOnError($error_level, $error_message, $error_file, $error_line, $error_context)
+/**
+ * @param $error_level
+ * @param $error_message
+ * @param $error_file
+ * @param $error_line
+ * @param $error_context
+ */
+function failOnError($error_level, $error_message, $error_file, $error_line, $error_context)
 {
     echo "$error_level: $error_message in $error_file on line $error_line\n";
     echo "\e[31m" . 'FAIL' . "\e[39m\n";

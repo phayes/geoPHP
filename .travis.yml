@@ -13,8 +13,7 @@ install:
   # TODO optionally set up a postgis database for testing
 
 script: 
-  - cd tests
-  - phpunit --verbose --colors --stderr tests
+  - ./vendor/bin/phpunit --verbose --colors
   - php test.php
 
 # run tests on the following versions
