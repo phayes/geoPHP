@@ -14,7 +14,7 @@ install:
 
 script: 
   - ./vendor/bin/phpunit --verbose --colors
-  - php test.php
+  - php tests/test.php
 
 # run tests on the following versions
 php:
