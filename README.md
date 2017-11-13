@@ -37,6 +37,10 @@ The only public changes are the addition of an additional "metadata" parameter t
 setMetaData() and getMetaData(). In all cases, they simply take an arbitrary associative array. Everything else should be backwards compatible
 with the main GeoPHP project.
 
+Packages:
+
+libxerces-c-samples - needed to validate GPX files. See http://www.topografix.com/gpx_validation.asp (SAXCount)
+
 Original GeoPHP README
 -----------------------
 
