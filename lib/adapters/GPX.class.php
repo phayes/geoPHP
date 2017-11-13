@@ -188,6 +188,13 @@ class GPX extends GeoAdapter {
 	/**
 	* parse waypoints
 	*
+	* Parses GPX wpt tags. Note that the metadata tags are not required in GPX.
+	*
+	* As a hack, to avoid having to refactor a bunch of existing code, we use the presence
+	* of metadata to distinguish between a point in a LineString and a freestanding
+	* waypoint. If no metadata exists, we include <fix>2d</fix> which should be ok to use 
+	* in all waypoint instances when there is no metadata to indicate otherwise.
+	*
 	* @link http://www.topografix.com/gpx/1/1/#type_wptType
 	*/
   
@@ -204,6 +211,12 @@ class GPX extends GeoAdapter {
 			// waypoint meta data.
 
 			$meta_data = $this->parseMetaDataChildren( $wpt );
+
+			if ( ! $meta_data ) {
+				$meta_data = array(
+					'fix' => '2d'
+				);
+			}
 
 			if ( isset( $meta_data[ 'elevation' ] ) ) {
 				$elevation = @$meta_data[ 'elevation' ];
@@ -1096,6 +1109,12 @@ class GPX extends GeoAdapter {
 					// FIXME: Broken.
 
 					$gpx .=  $this->linksToGPX( $data ) ;
+
+					break;
+
+				case 'url':
+
+					$gpx .= '<' . $this->nss . 'url>' . $data . '</' . $this->nss . 'url>';
 
 					break;
 
