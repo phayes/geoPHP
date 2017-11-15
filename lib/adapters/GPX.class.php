@@ -393,13 +393,13 @@ class GPX extends GeoAdapter {
 
 				case 'name' :
 
-					$meta_data[ 'name' ] = $child->firstChild->nodeValue;
+					$meta_data[ 'name' ] = html_entity_decode( $child->firstChild->nodeValue );
 
 					break;
 
 				case 'cmt' :
 
-					$meta_data[ 'cmt' ] = $child->firstChild->nodeValue;
+					$meta_data[ 'cmt' ] = html_entity_decode( $child->firstChild->nodeValue );
 
 					break;
 
@@ -413,43 +413,43 @@ class GPX extends GeoAdapter {
 
 				case 'ele':
 
-					$meta_data[ 'elevation' ] = $child->firstChild->nodeValue;
+					$meta_data[ 'elevation' ] = html_entity_decode( $child->firstChild->nodeValue );
 
 					break;
 
 				case 'time':
 
-					$meta_data[ 'time' ] = $child->firstChild->nodeValue;
+					$meta_data[ 'time' ] = html_entity_decode( $child->firstChild->nodeValue );
 
 					break;
 
 				case 'desc':
 
-					$meta_data[ 'desc' ] = $child->firstChild->nodeValue;
+					$meta_data[ 'desc' ] = html_entity_decode( $child->firstChild->nodeValue );
 
 					break;
 
 				case 'sym':
 
-					$meta_data[ 'sym' ] = $child->firstChild->nodeValue;
+					$meta_data[ 'sym' ] = html_entity_decode( $child->firstChild->nodeValue );
 
 					break;
 
 				case 'src':
 
-					$meta_data[ 'src' ] = $child->firstChild->nodeValue;
+					$meta_data[ 'src' ] = html_entity_decode( $child->firstChild->nodeValue );
 
 					break;
 
 				case 'type':
 
-					$meta_data[ 'type' ] = $child->firstChild->nodeValue;
+					$meta_data[ 'type' ] = html_entity_decode( $child->firstChild->nodeValue );
 
 					break;
 
 				case 'keywords':
 
-					$meta_data[ 'keywords' ] = $child->firstChild->nodeValue;
+					$meta_data[ 'keywords' ] = html_entity_decode( $child->firstChild->nodeValue );
 
 					break;
 
@@ -540,13 +540,13 @@ class GPX extends GeoAdapter {
 
 				case 'text':
 
-					$meta_data[ 'text' ] = $child->nodeValue;
+					$meta_data[ 'text' ] = html_entity_decode( $child->nodeValue );
 
 					break;
 
 				case 'type': // mime type of content
 
-					$meta_data[ 'type' ] = $child->nodeValue;
+					$meta_data[ 'type' ] = html_entity_decode( $child->nodeValue );
 
 					break;
 
@@ -578,13 +578,13 @@ class GPX extends GeoAdapter {
 
 				case 'year':
 
-					$meta_data[ 'year' ] = $child->nodeValue;
+					$meta_data[ 'year' ] = html_entity_decode( $child->nodeValue );
 
 					break;
 
 				case 'license': // uri of license
 
-					$meta_data[ 'license' ] = $child->nodeValue;
+					$meta_data[ 'license' ] = html_entity_decode( $child->nodeValue );
 
 					break;
 
@@ -614,14 +614,14 @@ class GPX extends GeoAdapter {
 
 				case 'name':
 
-					$meta_data[ 'name' ] = $child->nodeValue;
+					$meta_data[ 'name' ] = html_entity_decode( $child->nodeValue );
 
 					break;
 
 				case 'email': 
 
-					$meta_data[ 'email' ][ 'id' ] = $child->attributes->getNamedItem( 'id' )->nodeValue; 
-					$meta_data[ 'email' ][ 'domain' ] = $child->attributes->getNamedItem( 'domain' )->nodeValue; 
+					$meta_data[ 'email' ][ 'id' ] = html_entity_decode( $child->attributes->getNamedItem( 'id' )->nodeValue ); 
+					$meta_data[ 'email' ][ 'domain' ] = html_entity_decode( $child->attributes->getNamedItem( 'domain' )->nodeValue ); 
 
 					break;
 
@@ -656,7 +656,7 @@ class GPX extends GeoAdapter {
 
 				case 'gpxx:displaymode' :
 
-					$meta_data[ 'gpxx_displaymode' ] = $child->nodeValue;
+					$meta_data[ 'gpxx_displaymode' ] = html_entity_decode( $child->nodeValue );
 
 					break;
 
@@ -741,7 +741,7 @@ class GPX extends GeoAdapter {
 
 				case 'object_type_name' :
 
-					$meta_data[ 'object_type_name' ] = $child->nodeValue;
+					$meta_data[ 'object_type_name' ] = html_entity_decode( $child->nodeValue );
 
 					break;
 
@@ -769,7 +769,7 @@ class GPX extends GeoAdapter {
 
 				case 'gpxx:category':
 
-					$meta_data[] = $child->nodeValue;
+					$meta_data[] = html_entity_decode( $child->nodeValue );
 
 					break;
 
@@ -797,31 +797,31 @@ class GPX extends GeoAdapter {
 
 				case 'gpxx:streetaddress' :
 
-					$meta_data[ 'gpxx_streetaddress' ] = $child->nodeValue;
+					$meta_data[ 'gpxx_streetaddress' ] = html_entity_decode( $child->nodeValue );
 
 					break;
 
 				case 'gpxx:city' :
 
-					$meta_data[ 'gpxx_city' ] = $child->nodeValue;
+					$meta_data[ 'gpxx_city' ] = html_entity_decode( $child->nodeValue );
 
 					break;
 
 				case 'gpxx:state' :
 
-					$meta_data[ 'gpxx_state' ] = $child->nodeValue;
+					$meta_data[ 'gpxx_state' ] = html_entity_decode( $child->nodeValue );
 
 					break;
 
 				case 'gpxx:country' :
 
-					$meta_data[ 'gpxx_country' ] = $child->nodeValue;
+					$meta_data[ 'gpxx_country' ] = html_entity_decode( $child->nodeValue );
 
 					break;
 
 				case 'gpxx:postalcode' :
 
-					$meta_data[ 'gpxx_postalcode' ] = $child->nodeValue;
+					$meta_data[ 'gpxx_postalcode' ] = html_entity_decode( $child->nodeValue );
 
 					break;
 
@@ -850,9 +850,9 @@ class GPX extends GeoAdapter {
 				case 'gpxx_phonenumber':
 
 					if (( $category =  $child->attributes->getNamedItem("Category")->nodeValue) != NULL ) {
-						$meta_data[ $category ] = $child->nodeValue;
+						$meta_data[ $category ] = html_entity_decode( $child->nodeValue );
 					} else {
-						$meta_data[ 'primary' ] = $child->nodeValue;
+						$meta_data[ 'primary' ] = html_entity_decode( $child->nodeValue );
 					}
 
 					break;
@@ -1094,13 +1094,13 @@ class GPX extends GeoAdapter {
 
 				case 'name' :
 
-					$gpx .= '<' . $this->nss . 'name>' . $data . '</' . $this->nss . 'name>';
+					$gpx .= '<' . $this->nss . 'name>' . htmlentities( $data ) . '</' . $this->nss . 'name>';
 
 					break;
 
 				case 'cmt' :
 
-					$gpx .= '<' . $this->nss . 'cmt>' . $data . '</' . $this->nss . 'cmt>';
+					$gpx .= '<' . $this->nss . 'cmt>' . htmlentities( $data ) . '</' . $this->nss . 'cmt>';
 
 					break;
 
@@ -1114,37 +1114,37 @@ class GPX extends GeoAdapter {
 
 				case 'url':
 
-					$gpx .= '<' . $this->nss . 'url>' . $data . '</' . $this->nss . 'url>';
+					$gpx .= '<' . $this->nss . 'url>' . htmlentities( $data ) . '</' . $this->nss . 'url>';
 
 					break;
 
 				case 'ele':
 
-					$gpx .= '<' . $this->nss . 'ele>' . $data . '</' . $this->nss . 'ele>';
+					$gpx .= '<' . $this->nss . 'ele>' . htmlentities( $data ) . '</' . $this->nss . 'ele>';
 
 					break;
 
 				case 'time':
 
-					$gpx .= '<' . $this->nss . 'time>' . $data . '</' . $this->nss . 'time>';
+					$gpx .= '<' . $this->nss . 'time>' . htmlentities( $data ) . '</' . $this->nss . 'time>';
 
 					break;
 
 				case 'desc':
 
-					$gpx .= '<' . $this->nss . 'desc>' . $data . '</' . $this->nss . 'desc>';
+					$gpx .= '<' . $this->nss . 'desc>' . htmlentities( $data ) . '</' . $this->nss . 'desc>';
 
 					break;
 
 				case 'sym':
 
-					$gpx .= '<' . $this->nss . 'sym>' . $data . '</' . $this->nss . 'sym>';
+					$gpx .= '<' . $this->nss . 'sym>' . htmlentities( $data ) . '</' . $this->nss . 'sym>';
 
 					break;
 
 				case 'type':
 
-					$gpx .= '<' . $this->nss . 'type>' . $data . '</' . $this->nss . 'type>';
+					$gpx .= '<' . $this->nss . 'type>' . htmlentities( $data ) . '</' . $this->nss . 'type>';
 
 					break;
 
@@ -1190,14 +1190,14 @@ class GPX extends GeoAdapter {
 
 		foreach ( $meta_data as $offset => $link ) {
 
-			$gpx .= '<link href="' . $link[ 'href' ] . '">';
+			$gpx .= '<link href="' . htmlentities( $link[ 'href' ] ) . '">';
 
 			if ( isset( $link[ 'text' ] ) ) {
-				$gpx .= '<text>' . $link[ 'text' ] . '</text>';
+				$gpx .= '<text>' . htmlentities( $link[ 'text' ] ) . '</text>';
 			}
 
 			if ( isset( $link[ 'type' ] )) {
-				$gpx .= '<type>' . $link[ 'type' ] . '</type>';
+				$gpx .= '<type>' . htmlentities( $link[ 'type' ] ) . '</type>';
 			}
 
 			$gpx .= '</link>';
@@ -1299,7 +1299,7 @@ class GPX extends GeoAdapter {
 
 					$blank = false;
 
-					$gpx .= '<' . $this->nss . 'gpxx:DisplayMode>' . $data . '</' . $this->nss . 'gpxx:DisplayMode>';
+					$gpx .= '<' . $this->nss . 'gpxx:DisplayMode>' . htmlentities( $data ) . '</' . $this->nss . 'gpxx:DisplayMode>';
 
 					break;
 
@@ -1362,7 +1362,7 @@ class GPX extends GeoAdapter {
 
 					$blank = false;
 
-					$gpx .= '<' . $this->nss . 'object_type_name>' . $data . '</' . $this->nss . 'object_type_name>';
+					$gpx .= '<' . $this->nss . 'object_type_name>' . htmlentities( $data ) . '</' . $this->nss . 'object_type_name>';
 
 					break;
 
@@ -1370,7 +1370,7 @@ class GPX extends GeoAdapter {
 
 					$blank = false;
 
-					$gpx .= '<' . $this->nss . 'object_guid>' . $data . '</' . $this->nss . 'object_guid>';
+					$gpx .= '<' . $this->nss . 'object_guid>' . htmlentities( $data ) . '</' . $this->nss . 'object_guid>';
 
 					break;
 
@@ -1428,7 +1428,7 @@ class GPX extends GeoAdapter {
 
 					foreach ( $data as $category ) {
 
-						$gpx .= '<' . $this->nss . 'gpxx:Category>' . $category . '</' . $this->nss . 'gpxx:Category>';
+						$gpx .= '<' . $this->nss . 'gpxx:Category>' . htmlentities( $category ) . '</' . $this->nss . 'gpxx:Category>';
 
 					}
 
@@ -1458,25 +1458,25 @@ class GPX extends GeoAdapter {
 
 				case 'gpxx_streetaddress' :
 
-					$gpx .= '<' . $this->nss . 'gpxx:StreetAddress>' . $data . '</' . $this->nss . 'gpxx:StreetAddress>';
+					$gpx .= '<' . $this->nss . 'gpxx:StreetAddress>' . htmlentities( $data ) . '</' . $this->nss . 'gpxx:StreetAddress>';
 
 					break;
 
 				case 'gpxx_city' :
 
-					$gpx .= '<' . $this->nss . 'gpxx:City>' . $data . '</' . $this->nss . 'gpxx:City>';
+					$gpx .= '<' . $this->nss . 'gpxx:City>' . htmlentities( $data ) . '</' . $this->nss . 'gpxx:City>';
 
 					break;
 
 				case 'gpxx_state' :
 
-					$gpx .= '<' . $this->nss . 'gpxx:State>' . $data . '</' . $this->nss . 'gpxx:State>';
+					$gpx .= '<' . $this->nss . 'gpxx:State>' . htmlentities( $data ) . '</' . $this->nss . 'gpxx:State>';
 
 					break;
 
 				case 'gpxx_postalcode' :
 
-					$gpx .= '<' . $this->nss . 'gpxx:PostalCode>' . $data . '</' . $this->nss . 'gpxx:PostalCode>';
+					$gpx .= '<' . $this->nss . 'gpxx:PostalCode>' . htmlentities( $data ) . '</' . $this->nss . 'gpxx:PostalCode>';
 
 					break;
 
@@ -1509,10 +1509,10 @@ class GPX extends GeoAdapter {
 						$gpx .= '<' . $this->nss . 'gpxx:PhoneNumber';
 
 						if ( $category != 'primary' ) {
-							$gpx .= ' Category="' . $category . '"';
+							$gpx .= ' Category="' . htmlentities( $category ) . '"';
 						}
 
-						$gpx .= '>' . $value . '</' . $this->nss . 'gpxx:PhoneNumber>';
+						$gpx .= '>' . htmlentities( $value ) . '</' . $this->nss . 'gpxx:PhoneNumber>';
 
 					}
 
@@ -1536,16 +1536,16 @@ class GPX extends GeoAdapter {
 
 	protected function copyrightToGPX( $meta_data ) {
 
-		$gpx = '<copyright author="' . $meta_data[ 'author' ] . '">';
+		$gpx = '<copyright author="' . htmlentities( $meta_data[ 'author' ] ) . '">';
 
 		if ( isset( $meta_data[ 'year' ] )) {
-			$gpx .= '<year>' . $meta_data[ 'year' ] . '</year>';
+			$gpx .= '<year>' . htmlentities( $meta_data[ 'year' ] ) . '</year>';
 
 		}
 
 		if ( isset( $meta_data[ 'license' ] )) {
 
-			$gpx .= '<license>' . $meta_data[ 'license' ] . '</license>';
+			$gpx .= '<license>' . htmlentities( $meta_data[ 'license' ] ) . '</license>';
 		}
 
 		return $gpx;
@@ -1570,7 +1570,7 @@ class GPX extends GeoAdapter {
 
 				case 'name':
 
-					$gpx .= '<name>' . $meta_data[ 'name' ] . '</name>';
+					$gpx .= '<name>' . htmlentities( $meta_data[ 'name' ] ) . '</name>';
 
 					break;
 
@@ -1578,8 +1578,8 @@ class GPX extends GeoAdapter {
 
 					$gpx .= '<email>';
 
-					$gpx .= '<id>' . $meta_data[ 'email' ][ 'id' ] . '</id>';
-					$gpx .= '<domain>' . $meta_data[ 'domain' ] . '</domain>';
+					$gpx .= '<id>' . htmlentities( $meta_data[ 'email' ][ 'id' ] ) . '</id>';
+					$gpx .= '<domain>' . htmlentities( $meta_data[ 'domain' ] ) . '</domain>';
 
 					break;
 
