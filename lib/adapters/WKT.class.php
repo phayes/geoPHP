@@ -219,7 +219,7 @@ class WKT extends GeoAdapter
       return strtoupper($geometry->geometryType()).' EMPTY';
     }
     else if ($data = $this->extractData($geometry)) {
-      return strtoupper($geometry->geometryType()).' ('.$data.')';
+      return strtoupper($geometry->geometryType()).'('.$data.')';
     }
   }
 
