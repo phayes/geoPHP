@@ -1,5 +1,5 @@
 <?php
-require_once('../geoPHP.inc');
+
 class Tests_20120702 extends PHPUnit_Framework_TestCase {
 
   function setUp() {
@@ -8,7 +8,7 @@ class Tests_20120702 extends PHPUnit_Framework_TestCase {
 
   function testMethods() {
     $format = 'gpx';
-    $value = file_get_contents('./input/20120702.gpx');
+    $value = file_get_contents(__DIR__ . '/../input/20120702.gpx');
     $geometry = geoPHP::load($value, $format);
 
     $methods = array(
@@ -284,4 +284,3 @@ class Tests_20120702 extends PHPUnit_Framework_TestCase {
     }
   }
 }
-

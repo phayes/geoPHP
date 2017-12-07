@@ -1,5 +1,5 @@
 <?php
-require_once('../geoPHP.inc');
+
 class PlaceholdersTests extends PHPUnit_Framework_TestCase {
 
   function setUp() {
@@ -7,11 +7,12 @@ class PlaceholdersTests extends PHPUnit_Framework_TestCase {
   }
 
   function testPlaceholders() {
-    foreach (scandir('./input') as $file) {
+    $input_dir = __DIR__ . '/../input/';
+    foreach (scandir($input_dir) as $file) {
       $parts = explode('.',$file);
       if ($parts[0]) {
         $format = $parts[1];
-        $value = file_get_contents('./input/'.$file);
+        $value = file_get_contents($input_dir . $file);
         echo "\nloading: " . $file . " for format: " . $format;
         $geometry = geoPHP::load($value, $format);
 
