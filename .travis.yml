@@ -27,3 +27,6 @@ php:
 
 matrix:
   fast_finish: false
+  include:
+    - php: 5.3
+      dist: precise
