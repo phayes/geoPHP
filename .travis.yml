@@ -13,8 +13,8 @@ install:
   # TODO optionally set up a postgis database for testing
 
 script:
+  - ./vendor/bin/phpunit --verbose --colors --stderr --bootstrap tests/tests/bootstrap.php tests
   - cd tests
-  - phpunit --verbose --colors --stderr --bootstrap tests/tests/bootstrap.php tests
   - php test.php
 
 # run tests on the following versions
