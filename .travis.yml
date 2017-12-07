@@ -1,5 +1,7 @@
 # docs available at http://docs.travis-ci.com/user/languages/php/
 # example available at https://github.com/travis-ci/travis-ci-php-example
+dist: trusty
+sudo: false
 language: php
 
 before_script:
