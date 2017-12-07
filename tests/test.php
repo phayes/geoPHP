@@ -15,7 +15,7 @@ function run_test() {
 
   header("Content-type: text");
 
-  include_once('../geoPHP.inc');
+  include_once(__DIR__ . '/tests/bootstrap.php');
 
   if (geoPHP::geosInstalled()) {
     print "GEOS is installed.\n";
@@ -24,11 +24,12 @@ function run_test() {
     print "GEOS is not installed.\n";
   }
 
-  foreach (scandir('./input') as $file) {
+  $input_dir = __DIR__ . '/input/';
+  foreach (scandir($input_dir) as $file) {
     $parts = explode('.',$file);
     if ($parts[0]) {
       $format = $parts[1];
-      $value = file_get_contents('./input/'.$file);
+      $value = file_get_contents($input_dir . $file);
       print '---- Testing '.$file."\n";
       $geometry = geoPHP::load($value, $format);
       test_adapters($geometry, $format, $value);

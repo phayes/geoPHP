@@ -12,9 +12,9 @@ install:
   # TODO Install geos library -- as a matrix test
   # TODO optionally set up a postgis database for testing
 
-script: 
+script:
   - cd tests
-  - phpunit --verbose --colors --stderr tests
+  - phpunit --verbose --colors --stderr --bootstrap tests/tests/bootstrap.php tests
   - php test.php
 
 # run tests on the following versions
@@ -24,6 +24,6 @@ php:
   - 5.4
   - 5.3
   - hhvm
-  
+
 matrix:
   fast_finish: false

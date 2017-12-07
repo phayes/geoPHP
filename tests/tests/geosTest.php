@@ -1,5 +1,5 @@
 <?php
-require_once('../geoPHP.inc');
+
 class GeosTests extends PHPUnit_Framework_TestCase {
 
   function setUp() {
@@ -8,8 +8,7 @@ class GeosTests extends PHPUnit_Framework_TestCase {
 
   function testGeos() {
     if (!geoPHP::geosInstalled()) {
-      echo "Skipping GEOS -- not installed";
-      return;
+      $this->markTestSkipped('Skipping GEOS -- not installed');
     }
     foreach (scandir('./input') as $file) {
       $parts = explode('.',$file);
