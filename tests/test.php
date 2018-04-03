@@ -2,43 +2,190 @@
 
 // Uncomment to test
 if (getenv("GEOPHP_RUN_TESTS") == 1) {
-  run_test();
+	run_test();
 }
 else {
-  print "Skipping tests. Please set GEOPHP_RUN_TESTS=1 environment variable if you wish to run tests\n";
+	print "Skipping tests. Please set GEOPHP_RUN_TESTS=1 environment variable if you wish to run tests\n";
 }
 
 function run_test() {
-  set_time_limit(0);
+	set_time_limit(0);
 
-  set_error_handler("FailOnError");
+	set_error_handler("FailOnError");
 
-  header("Content-type: text");
+	header("Content-type: text");
 
-  include_once('../geoPHP.inc');
+	include_once('../geoPHP.inc');
 
-  if (geoPHP::geosInstalled()) {
-    print "GEOS is installed.\n";
-  }
-  else {
-    print "GEOS is not installed.\n";
-  }
+	if (geoPHP::geosInstalled()) {
+		print "GEOS is installed.\n";
+	} else {
+		print "GEOS is not installed.\n";
+	}
 
-  foreach (scandir('./input') as $file) {
-    $parts = explode('.',$file);
-    if ($parts[0]) {
-      $format = $parts[1];
-      $value = file_get_contents('./input/'.$file);
-      print '---- Testing '.$file."\n";
-      $geometry = geoPHP::load($value, $format);
-      test_adapters($geometry, $format, $value);
-      test_methods($geometry);
-      test_geometry($geometry);
-      test_detection($value, $format, $file);
-    }
-  }
-  print "\e[32m" . "PASS". "\e[39m\n";
-}
+	print '---- Testing MetaData - load GPX, Convert to GeoJSON, compare '."\n";
+
+	foreach (scandir('./input/gpx') as $file) {
+		$parts = explode('.',$file);
+
+		if ($parts[0]) {
+			$format = $parts[1];
+
+			$gpx_file = './input/gpx/' . $file;
+
+			$value = file_get_contents( $gpx_file );
+			print '---- Loading '.$gpx_file."\n";
+
+			$geometry_gpx = geoPHP::load($value, 'gpx' );
+
+			$geojson = $geometry_gpx->out('geojson');
+
+			$geometry_json = geoPHP::load( $geojson, 'geojson' );
+
+			// compare all metadata entries
+
+			if ( ! compareMetaData( $geometry_gpx, $geometry_json ) ) {
+				die( "bad comparison\n");
+			}
+
+		}
+
+	} // end of foreach
+
+	print '--- original geoPHP tests '.$file."\n";
+
+	foreach (scandir('./input') as $file) {
+		$parts = explode('.',$file);
+
+		// avoid directories, swap files (leading dot), etc
+
+		if (( count( $parts ) == 2 ) && ( $parts[0] ) && ( $parts[1] )) {
+			$format = $parts[1];
+			$value = file_get_contents('./input/'.$file);
+			print '---- Testing '.$file."\n";
+			$geometry = geoPHP::load($value, $format);
+
+			test_adapters($geometry, $format, $value);
+
+			print "after adapters\n";
+
+			test_methods($geometry);
+
+			print "after methods\n";
+
+			test_geometry($geometry);
+
+			print "after test_geometry\n";
+
+			test_detection($value, $format, $file);
+
+			print "after test_detection\n";
+
+		}
+	}
+
+	print "\e[32m" . "PASS". "\e[39m\n";
+
+} // end of run_tests()
+
+/**
+* compare metadata between two geometries
+*/
+
+function compareMetaData($geom1, $geom2) {
+
+	print( "Comparing " . $geom1->getGeomType() . ' to ' . $geom2->getGeomType() . "\n" );
+
+	if ( strtolower($geom1->getGeomType()) != strtolower( $geom2->getGeomType() ) ) {
+
+		die( "bad geometry\n" );
+	}
+
+	$metadata1 = $geom1->getMetaData();
+	$metadata2 = $geom2->getMetaData();
+
+	if ( gettype( $metadata1 ) != gettype( $metadata2 ) ) {
+
+		print( "Metadata1:\n" );
+		print_r( $metadata1 );
+
+		print( "Metadata2:\n" );
+		print_r( $metadata2 );
+
+		die( "meta data differences - type mismatch - metadata1 type " . gettype( $metadata1 ) . " metadata2 type " . gettype( $metadata2 ) . "\n" );
+	}
+
+	if (( $metadata1 != NULL ) && ( arrayRecursiveDiff( $metadata1, $metadata2 ))) {
+
+		print( "Metadata1:\n" );
+		print_r( $metadata1 );
+
+		print( "Metadata2:\n" );
+		print_r( $metadata2 );
+
+		die( "meta data differences from arrayRecursiveDiff\n" );
+
+	}
+
+	switch ( strtolower( $geom1->getGeomType() )) {
+
+		case 'point':
+
+			return true;
+			break;
+
+		case 'linestring':
+		case 'polygon':
+		case 'multipoint':
+		case 'multilinestring':
+		case 'multipolygon':
+		case 'geometrycollection':
+
+			$components1 = $geom1->getComponents();
+			$components2 = $geom2->getComponents();
+
+			foreach ($components1 as $key => $comp) {
+
+				if ( ! compareMetaData( $components1[ $key ], $components2[ $key ] ) ) {
+					return false;
+				}
+
+			}
+
+	}
+
+	return true;
+
+} // end of compareMetaData()
+
+/**
+* compare two nested arrays
+*/
+
+function arrayRecursiveDiff($aArray1, $aArray2) {
+	$aReturn = array();
+
+	foreach ($aArray1 as $mKey => $mValue) {
+		if (array_key_exists($mKey, $aArray2)) {
+			if (is_array($mValue)) {
+				$aRecursiveDiff = arrayRecursiveDiff($mValue, $aArray2[$mKey]);
+
+				if (count($aRecursiveDiff)) { $aReturn[$mKey] = $aRecursiveDiff; }
+
+			} else {
+
+				if ($mValue != $aArray2[$mKey]) {
+					$aReturn[$mKey] = $mValue;
+				}
+			}
+		} else {
+			$aReturn[$mKey] = $mValue;
+		}
+	}
+
+	return $aReturn;
+
+} // end of compareRecursiveDiff()
 
 function test_geometry($geometry) {
 
@@ -121,9 +268,14 @@ function test_geometry($geometry) {
 
 function test_adapters($geometry, $format, $input) {
   // Test adapter output and input. Do a round-trip and re-test
+
   foreach (geoPHP::getAdapterMap() as $adapter_key => $adapter_class) {
     if ($adapter_key != 'google_geocode') { //Don't test google geocoder regularily. Uncomment to test
+
+      print 'test_adapters - ' . $adapter_key . "\n";
+
       $output = $geometry->out($adapter_key);
+
       if ($output) {
         $adapter_loader = new $adapter_class();
         $test_geom_1 = $adapter_loader->read($output);
