@@ -52,7 +52,7 @@ class GPX extends GeoAdapter {
 			$this->nss = $namespace.':';    
 		}
 
-		$gpx = '<' . $this->nss .'gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="geoPHPwithFeatures" version="1.0" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd">';
+		$gpx = '<' . $this->nss .'gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" creator="geoPHPwithFeatures" version="1.1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd">';
 
 		// if there is metadata associated with the top level geometry we add it as children to a <metadata> tag. 
 
@@ -1069,18 +1069,27 @@ class GPX extends GeoAdapter {
 	// -------------------------------------------------
 
 	/**
-	* parse features metadata child nodes 
+	* generate  metadata GPX child nodes 
 	*
-	* There are two formats for metadata. The first is a straight properties list
-	* used by routes, tracks, and waypoints. 
-	*
-	* The second is a special case used by route waypoints in which case it's formatted
-	* as a complete GeoJSON Feature object.
+	* To add to our misery, the order of the nodes matters. If we do not generate them 
+	* in the exact order specificed in the spec the generated GPX file will fail to valid.
 	*/
 
 	protected function metaDataToGPX( $meta_data ) {
 
 		$gpx = '';
+
+		$nodeKeys = array(
+			'name',
+			'desc',
+			'author',
+			'copyright',
+			'link',
+			'time',
+			'keywords',
+			'bounds',
+			'extensions'
+		);
 
 		// are we dealing with a route waypoint object in a route point object?? 
 
@@ -1088,85 +1097,96 @@ class GPX extends GeoAdapter {
 			$meta_data = $meta_data[ 'properties' ];
 		}
 
-		foreach ( $meta_data as $key => $data ) {
+		// so we need to generate the metadata in a particular order. If we do not do it in this specific order the
+		// resulting GPX file will fail to validate and Garmin Basecamp will refuse to import it.
 
-			switch ( $key ) {
+		foreach ( $nodeKeys as $key ) {
 
-				case 'name' :
+			// we may not have this key in the data.
 
-					$gpx .= '<' . $this->nss . 'name>' . htmlentities( $data ) . '</' . $this->nss . 'name>';
+			if ( isset( $meta_data[ $key ] ) ) {
 
-					break;
+				$data = $meta_data[ $key ];
 
-				case 'cmt' :
+				switch ( $key ) {
 
-					$gpx .= '<' . $this->nss . 'cmt>' . htmlentities( $data ) . '</' . $this->nss . 'cmt>';
+					case 'name' :
 
-					break;
-
-				case 'link' :
-
-					// FIXME: Broken.
-
-					$gpx .=  $this->linksToGPX( $data ) ;
+						$gpx .= '<' . $this->nss . 'name>' . htmlentities( $data ) . '</' . $this->nss . 'name>';
 
 					break;
 
-				case 'url':
+					case 'cmt' :
 
-					$gpx .= '<' . $this->nss . 'url>' . htmlentities( $data ) . '</' . $this->nss . 'url>';
+						$gpx .= '<' . $this->nss . 'cmt>' . htmlentities( $data ) . '</' . $this->nss . 'cmt>';
+                	
+						break;
 
-					break;
+					case 'link' :
 
-				case 'ele':
+						// FIXME: Broken.
 
-					$gpx .= '<' . $this->nss . 'ele>' . htmlentities( $data ) . '</' . $this->nss . 'ele>';
-
-					break;
-
-				case 'time':
-
-					$gpx .= '<' . $this->nss . 'time>' . htmlentities( $data ) . '</' . $this->nss . 'time>';
+						$gpx .=  $this->linksToGPX( $data ) ;
 
 					break;
 
-				case 'desc':
+					case 'url':
 
-					$gpx .= '<' . $this->nss . 'desc>' . htmlentities( $data ) . '</' . $this->nss . 'desc>';
-
-					break;
-
-				case 'sym':
-
-					$gpx .= '<' . $this->nss . 'sym>' . htmlentities( $data ) . '</' . $this->nss . 'sym>';
+						$gpx .= '<' . $this->nss . 'url>' . htmlentities( $data ) . '</' . $this->nss . 'url>';
 
 					break;
 
-				case 'type':
+					case 'ele':
 
-					$gpx .= '<' . $this->nss . 'type>' . htmlentities( $data ) . '</' . $this->nss . 'type>';
-
-					break;
-
-				case 'author':
-
-					$gpx .= $this->authorToGPX( $data );
+						$gpx .= '<' . $this->nss . 'ele>' . htmlentities( $data ) . '</' . $this->nss . 'ele>';
 
 					break;
 
-				case 'copyright':
+					case 'time':
 
-					$gpx .= $this->copyrightToGPX( $data );
+						$gpx .= '<' . $this->nss . 'time>' . htmlentities( $data ) . '</' . $this->nss . 'time>';
+                	
+					break;
+
+					case 'desc':
+
+						$gpx .= '<' . $this->nss . 'desc>' . htmlentities( $data ) . '</' . $this->nss . 'desc>';
 
 					break;
 
-				case 'extensions':
+					case 'sym':
 
-					$gpx .= $this->extensionsToGPX( $data );
+						$gpx .= '<' . $this->nss . 'sym>' . htmlentities( $data ) . '</' . $this->nss . 'sym>';
 
 					break;
 
-			} // end of switch
+					case 'type':
+
+						$gpx .= '<' . $this->nss . 'type>' . htmlentities( $data ) . '</' . $this->nss . 'type>';
+
+					break;
+
+					case 'author':
+
+						$gpx .= $this->authorToGPX( $data );
+
+					break;
+
+					case 'copyright':
+
+						$gpx .= $this->copyrightToGPX( $data );
+                        	
+					break;
+
+					case 'extensions':
+
+						$gpx .= $this->extensionsToGPX( $data );
+
+					break;
+
+				} // end of switch
+
+			} // end of foreach
 
 		} // end of foreach
 
