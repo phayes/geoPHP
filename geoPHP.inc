@@ -65,11 +65,11 @@ class geoPHP
       $args = $format;
     }
 
-    $processor_type = $type_map[$type];
-
-    if (!$processor_type) {
+    if (empty($type_map[$type])) {
       throw new exception('geoPHP could not find an adapter of type '.htmlentities($type));
     }
+    
+    $processor_type = $type_map[$type];
 
     $processor = new $processor_type();
 
