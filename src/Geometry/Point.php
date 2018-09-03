@@ -56,7 +56,13 @@ class Point extends Geometry {
         }
     }
 
+    /**
+     * @param array $coordinates
+     * @return Point
+     * @throws \Exception
+     */
     public static function fromArray($coordinates) {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return (new \ReflectionClass(get_called_class()))->newInstanceArgs($coordinates);
     }
 

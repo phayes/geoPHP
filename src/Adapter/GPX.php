@@ -50,11 +50,6 @@ class GPX implements GeoAdapter {
 	 * @throws \Exception If GPX is not a valid XML
      */
     public function read($gpx, $allowedElements = null) {
-        // Converts XML tags to lower-case (DOMDocument functions are case sensitive)
-		$gpx = preg_replace_callback("/(<\/?\w+)(.*?>)/", function ($m) {
-					return strtolower($m[1]) . $m[2];
-				}, $gpx);
-
 		$this->gpxTypes = new GpxTypes($allowedElements);
 
 		//libxml_use_internal_errors(true); // why?
@@ -78,6 +73,19 @@ class GPX implements GeoAdapter {
 
         try {
             $geom = $this->geomFromXML($xmlObject);
+            if ($geom->isEmpty()) {
+                /* Geometry was empty but maybe because its tags was not lower cased.
+                   We try to lower-case tags and try to run again, but just once.
+                */
+                $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,2);
+                $caller = isset($backtrace[1]['function']) ? $backtrace[1]['function'] : null;
+                if ($caller && $caller !== __FUNCTION__) {
+                    $gpx = preg_replace_callback("/(<\/?\w+)(.*?>)/", function ($m) {
+                        return strtolower($m[1]) . $m[2];
+                    }, $gpx);
+                    $geom = $this->read($gpx, $allowedElements);
+                }
+            }
         } catch (\Exception $e) {
             throw new \Exception("Cannot Read Geometry From GPX: " . $gpx);
         }
