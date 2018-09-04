@@ -77,14 +77,26 @@ class KML implements GeoAdapter {
         $placemark_elements = $this->xmlObject->getElementsByTagName('placemark');
         if ($placemark_elements->length) {
             foreach ($placemark_elements as $placemark) {
+                $data = [];
+                /** @var Geometry|null $geometry */
+                $geometry = null;
                 foreach ($placemark->childNodes as $child) {
                     // Node names are all the same, except for MultiGeometry, which maps to GeometryCollection
                     $node_name = $child->nodeName == 'multigeometry' ? 'geometrycollection' : $child->nodeName;
                     if (array_key_exists($node_name, geoPHP::getGeometryList())) {
                         $function = 'parse' . geoPHP::getGeometryList()[$node_name];
-                        $geometries[] = $this->$function($child);
+                        $geometry = $this->$function($child);
+                    } else if ($child->nodeType === 1) {
+                        $data[$child->nodeName] = $child->nodeValue;
                     }
                 }
+                if ($geometry) {
+                    if (count($data)) {
+                        $geometry->setData($data);
+                    }
+                    $geometries[] = $geometry;
+                }
+                $geometries[] = $geometry;
             }
             return new GeometryCollection($geometries);
         } else {
