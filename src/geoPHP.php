@@ -106,8 +106,7 @@ class geoPHP {
 
             $detected = geoPHP::detectFormat($data);
             if (!$detected) {
-                // FIXME exception instead
-                return false;
+                throw new \Exception("Can not detect format");
             }
             $format = explode(':', $detected);
             $type = array_shift($format);
@@ -296,6 +295,9 @@ class geoPHP {
             return null;
         }
         if (count($geometryTypes) == 1) {
+            if ($geometryTypes[0] === Geometry::GEOMETRY_COLLECTION) {
+                return new GeometryCollection($geometries);
+            }
             if (count($geometries) == 1) {
                 return $geometries[0];
             } else {
