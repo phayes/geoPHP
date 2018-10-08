@@ -42,7 +42,7 @@ abstract class Collection extends Geometry {
                     $this->isMeasured = true;
                 }
             } else {
-                throw new \Exception("Cannot create a collection with non-geometries");
+                throw new \Exception("Cannot create a collection with non-geometries (" . gettype($components[$i]) . ")");
             }
         }
         $this->components = $components;

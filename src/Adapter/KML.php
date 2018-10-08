@@ -66,7 +66,7 @@ class KML implements GeoAdapter {
         try {
             $geom = $this->geomFromXML();
         } catch (\Exception $e) {
-            throw new \Exception("Cannot Read Geometry From KML: " . $text);
+            throw new \Exception("Cannot Read Geometry From KML. " . $e->getMessage());
         }
 
         return $geom;
@@ -96,7 +96,6 @@ class KML implements GeoAdapter {
                     }
                     $geometries[] = $geometry;
                 }
-                $geometries[] = $geometry;
             }
             return new GeometryCollection($geometries);
         } else {
