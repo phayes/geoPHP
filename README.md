@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/phayes/geoPHP.svg?branch=master)](https://travis-ci.org/phayes/geoPHP)
+[![Build Status](https://travis-ci.org/funiq/geoPHP.svg?branch=master)](https://travis-ci.org/funiq/geoPHP)
 
 [geophp.net](https://geophp.net "GeoPHP homepage")
 
@@ -26,7 +26,7 @@ Getting Started
  * The lastest stable version can always be downloaded at: <https://phayes.github.io/bin/current/geoPHP/geoPHP.tar.gz>
  * Read the API Reference at: <https://geophp.net/api.html>
  * Examples
-   * Using geoPHP as a GIS format converter: <http://github.com/phayes/geoPHP/wiki/Example-format-converter>
+   * Using geoPHP as a GIS format converter: <http://github.com/funiq/geoPHP/wiki/Example-format-converter>
  * Other Interesting Links:
    * Learn about GEOS integration at: <https://geophp.net/geos.html>
 

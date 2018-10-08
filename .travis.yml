@@ -7,8 +7,12 @@ before_script:
 
 env: GEOPHP_RUN_TESTS=1
 
+cache:
+  directories:
+  - $HOME/.composer/cache/files
+
 install:
-  - composer install --no-interaction
+  - composer install --prefer-dist --no-interaction
   # TODO Install geos library -- as a matrix test
   # TODO optionally set up a postgis database for testing
 
@@ -19,11 +23,11 @@ script:
 
 # run tests on the following versions
 php:
-  - 5.4
   - 5.5
   - 5.6
   - 7.0
   - 7.1
+  - 7.2
   - hhvm
 
 matrix:
