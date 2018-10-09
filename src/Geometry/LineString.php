@@ -304,7 +304,7 @@ class LineString extends Curve {
 	/**
 	 * Returns the cumulative elevation gain of the LineString
 	 *
-	 * @param int $verticalTolerance Smoothing factor filtering noisy elevation data.
+	 * @param int|float|null $verticalTolerance Smoothing factor filtering noisy elevation data.
 	 *      Its unit equals to the z-coordinates unit (meters for geographical coordinates)
 	 *      If the elevation data comes from a DEM, a value around 3.5 can be acceptable.
 	 *
@@ -328,7 +328,7 @@ class LineString extends Curve {
 	/**
 	 * Returns the cumulative elevation loss of the LineString
 	 *
-	 * @param int $verticalTolerance Smoothing factor filtering noisy elevation data.
+	 * @param int|float|null $verticalTolerance Smoothing factor filtering noisy elevation data.
 	 *      Its unit equals to the z-coordinates unit (meters for geographical coordinates)
 	 *      If the elevation data comes from a DEM, a value around 3.5 can be acceptable.
 	 *

@@ -135,18 +135,18 @@ abstract class MultiGeometry extends Collection {
         }
     }
 
-    public function elevationGain($vertical_tolerance = 0) {
+    public function elevationGain($verticalTolerance = 0) {
         $gain = null;
         foreach ($this->components as $component) {
-            $gain += $component->elevationGain($vertical_tolerance);
+            $gain += $component->elevationGain($verticalTolerance);
         }
         return $gain;
     }
 
-    public function elevationLoss($vertical_tolerance = 0) {
+    public function elevationLoss($verticalTolerance = 0) {
         $loss = null;
         foreach ($this->components as $component) {
-            $loss += $component->elevationLoss($vertical_tolerance);
+            $loss += $component->elevationLoss($verticalTolerance);
         }
         return $loss;
     }

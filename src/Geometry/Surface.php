@@ -75,11 +75,11 @@ abstract class Surface extends Collection {
         return null;
     }
 
-    public function elevationGain($tolerance) {
+    public function elevationGain($verticalTolerance = 0) {
         return null;
     }
 
-    public function elevationLoss($tolerance) {
+    public function elevationLoss($verticalTolerance = 0) {
         return null;
     }
 

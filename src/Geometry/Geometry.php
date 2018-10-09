@@ -232,9 +232,9 @@ abstract class Geometry {
 
 	abstract public function zDifference();
 
-	abstract public function elevationGain($vertical_tolerance);
+	abstract public function elevationGain($verticalTolerance = 0);
 
-	abstract public function elevationLoss($vertical_tolerance);
+	abstract public function elevationLoss($verticalTolerance = 0);
 
 
     // Public: Standard -- Common to all geometries

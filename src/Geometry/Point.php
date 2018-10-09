@@ -312,11 +312,11 @@ class Point extends Geometry {
         return null;
     }
 
-    public function elevationGain($vertical_tolerance) {
+    public function elevationGain($verticalTolerance = 0) {
         return null;
     }
 
-    public function elevationLoss($vertical_tolerance) {
+    public function elevationLoss($verticalTolerance = 0) {
         return null;
     }
 
