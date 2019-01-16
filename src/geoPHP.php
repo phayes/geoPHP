@@ -285,16 +285,20 @@ class geoPHP {
          */
 
         $geometryTypes = [];
+        $hasData = false;
         foreach ($geometries as $item) {
             if ($item) {
                 $geometryTypes[] = $item->geometryType();
+                if ($item->getData() !== null) {
+                    $hasData = true;
+                }
             }
         }
         $geometryTypes = array_unique($geometryTypes);
         if (empty($geometryTypes)) {
             return null;
         }
-        if (count($geometryTypes) == 1) {
+        if (count($geometryTypes) == 1 && !$hasData) {
             if ($geometryTypes[0] === Geometry::GEOMETRY_COLLECTION) {
                 return new GeometryCollection($geometries);
             }
@@ -310,8 +314,9 @@ class geoPHP {
                 $class = self::CLASS_NAMESPACE . 'Geometry\\' . $newType;
                 return new $class($geometries);
             }
+        } else {
+            return new GeometryCollection($geometries);
         }
-        return new GeometryCollection($geometries);
     }
 
     // Detect a format given a value. This function is meant to be SPEEDY.
