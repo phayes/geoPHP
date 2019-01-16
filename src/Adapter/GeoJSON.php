@@ -186,10 +186,10 @@ class GeoJSON implements GeoAdapter {
      */
     private function geoJSONObjectToGeometryCollection($obj) {
         $geometries = array();
-        if (!isset($obj->geometries)) {
+        if (!property_exists($obj, 'geometries')) {
             throw new \Exception('Invalid GeoJSON: GeometryCollection with no component geometries');
         }
-        foreach ($obj->geometries as $comp_object) {
+        foreach ($obj->geometries ?: [] as $comp_object) {
             $geometries[] = $this->geoJSONObjectToGeometry($comp_object);
         }
         $collection = new GeometryCollection($geometries);
