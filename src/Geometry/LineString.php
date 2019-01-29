@@ -199,7 +199,9 @@ class LineString extends Curve {
                             cos(deg2rad(abs($point->x() - $next_point->x())))
                     )
             );
-            $distance += $degree;
+            if (!is_nan($degree)) {
+                $distance += $degree;
+            }
         }
         return $distance;
     }
