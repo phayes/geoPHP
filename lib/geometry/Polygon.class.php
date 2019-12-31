@@ -28,19 +28,30 @@ class Polygon extends Collection
     $a = '0';
     foreach($pts as $k => $p){
       $j = ($k + 1) % $c;
-      $a = $a + ($p->getX() * $pts[$j]->getY()) - ($p->getY() * $pts[$j]->getX());
+      if (geoPHP::bcmathInstalled()) {
+        $a = bcadd($a, bcsub(bcmul($p->getX(), $pts[$j]->getY()), bcmul($p->getY(), $pts[$j]->getX())));
+        if ($signed) $area = bcdiv($a, '2');
+        else $area = abs(bcdiv($a, '2'));
+      }
+      else {
+        $a += ($p->getX() * $pts[$j]->getY()) - ($p->getY() * $pts[$j]->getX());
+        if ($signed) $area = ($a / 2);
+        else $area = abs(($a / 2));
+      }
     }
-    
-    if ($signed) $area = ($a / 2);
-    else $area = abs(($a / 2));
-    
+
     if ($exterior_only == TRUE) {
       return $area;
     }
     foreach ($this->components as $delta => $component) {
       if ($delta != 0) {
         $inner_poly = new Polygon(array($component));
-        $area -= $inner_poly->area();
+        if (geoPHP::bcmathInstalled()) {
+          $area = bcsub($area, $inner_poly->area());
+        }
+        else {
+          $area -= $inner_poly->area();
+        }
       }
     }
     return $area;
@@ -68,14 +79,27 @@ class Polygon extends Collection
     
     foreach($pts as $k => $p){
       $j = ($k + 1) % $c;
-      $P = ($p->getX() * $pts[$j]->getY()) - ($p->getY() * $pts[$j]->getX());
-      $cn['x'] = $cn['x'] + ($p->getX() + $pts[$j]->getX()) * $P;
-      $cn['y'] = $cn['y'] + ($p->getY() + $pts[$j]->getY()) * $P;
+      if (geoPHP::bcmathInstalled()) {
+        $P = bcsub(bcmul($p->getX(), $pts[$j]->getY()), bcmul($p->getY(), $pts[$j]->getX()));
+        $cn['x'] = bcadd($cn['x'], bcmul(bcadd($p->getX(), $pts[$j]->getX()), $P));
+        $cn['y'] = bcadd($cn['y'], bcmul(bcadd($p->getY(), $pts[$j]->getY()), $P));
+      }
+      else {
+        $P = ($p->getX() * $pts[$j]->getY()) - ($p->getY() * $pts[$j]->getX());
+        $cn['x'] = $cn['x'] + ($p->getX() + $pts[$j]->getX()) * $P;
+        $cn['y'] = $cn['y'] + ($p->getY() + $pts[$j]->getY()) * $P;
+      }
     }
-    
-    $cn['x'] = $cn['x'] / ( 6 * $a);
-    $cn['y'] = $cn['y'] / ( 6 * $a);
-    
+
+    if (geoPHP::bcmathInstalled()) {
+      $cn['x'] = bcdiv($cn['x'], bcmul('6', $a));
+      $cn['y'] = bcdiv($cn['y'], bcmul('6', $a));
+    }
+    else {
+      $cn['x'] = $cn['x'] / ( 6 * $a);
+      $cn['y'] = $cn['y'] / ( 6 * $a);
+    }
+
     $centroid = new Point($cn['x'], $cn['y']);
     return $centroid;
   }
@@ -176,10 +200,15 @@ class Polygon extends Collection
       && $point->y() <= max($vertex1->y(), $vertex2->y())
       && $point->x() <= max($vertex1->x(), $vertex2->x())
       && $vertex1->y() != $vertex2->y()) {
-        $xinters = 
-          ($point->y() - $vertex1->y()) * ($vertex2->x() - $vertex1->x())
-          / ($vertex2->y() - $vertex1->y()) 
-          + $vertex1->x();
+        if (extension_loaded('bcmath')) {
+          $xinters = bcadd(bcdiv(bcmul(bcsub($point->y(), $vertex1->y()), bcsub($vertex2->x(), $vertex1->x())), bcsub($vertex2->y(), $vertex1->y())), $vertex1->x());
+        }
+        else {
+          $xinters =
+            ($point->y() - $vertex1->y()) * ($vertex2->x() - $vertex1->x())
+            / ($vertex2->y() - $vertex1->y())
+            + $vertex1->x();
+        }
         if ($xinters == $point->x()) {
           // Check if point is on the polygon boundary (other than horizontal)
           return $pointOnBoundary ? TRUE : FALSE;

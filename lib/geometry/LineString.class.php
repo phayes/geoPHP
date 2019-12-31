@@ -69,7 +69,20 @@ class LineString extends Collection
     foreach ($this->getPoints() as $delta => $point) {
       $previous_point = $this->geometryN($delta);
       if ($previous_point) {
-        $length += sqrt(pow(($previous_point->getX() - $point->getX()), 2) + pow(($previous_point->getY()- $point->getY()), 2));
+        if (geoPHP::bcmathInstalled()) {
+          $length = bcadd(
+            $length,
+            bcsqrt(
+              bcadd(
+                bcpow(bcsub($previous_point->getX(),$point->getX()), '2'),
+                bcpow(bcsub($previous_point->getY(), $point->getY()), '2')
+              )
+            )
+          );
+        }
+        else {
+          $length += sqrt(pow(($previous_point->getX() - $point->getX()), 2) + pow(($previous_point->getY()- $point->getY()), 2));
+        }
       }
     }
     return $length;
@@ -88,17 +101,45 @@ class LineString extends Collection
       $lon1 = deg2rad($point->getX());
       $lon2 = deg2rad($next_point->getX());
       $dlon = $lon2 - $lon1;
-      $length +=
-        $radius *
+      if (geoPHP::bcmathInstalled()) {
+        $length = bcadd(
+          $length,
+          bcmul(
+            $radius,
+            atan2(
+              bcsqrt(
+                bcadd(
+                  bcpow(bcmul(cos($lat2), sin($dlon)), '2'),
+                  bcpow(
+                    bcsub(
+                      bcmul(cos($lat1), sin($lat2)),
+                      bcmul(bcmul(sin($lat1), cos($lat2)), cos($dlon))
+                    ),
+                    '2'
+                  )
+                )
+              ),
+              bcadd(
+                bcmul(sin($lat1), sin($lat2)),
+                bcmul(bcmul(cos($lat1), cos($lat2)), cos($dlon))
+              )
+            )
+          )
+        );
+      }
+      else {
+        $length +=
+          $radius *
           atan2(
             sqrt(
               pow(cos($lat2) * sin($dlon), 2) +
-                pow(cos($lat1) * sin($lat2) - sin($lat1) * cos($lat2) * cos($dlon), 2)
+              pow(cos($lat1) * sin($lat2) - sin($lat1) * cos($lat2) * cos($dlon), 2)
             )
             ,
             sin($lat1) * sin($lat2) +
-              cos($lat1) * cos($lat2) * cos($dlon)
+            cos($lat1) * cos($lat2) * cos($dlon)
           );
+      }
     }
     // Returns length in meters.
     return $length;
@@ -111,14 +152,36 @@ class LineString extends Collection
       $point = $points[$i];
       $next_point = $points[$i+1];
       if (!is_object($next_point)) {continue;}
-      $degree = rad2deg(
-        acos(
-          sin(deg2rad($point->getY())) * sin(deg2rad($next_point->getY())) +
+      if (geoPHP::bcmathInstalled()) {
+        $degree = rad2deg(
+          acos(
+            bcadd(
+              bcmul(
+                sin(deg2rad($point->getY())),
+                sin(deg2rad($next_point->getY()))
+              ),
+              bcmul(
+                bcmul(
+                  cos(deg2rad($point->getY())),
+                  cos(deg2rad($next_point->getY()))
+                ),
+                cos(deg2rad(abs(bcsub($point->getX(), $next_point->getX()))))
+              )
+            )
+          )
+        );
+        $degrees = bcadd($degrees, $degree);
+      }
+      else {
+        $degree = rad2deg(
+          acos(
+            sin(deg2rad($point->getY())) * sin(deg2rad($next_point->getY())) +
             cos(deg2rad($point->getY())) * cos(deg2rad($next_point->getY())) *
-              cos(deg2rad(abs($point->getX() - $next_point->getX())))
-        )
-      );
-      $degrees += $degree;
+            cos(deg2rad(abs($point->getX() - $next_point->getX())))
+          )
+        );
+        $degrees += $degree;
+      }
     }
     // Returns degrees
     return $degrees;
@@ -167,18 +230,35 @@ class LineString extends Collection
     $p3_x = $segment->endPoint()->x();
     $p3_y = $segment->endPoint()->y();
 
-    $s1_x = $p1_x - $p0_x;     $s1_y = $p1_y - $p0_y;
-    $s2_x = $p3_x - $p2_x;     $s2_y = $p3_y - $p2_y;
+    if (geoPHP::bcmathInstalled()) {
+      $s1_x = bcsub($p1_x, $p0_x);
+      $s1_y = bcsub($p1_y, $p0_y);
+      $s2_x = bcsub($p3_x, $p2_x);
+      $s2_y = bcsub($p3_y, $p2_y);
 
-    $fps = (-$s2_x * $s1_y) + ($s1_x * $s2_y);
-    $fpt = (-$s2_x * $s1_y) + ($s1_x * $s2_y);
+      $fps = bcadd(bcmul(bcmul('-1', $s2_x), $s1_y), bcmul($s1_x, $s2_y));
+      $fpt = bcadd(bcmul(bcmul('-1', $s2_x), $s1_y), bcmul($s1_x, $s2_y));
+    }
+    else {
+      $s1_x = $p1_x - $p0_x;     $s1_y = $p1_y - $p0_y;
+      $s2_x = $p3_x - $p2_x;     $s2_y = $p3_y - $p2_y;
+
+      $fps = (-$s2_x * $s1_y) + ($s1_x * $s2_y);
+      $fpt = (-$s2_x * $s1_y) + ($s1_x * $s2_y);
+    }
 
     if ($fps == 0 || $fpt == 0) {
       return FALSE;
     }
 
-    $s = (-$s1_y * ($p0_x - $p2_x) + $s1_x * ($p0_y - $p2_y)) / $fps;
-    $t = ( $s2_x * ($p0_y - $p2_y) - $s2_y * ($p0_x - $p2_x)) / $fpt;
+    if (geoPHP::bcmathInstalled()) {
+      $s = bcdiv(bcadd(bcmul(bcmul('-1', $s1_y), bcsub($p0_x, $p2_x)), bcmul($s1_x, bcsub($p0_y, $p2_y))), $fps);
+      $t = bcdiv(bcsub(bcmul($s2_x, bcsub($p0_y, $p2_y)), bcmul($s2_y, bcsub($p0_x, $p2_x))), $fpt);
+    }
+    else {
+      $s = (-$s1_y * ($p0_x - $p2_x) + $s1_x * ($p0_y - $p2_y)) / $fps;
+      $t = ( $s2_x * ($p0_y - $p2_y) - $s2_y * ($p0_x - $p2_x)) / $fpt;
+    }
 
     if ($s > 0 && $s < 1 && $t > 0 && $t < 1) {
       // Collision detected
