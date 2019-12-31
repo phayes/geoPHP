@@ -27,14 +27,13 @@ class Polygon extends Collection
     if((int)$c == '0') return NULL;
     $a = '0';
     foreach($pts as $k => $p){
+      $j = ($k + 1) % $c;
       if (geoPHP::bcmathInstalled()) {
-        $j = bcmod(bcadd($k, '1'), $c);
         $a = bcadd($a, bcsub(bcmul($p->getX(), $pts[$j]->getY()), bcmul($p->getY(), $pts[$j]->getX())));
         if ($signed) $area = bcdiv($a, '2');
         else $area = abs(bcdiv($a, '2'));
       }
       else {
-        $j = ($k + 1) % $c;
         $a += ($p->getX() * $pts[$j]->getY()) - ($p->getY() * $pts[$j]->getX());
         if ($signed) $area = ($a / 2);
         else $area = abs(($a / 2));
@@ -79,14 +78,13 @@ class Polygon extends Collection
     }
     
     foreach($pts as $k => $p){
+      $j = ($k + 1) % $c;
       if (geoPHP::bcmathInstalled()) {
-        $j = bcmod(bcadd($k, '1'), $c);
         $P = bcsub(bcmul($p->getX(), $pts[$j]->getY()), bcmul($p->getY(), $pts[$j]->getX()));
         $cn['x'] = bcadd($cn['x'], bcmul(bcadd($p->getX(), $pts[$j]->getX()), $P));
         $cn['y'] = bcadd($cn['y'], bcmul(bcadd($p->getY(), $pts[$j]->getY()), $P));
       }
       else {
-        $j = ($k + 1) % $c;
         $P = ($p->getX() * $pts[$j]->getY()) - ($p->getY() * $pts[$j]->getX());
         $cn['x'] = $cn['x'] + ($p->getX() + $pts[$j]->getX()) * $P;
         $cn['y'] = $cn['y'] + ($p->getY() + $pts[$j]->getY()) * $P;
