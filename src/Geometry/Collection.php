@@ -169,9 +169,18 @@ abstract class Collection extends Geometry {
         return isset($this->components[$n - 1]) ? $this->components[$n - 1] : null;
     }
 
-    // A collection is empty if it has no components.
+    /**
+     * A collection is not empty if it has at least one non empty component.
+     *
+     * @return bool
+     */
     public function isEmpty() {
-        return empty($this->components);
+        foreach ($this->components as $component) {
+            if (!$component->isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
