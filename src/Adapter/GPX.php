@@ -2,6 +2,8 @@
 
 namespace geoPHP\Adapter;
 
+use DOMDocument;
+use DOMElement;
 use geoPHP\Geometry\Collection;
 use geoPHP\geoPHP;
 use geoPHP\Geometry\Geometry;
@@ -55,7 +57,7 @@ class GPX implements GeoAdapter {
 		//libxml_use_internal_errors(true); // why?
 
         // Load into DOMDocument
-        $xmlObject = new \DOMDocument('1.0', 'UTF-8');
+        $xmlObject = new DOMDocument('1.0', 'UTF-8');
 		$xmlObject->preserveWhiteSpace = false;
         @$xmlObject->loadXML($gpx);
         if ($xmlObject === false) {
@@ -95,7 +97,7 @@ class GPX implements GeoAdapter {
 
 	/**
 	 * Parses the GPX XML and returns a geometry
-	 * @param \DOMDocument $xmlObject
+	 * @param DOMDocument $xmlObject
 	 * @return GeometryCollection|Geometry Returns the geometry representation of the GPX (@see geoPHP::buildGeometry)
 	 */
     protected function geomFromXML($xmlObject) {
@@ -138,7 +140,7 @@ class GPX implements GeoAdapter {
     }
 
     /**
-     * @param \DOMElement $node
+     * @param DOMElement $node
      * @return Point
      */
     protected function parsePoint($node) {
@@ -160,7 +162,7 @@ class GPX implements GeoAdapter {
     }
 
 	/**
-	 * @param \DOMDocument $xmlObject
+	 * @param DOMDocument $xmlObject
 	 * @return Point[]
 	 */
     protected function parseWaypoints($xmlObject) {
@@ -178,35 +180,37 @@ class GPX implements GeoAdapter {
     }
 
 	/**
-	 * @param \DOMDocument $xmlObject
+	 * @param DOMDocument $xmlObject
 	 * @return LineString[]
 	 */
     protected function parseTracks($xmlObject) {
 		if (!in_array('trk', $this->gpxTypes->get('gpxType'))) {
 			return [];
 		}
-        $lines = [];
+        $tracks = [];
         $trk_elements = $xmlObject->getElementsByTagName('trk');
         foreach ($trk_elements as $trk) {
-            $components = [];
+            $segments = [];
             /** @noinspection SpellCheckingInspection */
-            foreach ($this->childElements($trk, 'trkseg') as $trackSegment) {
+            foreach ($this->childElements($trk, 'trkseg') as $trkseg) {
+                $points = [];
                 /** @noinspection SpellCheckingInspection */
-                foreach ($this->childElements($trackSegment, 'trkpt') as $trkpt) {
+                foreach ($this->childElements($trkseg, 'trkpt') as $trkpt) {
                     /** @noinspection SpellCheckingInspection */
-                    $components[] = $this->parsePoint($trkpt);
+                    $points[] = $this->parsePoint($trkpt);
                 }
+                $segments[] = new LineString($points);
             }
-			$line = new LineString($components);
-			$line->setData($this->parseNodeProperties($trk, $this->gpxTypes->get('trkType')));
-			$line->setData('gpxType', 'track');
-			$lines[] = $line;
+			$track = count($segments) === 1 ? $segments[0] : new MultiLineString($segments);
+			$track->setData($this->parseNodeProperties($trk, $this->gpxTypes->get('trkType')));
+			$track->setData('gpxType', 'track');
+			$tracks[] = $track;
         }
-        return $lines;
+        return $tracks;
     }
 
 	/**
-	 * @param \DOMDocument $xmlObject
+	 * @param DOMDocument $xmlObject
 	 * @return LineString[]
 	 */
     protected function parseRoutes($xmlObject) {
