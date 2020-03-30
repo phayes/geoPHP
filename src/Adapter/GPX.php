@@ -196,15 +196,19 @@ class GPX implements GeoAdapter {
                 $points = [];
                 /** @noinspection SpellCheckingInspection */
                 foreach ($this->childElements($trkseg, 'trkpt') as $trkpt) {
-                    /** @noinspection SpellCheckingInspection */
                     $points[] = $this->parsePoint($trkpt);
                 }
-                $segments[] = new LineString($points);
+                // Avoids creating invalid LineString
+                $segments[] = new LineString(count($points) <> 1 ? $points : []);
             }
-			$track = count($segments) === 1 ? $segments[0] : new MultiLineString($segments);
-			$track->setData($this->parseNodeProperties($trk, $this->gpxTypes->get('trkType')));
-			$track->setData('gpxType', 'track');
-			$tracks[] = $track;
+            $track = count($segments) === 0
+                    ? new LineString()
+                    : (count($segments) === 1
+                            ? $segments[0]
+                            : new MultiLineString($segments));
+            $track->setData($this->parseNodeProperties($trk, $this->gpxTypes->get('trkType')));
+            $track->setData('gpxType', 'track');
+            $tracks[] = $track;
         }
         return $tracks;
     }
@@ -504,10 +508,13 @@ class GpxTypes {
 			'name', 'cmt', 'desc', 'src', 'link', 'number', 'type'
 	];
 	/**
+     * same as trkTypeElements
 	 * @var array Allowed elements in <rte>
 	 * @see http://www.topografix.com/gpx/1/1/#type_rteType
 	 */
-	public static $rteTypeElements = ['name', 'cmt', 'desc', 'src', 'link', 'number', 'type'];	// same as trkTypeElements
+	public static $rteTypeElements = [
+	        'name', 'cmt', 'desc', 'src', 'link', 'number', 'type'
+    ];
 	/**
 	 * @var array Allowed elements in <wpt>
 	 * @see http://www.topografix.com/gpx/1/1/#type_wptType
