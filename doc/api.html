@@ -254,8 +254,8 @@
             </span>
           </h3>
 
-          <pre>$poly1 = $geoPHP::load('POLYGON((30 10,10 20,20 40,40 40,30 10))','wkt');</pre>
-          <pre>$poly2 = $geoPHP::load('POLYGON((35 10,10 20,15 40,45 45,35 10),(20 30, 35 35, 30 20, 20 30))','wkt');</pre>
+          <pre>$poly1 = geoPHP::load('POLYGON((30 10,10 20,20 40,40 40,30 10))','wkt');</pre>
+          <pre>$poly2 = geoPHP::load('POLYGON((35 10,10 20,15 40,45 45,35 10),(20 30, 35 35, 30 20, 20 30))','wkt');</pre>
           <pre>$combined_poly = $poly1-&gt;union($poly2);</pre>
           <pre>$kml = $combined_poly-&gt;out('kml');</pre>
 
