@@ -288,7 +288,7 @@ class geoPHP
 
     // Detect geohash - geohash ONLY contains lowercase chars and numerics
     preg_match('/[a-z0-9]+/', $string, $matches);
-    if ($matches[0] == $string) {
+    if (!empty($matches) && $matches[0] == $string) {
       return 'geohash';
     }
 
