@@ -202,13 +202,11 @@ class WKB extends GeoAdapter
   }
 
   function writePoint($point) {
-    // Set the coords
-    if (!$point->isEmpty()) {
-      $wkb = pack('dd',$point->x(), $point->y());
-      return $wkb;
-    } else {
-      return '';
+    if ($point->isEmpty()) {
+      return pack('dd', NAN, NAN);
     }
+
+    return pack('dd', $point->x(), $point->y());
   }
 
   function writeLineString($line) {
