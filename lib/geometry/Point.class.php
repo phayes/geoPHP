@@ -20,7 +20,7 @@ class Point extends Geometry
   public function __construct($x = NULL, $y = NULL, $z = NULL) {
 
     // Check if it's an empty point
-    if ($x === NULL && $y === NULL) {
+    if (($x === NULL || is_nan($x)) && ($y === NULL || is_nan($y))) {
       $this->coords = array(NULL, NULL);
       $this->dimension = 0;
       return;
