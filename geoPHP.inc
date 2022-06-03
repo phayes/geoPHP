@@ -223,7 +223,7 @@ class geoPHP
   // It could make a mistake in XML detection if you are mixing or using namespaces in weird ways (ie, KML inside an RSS feed)
   static function detectFormat(&$input) {
     $mem = fopen('php://memory', 'r+');
-    fwrite($mem, $input, 11); // Write 11 bytes - we can detect the vast majority of formats in the first 11 bytes
+    fwrite($mem, (string) $input, 11); // Write 11 bytes - we can detect the vast majority of formats in the first 11 bytes
     fseek($mem, 0);
 
     $bytes = unpack("c*", fread($mem, 11));
